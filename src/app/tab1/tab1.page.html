@@ -7,11 +7,18 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <div >
+    <ion-item>
+      <ion-label>User</ion-label>
+      <ion-input [(ngModel)]="user"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>pass</ion-label>
+      <ion-input type="password" [(ngModel)]="pass"></ion-input>
+    </ion-item>
+    <ion-button *ngIf="loginForm" (click)="login()">Submit</ion-button>
+    <ion-button *ngIf="!loginForm" (click)="register()">Register</ion-button>
+    <ion-button *ngIf="isLogin" (click)="signout()">Sign Out</ion-button>
+    <a (click)="loginForm=!loginForm">{{loginForm?'Register new':'Login'}}</a>
+  </div>
 </ion-content>
