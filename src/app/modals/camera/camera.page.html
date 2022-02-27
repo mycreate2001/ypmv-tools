@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>camera</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-button (click)="takeImage()">Take Image</ion-button>
+
+  <image-cropper 
+    [imageBase64]="image"
+    [maintainAspectRatio]="true" 
+    [aspectRatio]="4 / 3" format="png"
+    (imageCropped)="imageCropped($event)" 
+    (imageLoaded)="imageLoaded()" 
+    (cropperReady)="cropperReady()"
+    (loadImageFailed)="loadImageFailed()">
+  </image-cropper>
+
+  <!-- <img [src]="croppedImage" /> -->
+</ion-content>
