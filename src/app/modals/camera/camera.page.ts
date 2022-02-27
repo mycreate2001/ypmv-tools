@@ -40,4 +40,14 @@ export class CameraPage implements OnInit {
     // console.log("image:",this.image);
   }
 
+  upload(event):Promise<void>{
+    console.log("upload started");
+    return new Promise((resolve,reject)=>{
+      const file=event.files[0];
+      if(!file) {console.log("cancel");return reject("cancel")}
+      console.log("file:",file);
+      return resolve(file);
+    })
+  }
+
 }

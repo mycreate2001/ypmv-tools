@@ -17,5 +17,7 @@
     (loadImageFailed)="loadImageFailed()">
   </image-cropper>
 
+  <input type="file" class="picker" accept="image/x-png,image/jpeg,image/gif" onchange="{()=>upload($event)}"/>
+
   <!-- <img [src]="croppedImage" /> -->
 </ion-content>
