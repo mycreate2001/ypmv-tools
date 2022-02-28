@@ -16,6 +16,7 @@ function correctNumber(key:string,str:string):number|string{
  * %<item>%     value of before item
  * %time%       current
  * %N%          type is number
+ * %RND%        random 0 ~ 10000
  * [array]      each elememt of array
  */
 export function fake(n:number=5,opts:object){
@@ -31,10 +32,16 @@ export function fake(n:number=5,opts:object){
                 out[key]=tmp[i%tmp.length];
                 return;
             }
+            //const
+            if(typeof tmp!='string'||!(tmp+"").includes("%")) {
+                out[key]=tmp;
+                return;
+            }
             //object
             tmp=makeObject('i',tmp,i);
             tmp=makeObject('time',tmp,new Date());
             tmp=makeObject(key,tmp,out[key]?out[key]:"");
+            tmp=makeObject('RND',tmp,Math.round(Math.random()*10000));
             tmp=correctNumber('N',tmp);
             out[key]=tmp;
         })

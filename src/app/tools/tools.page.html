@@ -8,17 +8,44 @@
   <ion-accordion-group>
     <ion-accordion [value]="view.group" *ngFor="let view of views;let vpos=index">
       <ion-item slot="header" color="light">
-        <ion-label>{{view.group}}</ion-label>
+        <ion-label>
+          {{view.group}}
+          <ion-badge slot="end">{{view.models.length}}</ion-badge>
+        </ion-label>
       </ion-item>
       <ion-list slot="content">
-        <ion-item *ngFor="let tool of view.data;let tpos=index">
+        <ion-item *ngFor="let model of view.models;let mpos=index" (click)="showDetail(model)">
           <ion-thumbnail slot="start">
-            <img [src]="tool.image">
+            <img [src]="model.image">
           </ion-thumbnail>
-          <ion-label>{{tool.name}}</ion-label>
+          <ion-label>
+            {{mpos+1}}. {{model.name}} 
+          </ion-label>
         </ion-item>
       </ion-list>
     </ion-accordion>
   </ion-accordion-group>
-  
 </ion-content>
+
+<ion-fab vertical="bottom" horizontal="start" slot="fixed" >
+  <ion-fab-button>
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+
+  <ion-fab-list side="top">
+    <ion-fab-button>
+      <ion-icon name="trail-sign-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>Group</ion-label>
+
+    <ion-fab-button>
+      <ion-icon name="hammer-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>Tools</ion-label>
+
+    <ion-fab-button>
+      <ion-icon name="barcode-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>Tool</ion-label>
+  </ion-fab-list>
+</ion-fab>
