@@ -1,9 +1,15 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>qrcode</ion-title>
+    <ion-buttons>
+      <ion-button (click)="stopScan()">
+        <ion-icon name="stop-circle-outline"></ion-icon>
+        <ion-label>Stop scanner</ion-label>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-
+  <video id="video" #video autoplay playsinline></video>
+  <canvas id="canvas" #canvas hidden></canvas>
 </ion-content>

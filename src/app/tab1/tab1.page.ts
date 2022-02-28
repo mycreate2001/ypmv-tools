@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CameraPage } from '../modals/camera/camera.page';
+import { QrcodePage } from '../modals/qrcode/qrcode.page';
 import { DisplayService } from '../services/display/display.service';
 import { AuthService } from '../services/firebase/auth.service';
 import { FirestoreService } from '../services/firebase/firestore.service';
@@ -69,6 +70,13 @@ export class Tab1Page {
     const PRG="upload"
     if(!this.image) return console.log("[%s] ERROR[1]: image is empty",PRG);
     this.storage.uploadImagebase64(this.image);
+  }
+
+  //test scan qr code
+  async scan(){
+    const data=await this.disp.showModal(QrcodePage);
+    if(data.role.toLowerCase()!='ok') return console.log("user cancel");
+    console.log("qrdata:",data.data);
   }
 
 }

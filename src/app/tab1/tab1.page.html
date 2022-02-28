@@ -23,4 +23,8 @@
   </div>
   <ion-button (click)="takeImage()">Take photo</ion-button>
   <ion-button *ngIf="image" (click)="upload()">Upload Image</ion-button>
+  <ion-button (click)="scan()">
+    <ion-icon name="qr-code"></ion-icon>
+    <ion-label>QR code</ion-label>
+  </ion-button>
 </ion-content>
