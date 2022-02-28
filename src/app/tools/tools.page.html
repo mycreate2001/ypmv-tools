@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>tools</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-accordion-group>
+    <ion-accordion [value]="view.group" *ngFor="let view of views;let vpos=index">
+      <ion-item slot="header" color="light">
+        <ion-label>{{view.group}}</ion-label>
+      </ion-item>
+      <ion-list slot="content">
+        <ion-item *ngFor="let tool of view.data;let tpos=index">
+          <ion-thumbnail slot="start">
+            <img [src]="tool.image">
+          </ion-thumbnail>
+          <ion-label>{{tool.name}}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-accordion>
+  </ion-accordion-group>
+  
+</ion-content>

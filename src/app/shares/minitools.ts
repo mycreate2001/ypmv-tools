@@ -11,3 +11,12 @@ export function compareObject(obj1:object,obj2:object):boolean{
         return tmp1==tmp2?true:false
     })
 }
+
+export function getList(arrs:any[],key:string="id"):any[]{
+    const outs=[];
+    arrs.forEach(arr=>{
+        if(outs.includes(arr[key])) return;
+        outs.push(arr[key]);
+    })
+    return outs;
+}
