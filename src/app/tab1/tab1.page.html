@@ -22,4 +22,5 @@
     <a (click)="loginForm=!loginForm">{{loginForm?'Register new':'Login'}}</a>
   </div>
   <ion-button (click)="takeImage()">Take photo</ion-button>
+  <ion-button *ngIf="image" (click)="upload()">Upload Image</ion-button>
 </ion-content>

@@ -16,7 +16,7 @@ export class FirestoreService {
   constructor() { 
     const app=initializeApp(environment.firebaseConfig);
     this.db=getFirestore(app);
-    connectFirestoreEmulator(this.db,'http://localhost',8080);//emulator
+    // connectFirestoreEmulator(this.db,'http://localhost',8080);//emulator
 
   }
 

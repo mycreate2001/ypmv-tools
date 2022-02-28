@@ -3,6 +3,7 @@ import { CameraPage } from '../modals/camera/camera.page';
 import { DisplayService } from '../services/display/display.service';
 import { AuthService } from '../services/firebase/auth.service';
 import { FirestoreService } from '../services/firebase/firestore.service';
+import { StorageService } from '../services/firebase/storage.service';
 
 @Component({
   selector: 'app-tab1',
@@ -14,10 +15,12 @@ export class Tab1Page {
   pass:string='';
   isLogin:boolean=false;
   loginForm:boolean=true;
+  image:any=null;
   constructor(
     private auth:AuthService,
     private db:FirestoreService,
-    private disp:DisplayService
+    private disp:DisplayService,
+    private storage:StorageService
     ) {}
   register(){
     return this.auth.register(this.user,this.pass)
@@ -56,7 +59,16 @@ export class Tab1Page {
     const {data,role}= await this.disp.showModal(CameraPage,{fix:false,ratio:3/2});
     if(role.toLowerCase()!='ok') return;
     console.log({image:data})
-    // console.log({result});
+    this.image=data;
+    // const base64=new Base64Handle(data);
+
+  }
+
+  //test upload image
+  upload(){
+    const PRG="upload"
+    if(!this.image) return console.log("[%s] ERROR[1]: image is empty",PRG);
+    this.storage.uploadImagebase64(this.image);
   }
 
 }

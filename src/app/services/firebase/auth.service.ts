@@ -16,7 +16,7 @@ export class AuthService {
   constructor() {
     const app=initializeApp(environment.firebaseConfig);
     this.auth=getAuth(app);
-    connectAuthEmulator(this.auth,'http://localhost:9099');//emulator
+    // connectAuthEmulator(this.auth,'http://localhost:9099');//emulator
   }
 
   /** login */

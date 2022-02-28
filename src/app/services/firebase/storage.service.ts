@@ -4,7 +4,7 @@ import {  getStorage,uploadString,ref,
           getDownloadURL,listAll,deleteObject,
           uploadBytesResumable,
           FirebaseStorage,          } from 'firebase/storage';
-// import { Base64 } from 'src/app/share/base64';
+import { Base64 } from 'src/app/shares/base64';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -24,11 +24,22 @@ export class StorageService {
     return uploadBytesResumable(ref(this.storage,path),data)
   }
 
-  /** upload image from base64 */
-  uploadImagebase64(base64,path="images/"){
-    // const {contentType,data}= new Base64(base64);
-    // if(path.endsWith("/")) path+=(new Date()).getTime()+".jpg"
-    // return uploadString(ref(this.storage,path),data,'base64',{contentType})
+  /**
+   * 
+   * @param base64 base64 from crop-image, eg:"data:image/png;base64,iVBORw0KGgoAAAANSU"
+   * @param path folder & file name of image, default is "images/" if path="<folder>/" filename automatic create
+   * @returns Promise<any>
+   */
+  uploadImagebase64(base64:string,path="images/"){
+    return new Promise((resolve,reject)=>{
+      if(!base64) return reject(new Error("image is empty"));
+      const {contentType,data}= new Base64(base64);
+      if(path.endsWith("/")) path+=(new Date()).getTime()+".jpg"      //auto create filename as jpg
+      uploadString(ref(this.storage,path),data,'base64',{contentType})
+      .then(result=>resolve(result))
+      .catch(err=>reject(err))
+    })
+    
   }
 
   /** delete file
