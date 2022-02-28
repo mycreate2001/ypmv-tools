@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { CameraPage } from '../modals/camera/camera.page';
+import { DisplayService } from '../services/display/display.service';
 import { AuthService } from '../services/firebase/auth.service';
 import { FirestoreService } from '../services/firebase/firestore.service';
 
@@ -12,7 +14,11 @@ export class Tab1Page {
   pass:string='';
   isLogin:boolean=false;
   loginForm:boolean=true;
-  constructor(private auth:AuthService,private db:FirestoreService) {}
+  constructor(
+    private auth:AuthService,
+    private db:FirestoreService,
+    private disp:DisplayService
+    ) {}
   register(){
     return this.auth.register(this.user,this.pass)
     .then(user=>{
@@ -43,6 +49,14 @@ export class Tab1Page {
       console.log("sign out");
       this.isLogin=false;
     })
+  }
+
+
+  async takeImage(){
+    const {data,role}= await this.disp.showModal(CameraPage,{fix:false,ratio:3/2});
+    if(role.toLowerCase()!='ok') return;
+    console.log({image:data})
+    // console.log({result});
   }
 
 }

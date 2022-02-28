@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { ModalController } from '@ionic/angular';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 
 @Component({
@@ -11,18 +12,26 @@ export class CameraPage implements OnInit {
   /** variable */
   image:any;
   croppedImage:any;
+  ratio:number=4/3;
+  fix:boolean=true;
   /** functions */
-  constructor() { }
+  constructor(private modal:ModalController) {
+    console.log("this:",this);
+  }
 
-  async takeImage(){
-    const image=await Camera.getPhoto({
+  takeImage(){
+    const image=Camera.getPhoto({
       quality:90,
       allowEditing:true,
       resultType:CameraResultType.Uri,
       source:CameraSource.Camera
     })
-    this.image=image.webPath;
-    console.log("image:",this.image);
+    .then(image=>{
+      this.image=image.webPath
+    })
+    .catch(err=>{
+      this.close(false);
+    })
   }
 
   imageCropped(event: ImageCroppedEvent) {
@@ -40,14 +49,10 @@ export class CameraPage implements OnInit {
     // console.log("image:",this.image);
   }
 
-  upload(event):Promise<void>{
-    console.log("upload started");
-    return new Promise((resolve,reject)=>{
-      const file=event.files[0];
-      if(!file) {console.log("cancel");return reject("cancel")}
-      console.log("file:",file);
-      return resolve(file);
-    })
+  close(isDone:boolean=true){
+    if(!isDone) return this.modal.dismiss(null,"cancel");
+    this.modal.dismiss(this.croppedImage,"OK");
   }
+
 
 }

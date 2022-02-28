@@ -1,23 +1,29 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="save"></ion-icon>
+        <ion-label>Save</ion-label>
+      </ion-button>
+    </ion-buttons>
     <ion-title>camera</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close(false)">
+        <ion-icon name="close"></ion-icon>
+        <ion-label>Cancel</ion-label>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-button (click)="takeImage()">Take Image</ion-button>
-
   <image-cropper 
     [imageBase64]="image"
-    [maintainAspectRatio]="true" 
-    [aspectRatio]="4 / 3" format="png"
+    [maintainAspectRatio]="fix" 
+    [aspectRatio]="ratio" format="png"
     (imageCropped)="imageCropped($event)" 
     (imageLoaded)="imageLoaded()" 
     (cropperReady)="cropperReady()"
     (loadImageFailed)="loadImageFailed()">
   </image-cropper>
-
-  <input type="file" class="picker" accept="image/x-png,image/jpeg,image/gif" onchange="{()=>upload($event)}"/>
-
-  <!-- <img [src]="croppedImage" /> -->
 </ion-content>
