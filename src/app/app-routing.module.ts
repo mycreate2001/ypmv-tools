@@ -9,7 +9,11 @@ const routes: Routes = [
   {
     path: 'camera',
     loadChildren: () => import('./modals/camera/camera.module').then( m => m.CameraPageModule)
+  },  {
+    path: 'qrcode',
+    loadChildren: () => import('./modals/qrcode/qrcode.module').then( m => m.QrcodePageModule)
   }
+
 ];
 @NgModule({
   imports: [
