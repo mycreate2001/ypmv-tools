@@ -5,5 +5,30 @@
 </ion-header>
 
 <ion-content>
-
+  <ion-list>
+    <ion-item *ngFor="let tool of tools">
+      <ion-thumbnail slot="start">
+        <img [src]="tool.image">
+      </ion-thumbnail>
+      <ion-label>{{tool.name}}</ion-label>
+    </ion-item>
+  </ion-list>
 </ion-content>
+<ion-fab vertical="bottom" horizontal="start" slot="fixed" >
+  <ion-fab-button>
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+
+  <ion-fab-list side="top">
+    <ion-fab-button>
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>input</ion-label>
+
+    <ion-fab-button (click)="qrcode()">
+      <ion-icon name="qr-code-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>scan</ion-label>
+
+  </ion-fab-list>
+</ion-fab>

@@ -13,14 +13,8 @@ const routes: Routes = [
   {
     path: 'qrcode',
     loadChildren: () => import('./modals/qrcode/qrcode.module').then( m => m.QrcodePageModule)
-  },  {
-    path: 'tool-detail',
-    loadChildren: () => import('./modals/tool-detail/tool-detail.module').then( m => m.ToolDetailPageModule)
   },
-  {
-    path: 'scan',
-    loadChildren: () => import('./scan/scan.module').then( m => m.ScanPageModule)
-  },
+  
 
 
 

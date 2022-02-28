@@ -44,14 +44,14 @@ export class QrcodePage implements OnInit {
     })
   }
 
-  stopScan(){
+  stopScan(cancel=true){
     if(this.timout) clearTimeout(this.timout);
     this.medias.video=false;
     const a=this.videoRef.nativeElement.srcObject.getVideoTracks()[0];
     a.enable=false;
     a.stop();
     this.videoStart=false;
-    this.modal.dismiss(null,"cancel");
+    if(cancel) this.modal.dismiss(null,"cancel");
   }
 
   checkImage(){
@@ -68,7 +68,7 @@ export class QrcodePage implements OnInit {
     const code=jsQR(imageData.data,width,height,{inversionAttempts:'attemptBoth'});
     if(code){
       console.log("code:",code);
-      this.stopScan();
+      this.stopScan(false);
       this.modal.dismiss(code,'OK');
     }
     else{
