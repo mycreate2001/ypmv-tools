@@ -4,6 +4,7 @@ const codeformats=[
 ]
 
 export interface CodeFormatData{
+    order:number;
     name:string;
     prefix?:string;
     subfix?:string;
@@ -15,6 +16,7 @@ export interface CodeFormatData{
 
 export function createFormat(extract:ExtractData[],opts:any={}):CodeFormatData{
     const df:CodeFormatData={
+        order:1,
         name:'',
         prefix:'',
         subfix:'',
@@ -26,12 +28,14 @@ export function createFormat(extract:ExtractData[],opts:any={}):CodeFormatData{
     return {...df,...opts,extractDatas:extract}
 }
 
+
 export interface ExtractData{
     name:string;
     no:number;
     start:number;
-    finish?:number;
-    ignores?:string[];
+    finish:number;
+    ignores:string;
+    delimiter:string;
     // startBy:string;
     // exitBy:string;
 }
@@ -42,15 +46,25 @@ export function createExtractData(name:string,opts:any={}):ExtractData{
         no:0,
         start:0,
         finish:0,
-        ignores:[]
+        ignores:'',
+        delimiter:','
     }
     return {...df,...opts,name}
 }
 
-export function analysisCode(code:string,formats:CodeFormatData[]):any{
+
+/**
+ * analysis code
+ * @param code testing code
+ * @param formats format of code
+ * @returns result of analysis
+ */
+export function analysisCode(code:string,formats:CodeFormatData|CodeFormatData[]):undefined|Object{
     const out:any={};
-    console.log({code,formats})
-    const result= formats.some(f=>{
+    // console.log({code,formats})
+    if(!code||!formats) return;
+    const result= [].concat(formats).some(f=>{
+        //checking condition
         if(f.length!=0 && code.length!=f.length) {
             console.log("case#1");
             return false ;
@@ -75,14 +89,17 @@ export function analysisCode(code:string,formats:CodeFormatData[]):any{
                 return false;
             }
         }
-        //return data;
+
+        //extract information
         const extractDatas=f.extractDatas;
         f.extractDatas.forEach(e=>{
-            let data=code.split(f.delimiter)[e.no];
+            let data="";
+            if(!e.no) data=code;
+            else data=code.split(f.delimiter)[e.no-1];
             if(!data) return;
-            if(e.finish) data=data.substring(e.start,e.finish)
-            else data=data.substring(e.start);
-            e.ignores.forEach(ignore=>{
+            if(e.finish) data=data.substring(e.start-1,e.finish-1)
+            else data=data.substring(e.start-1);
+            (e.ignores+"").split(e.delimiter) .forEach(ignore=>{
                 data=data.replace(new RegExp(ignore,'g'),"")
             })
             out[e.name]=data;
@@ -90,5 +107,23 @@ export function analysisCode(code:string,formats:CodeFormatData[]):any{
         console.log("case 6:OK, out:",out);
         return true;
     })
-    if(result) return out;
+    if(!result) return;
+    return out;
+}
+
+export function checkCode(code:string, format:CodeFormatData){
+    const out:any={};
+    out.length=(format.length && code.length!=format.length)?false:true;
+    out.prefix=(format.prefix && !code.startsWith(format.prefix))?false:true;
+    out.subfix=(format.subfix && !code.endsWith(format.subfix))?false:true
+    out.delimiter=code.includes(format.delimiter);
+    if(format.delimiter ) {
+        const arrs=code.split(format.delimiter);
+        if((arrs.length<=1)||(format.countData && arrs.length!=format.countData)){
+            out.countData=false;
+        }
+        else out.countData=true;
+    }
+    else  out.countData=true;
+    return out;
 }

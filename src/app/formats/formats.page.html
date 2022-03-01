@@ -1,38 +1,39 @@
 <ion-header>
   <ion-toolbar>
-    <ion-searchbar [(ngModel)]="code"></ion-searchbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/setting"></ion-back-button>
+    </ion-buttons>
+    <ion-searchbar 
+      color="light" 
+      [(ngModel)]="code" 
+      placeholder="tesing code" 
+      searchIcon="checkmark-circle"
+      (ionChange)="update()"
+      ></ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="scan()">
+        <ion-icon name="qr-code-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-accordion-group>
-    <ion-accordion *ngFor="let format of formats;let fpos=index">
-      <ion-item slot="header" color="light">
-        <ion-label>
-          [{{format.order}}]{{format.name}}
-          <ion-badge>{{check(format)}}</ion-badge>
-        </ion-label>
-      </ion-item>
-      <ion-card slot="content">
-        <ion-list>
-          <ion-item>
-            <ion-label color="primary">Name</ion-label>
-            <ion-input [(ngModel)]="format.name"></ion-input>
-          </ion-item>
-  
-          <ion-item>
-            <ion-label color="primary">Prefix</ion-label>
-            <ion-input [(ngModel)]="format.prefix"></ion-input>
-          </ion-item>
-  
-          <ion-item>
-            <ion-label color="primary">Subfix</ion-label>
-            <ion-input [(ngModel)]="format.subfix"></ion-input>
-          </ion-item>
-  
-  
-        </ion-list>
-      </ion-card>
-    </ion-accordion>
-  </ion-accordion-group>
+  <ion-list>
+    <ion-item button *ngFor="let format of formats" (click)="showDetail(format)">
+      <ion-text slot="start">{{format.order}}</ion-text>
+      <ion-label>
+        {{format.name}}
+        <ion-badge *ngIf="code" [color]="format.check?'primary':'danger'">
+          {{format.check?"OK":"NG"}}
+        </ion-badge>
+      </ion-label>
+      <ion-buttons slot="end">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
 </ion-content>

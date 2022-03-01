@@ -1,9 +1,122 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>format-detail</ion-title>
+<ion-header mode="ios">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="done(false)">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        <ion-label>Cancel</ion-label>
+      </ion-button>
+    </ion-buttons>
+    <ion-searchbar [(ngModel)]="code" (ionChange)="update()">
+
+    </ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="scan()">
+        <ion-icon name="qr-code"></ion-icon>
+        <ion-label>scan</ion-label>
+      </ion-button>
+      <ion-button>
+        <ion-icon name="chevron-down-circle"></ion-icon>
+        <ion-label>Save</ion-label>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content color="light" mode="ios">
+  <ion-card>
+    <ion-card-header>
+      Filter Information
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label color="primary">Name</ion-label>
+          <ion-input  [(ngModel)]="format.name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Order</ion-label>
+          <ion-input  type="number" [(ngModel)]="format.order"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Prefix</ion-label>
+          <ion-input  placeholder="(blank)" [(ngModel)]="format.prefix" (ionChange)="update()"></ion-input>
+          <ion-badge *ngIf="code" [color]="checks.prefix=='OK'?'primary':'danger'">{{checks.prefix}}</ion-badge>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Subfix</ion-label>
+          <ion-input  placeholder="(blank)" [(ngModel)]="format.subfix" (ionChange)="update()"></ion-input>
+          <ion-badge *ngIf="code" [color]="checks.subfix=='OK'?'primary':'danger'">{{checks.subfix}}</ion-badge>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Length</ion-label>
+          <ion-input  type="number" [(ngModel)]="format.length" (ionChange)="update()"></ion-input>
+          <ion-badge *ngIf="code"  [color]="checks.length=='OK'?'primary':'danger'">{{checks.length}}</ion-badge>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary" >Delimiter</ion-label>
+          <ion-input  placeholder="(blank)" [(ngModel)]="format.delimiter" (ionChange)="update()"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary" >Data Count</ion-label>
+          <ion-input type="number" [(ngModel)]="format.countData" (ionChange)="update()"></ion-input>
+          <ion-badge *ngIf="code" [color]="checks.countData=='OK'?'primary':'danger'">{{checks.countData}}</ion-badge>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
 
+  <ion-card>
+    <ion-card-header>
+      <ion-item lines="none">
+        <ion-label>
+          <b>Extract Inforation</b>
+        </ion-label>
+        <ion-buttons slot="end">
+          <ion-button (click)="delete()">
+            <ion-icon color="danger" name="trash"></ion-icon>
+           </ion-button>
+          <ion-button (click)="add()">
+            <ion-icon color="primary" name="add"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-accordion-group>
+        <ion-accordion *ngFor="let item of format.extractDatas">
+          <ion-item slot="header">
+            <ion-label>{{item.name}}
+            </ion-label>
+            <ion-badge *ngIf="code" color="dark">{{results[item.name]}}</ion-badge>
+          </ion-item>
+          <ion-list slot="content">
+            <ion-item>
+              <ion-label color="primary">Name</ion-label>
+              <ion-input placeholder="(blank)" [(ngModel)]="item.name"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label color="primary">Data Position</ion-label>
+              <ion-input type="number" [(ngModel)]="item.no" (ionChange)="update()"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label color="primary">Start</ion-label>
+              <ion-input type="number" [(ngModel)]="item.start" (ionChange)="update()"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label color="primary">End</ion-label>
+              <ion-input type="number" [(ngModel)]="item.finish" (ionChange)="update()"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label color="primary">Ignore strings</ion-label>
+              <ion-input placeholder="(blank)" [(ngModel)]="item.ignores" (ionChange)="update()"></ion-input>
+            </ion-item>
+            <ion-item *ngIf="item.ignores">
+              <ion-label color="primary">Delimiter for ignores</ion-label>
+              <ion-input placeholder="(blank)" [(ngModel)]="item.delimiter" (ionChange)="update()"></ion-input>
+            </ion-item>
+          </ion-list>
+        </ion-accordion>
+      </ion-accordion-group>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

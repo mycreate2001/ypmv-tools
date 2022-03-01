@@ -8,10 +8,6 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       {
-        path: 'tab3',
-        loadChildren: () => import('../tab3/tab3.module').then(m => m.Tab3PageModule)
-      },
-      {
         path: 'tools',
         loadChildren: () => import('../tools/tools.module').then( m => m.ToolsPageModule)
       },
@@ -24,13 +20,18 @@ const routes: Routes = [
         loadChildren: () => import('../scan/scan.module').then( m => m.ScanPageModule)
       },
       {
-        path: 'formats',
-        loadChildren: () => import('../formats/formats.module').then( m => m.FormatsPageModule)
-      },
-      {
         path: 'format-detail',
         loadChildren: () => import('../modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
       },
+      {
+        path: 'setting',
+        loadChildren: () => import('../setting/setting.module').then( m => m.SettingPageModule)
+      },
+      {
+        path:'formats',
+        loadChildren:()=>import('../formats/formats.module').then(m=>m.FormatsPageModule)
+      },
+
       {
         path: '',
         redirectTo: '/tabs/tools',

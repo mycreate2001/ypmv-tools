@@ -1,36 +1,73 @@
 import { Component, OnInit } from '@angular/core';
-import { analysisCode, CodeFormatData, createExtractData, createFormat, ExtractData } from '../shares/codeformat';
-import { fake, fakedata } from '../shares/fakedata';
+import { FormatDetailPage } from '../modals/format-detail/format-detail.page';
+import { QrcodePage } from '../modals/qrcode/qrcode.page';
+import { DisplayService } from '../services/display/display.service';
+import { analysisCode } from '../shares/codeformat';
 
 @Component({
   selector: 'app-formats',
   templateUrl: './formats.page.html',
   styleUrls: ['./formats.page.scss'],
 })
+
 export class FormatsPage implements OnInit {
-  formats:CodeFormatData[]=fakedata(20,fakeCode);
+  formats:any[]=[
+    {
+      name: "tool",
+      countData: 2,
+      delimiter: "-",
+      length: 0,
+      order: 0,
+      prefix: "T",
+      subfix: "",
+      extractDatas:[
+        {
+          finish: 0,
+          ignores: [],
+          name: "id",
+          no: 0,
+          start: 1
+        },
+        {
+          finish: 0,
+          ignores: [],
+          name: "modelid",
+          no: 1,
+          start: 0
+        }
+      ]
+    }
+  ]
   code:string='';
-  constructor() {
-    console.log(this.formats);
+  checkAll:boolean=true;
+  constructor(
+    private disp:DisplayService
+  ) {
+    // console.log(this.formats);
    }
 
   ngOnInit() {
   }
 
-  check(format:CodeFormatData){
-    // console.log("code:",this.code);
-    if(!this.code) return ""
-    const result=analysisCode(this.code,[format])
-    return result?"OK":"NG"
+  async scan(){
+    const {data,role}=await this.disp.showModal(QrcodePage,{},true);
+    if(role.toLowerCase()!='ok') return;
+    this.code=data.data;
   }
 
-}
 
-function fakeCode(i,n,outs):CodeFormatData{
-  const extractDatas:ExtractData[]=fakedata(20,fakeExtract)
-  return createFormat(extractDatas,{name:'code'+i,order:i})
-}
+  update(){
+    console.log("\nupdate");
+    this.checkAll=true;
+    this.formats.forEach(f=>{
+      const result= analysisCode(this.code,f);
+      f.check=result?true:false;
+      if(!f.check) this.checkAll=false;
+    })
+  }
 
-function fakeExtract(i,n,out):ExtractData{
-  return createExtractData('extract'+i)
+  async showDetail(format){
+    const result=await this.disp.showModal(FormatDetailPage,{format,code:this.code},true)
+  }
+
 }

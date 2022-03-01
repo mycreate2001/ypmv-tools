@@ -18,6 +18,7 @@ export class ScanPage implements OnInit {
 
   async qrcode(){
     let result=await this.disp.showModal(QrcodePage);
+    
     if(result.role.toLowerCase()!='ok'){console.log("cancel"); return;}
     console.log(result.data.data);
   }

@@ -14,6 +14,7 @@ const routes: Routes = [
     path: 'qrcode',
     loadChildren: () => import('./modals/qrcode/qrcode.module').then( m => m.QrcodePageModule)
   },
+
   
 
 ];
