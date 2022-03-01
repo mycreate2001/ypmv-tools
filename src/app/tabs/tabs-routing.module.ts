@@ -24,6 +24,14 @@ const routes: Routes = [
         loadChildren: () => import('../scan/scan.module').then( m => m.ScanPageModule)
       },
       {
+        path: 'formats',
+        loadChildren: () => import('../formats/formats.module').then( m => m.FormatsPageModule)
+      },
+      {
+        path: 'format-detail',
+        loadChildren: () => import('../modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
+      },
+      {
         path: '',
         redirectTo: '/tabs/tools',
         pathMatch: 'full'

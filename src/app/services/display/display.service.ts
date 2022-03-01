@@ -11,7 +11,8 @@ export class DisplayService {
   async showModal(component,props={}){
     const modal=await this.modal.create({
       component,
-      componentProps:props
+      componentProps:props,
+      backdropDismiss:false
     })
     await modal.present();
     return await modal.onDidDismiss();

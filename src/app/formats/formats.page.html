@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-searchbar [(ngModel)]="code"></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-accordion-group>
+    <ion-accordion *ngFor="let format of formats;let fpos=index">
+      <ion-item slot="header" color="light">
+        <ion-label>
+          [{{format.order}}]{{format.name}}
+          <ion-badge>{{check(format)}}</ion-badge>
+        </ion-label>
+      </ion-item>
+      <ion-card slot="content">
+        <ion-list>
+          <ion-item>
+            <ion-label color="primary">Name</ion-label>
+            <ion-input [(ngModel)]="format.name"></ion-input>
+          </ion-item>
+  
+          <ion-item>
+            <ion-label color="primary">Prefix</ion-label>
+            <ion-input [(ngModel)]="format.prefix"></ion-input>
+          </ion-item>
+  
+          <ion-item>
+            <ion-label color="primary">Subfix</ion-label>
+            <ion-input [(ngModel)]="format.subfix"></ion-input>
+          </ion-item>
+  
+  
+        </ion-list>
+      </ion-card>
+    </ion-accordion>
+  </ion-accordion-group>
+</ion-content>

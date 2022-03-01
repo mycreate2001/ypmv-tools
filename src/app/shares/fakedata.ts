@@ -49,3 +49,18 @@ export function fake(n:number=5,opts:object){
     }
     return outs;
 };
+
+/**
+ * make template data
+ * @param n number of array elements
+ * @param callback callback handler each element, function(i,n,results)
+ * @returns arrays (results)
+ */
+export function fakedata(n:number,callback:Function){
+    const outs=[];
+    for (let i=0;i<n;i++){
+        const out=callback(i,n,outs);
+        outs.push(out);
+    }
+    return outs;
+}
