@@ -55,7 +55,7 @@ export function compareArr(arr1:any[],arr2:any[],debug=true):boolean{
 export function getList(arrs:any[],key:string="id"):any[]{
     const outs=[];
     arrs.forEach(arr=>{
-        if(outs.includes(arr[key])) return;
+        if(arr[key]==undefined||outs.includes(arr[key])) return;
         outs.push(arr[key]);
     })
     return outs;

@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-searchbar [(ngModel)]="key" (ionChange)="search()"></ion-searchbar>
+    <ion-searchbar [(ngModel)]="key" (ionChange)="update()"></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
@@ -16,10 +16,10 @@
       <ion-list slot="content">
         <ion-item *ngFor="let model of view.models;let mpos=index" (click)="showDetail(model)">
           <ion-thumbnail slot="start">
-            <img [src]="model.image">
+            <img [src]="model.model.image">
           </ion-thumbnail>
           <ion-label>
-            {{mpos+1}}. {{model.name}} 
+            {{mpos+1}}. {{model.model.name}} 
           </ion-label>
         </ion-item>
       </ion-list>
@@ -38,10 +38,10 @@
     </ion-fab-button>
     <ion-label>Group</ion-label>
 
-    <ion-fab-button>
+    <ion-fab-button (click)="showDetail()">
       <ion-icon name="hammer-outline"></ion-icon>
     </ion-fab-button>
-    <ion-label>Tools</ion-label>
+    <ion-label>Model</ion-label>
 
     <ion-fab-button>
       <ion-icon name="barcode-outline"></ion-icon>

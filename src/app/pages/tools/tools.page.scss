@@ -1,24 +1,10 @@
-// ion-fab-button {
-//     margin-left: 140px;
-//     overflow: visible;
-//     position: relative;
-//   }
-//   ion-fab-list {
-//     ion-label {
-//       position: relative;
-//       top: 40px;
-//       right: 25px;
-//       color: white;
-//       background-color: rgba(0,0,0,0.7);
-//       line-height: 24px;
-//       padding: 4px 8px;
-//       border-radius: 4px;
-//     }
-//   }
-//   ion-fab {
-//     ion-badge {
-//       position: relative;
-//       top: 10px;
-//       left: 140px;
-//     }
-//   }
+ion-searchbar{
+    --box-shadow: none;
+    --border-radius:10px;
+}
+
+ion-accordion.accordion-expanding,
+  ion-accordion.accordion-expanded {
+    width: calc(100% - 32px);
+    margin: 16px auto;
+  }

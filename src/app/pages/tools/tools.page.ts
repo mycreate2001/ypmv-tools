@@ -4,6 +4,16 @@ import { DisplayService } from '../../services/display/display.service';
 import { fake } from '../../utils/fakedata'
 import { getList } from '../../utils/minitools';
 import { ModelData, ToolData } from '../../models/tools.model';
+import { searchObj, separateObj } from 'src/app/utils/data.handle';
+interface ModelExtend {
+  tools:ToolData[];
+  model:ModelData;
+}
+
+interface viewData {
+  group:string;
+  models:ModelExtend[]
+}
 
 @Component({
   selector: 'app-tools',
@@ -11,7 +21,8 @@ import { ModelData, ToolData } from '../../models/tools.model';
   styleUrls: ['./tools.page.scss'],
 })
 export class ToolsPage implements OnInit {
-  views:any[]=[];
+  views:viewData[]=[];
+  origin:viewData[]=[];
   groups:string[]=[];
   key:string="";
   models:ModelData[]=[];
@@ -37,10 +48,9 @@ export class ToolsPage implements OnInit {
       "https://www.gransforsbruk.com/wp-content/uploads/475-large-carving-axe-1440x1026.jpg", 
       "https://rukminim1.flixcart.com/image/416/416/jk2w7m80/multi-vise-tool/j/b/d/hand-saw-heavy-duty-plastic-handle-16-abbyhus-original-imaf7gkrbgg2zhtf.jpeg?q=70",       
     ]
-    const groups=["standard tools","Spare parts","Jigs"];
-    this.groups=groups;
-    const models=fake(names.length,{id:'%i%',name:names,group:groups,maintenance:100,image:images}) as ModelData[];
-    let tools=fake(1000,
+    this.groups=["standard tools","Spare parts","Jigs"];
+    this.models=fake(names.length,{id:'%i%',name:names,group:this.groups,maintenance:100,image:images}) as ModelData[];
+    this.tools=fake(1000,
       {
         id:'%i%%N%',
         startUse:new Date(),
@@ -49,39 +59,42 @@ export class ToolsPage implements OnInit {
         vitual:0,
         operation:0,
         function:0,
-        model:getList(models)
+        model:getList(this.models)
       }
     );
-    console.log({tools,groups,models})
-
-    this.views=groups.map(group=>{
-      return {
-        group,
-        models:models.filter(x=>x.group==group)
-        .map(model=>{
-          return {
-            ...model,
-            tools:tools.filter(y=>y.model==model.id)
-          }
-        })
-      }
-    })
-    console.log("views:",this.views);
-   }
-
-  ngOnInit() {
+      console.log("initvalue",{tools:this.tools,models:this.models})
   }
 
+  ngOnInit() {
+    this.update();
+  }
+
+  /** update data */
+
   //////////// ------------ Handle function -------------------
-  async showDetail(model){
-    const _model=JSON.parse(JSON.stringify(model));
-    const {role,data}=await this.disp.showModal(ToolDetailPage,{model:_model,groups:this.groups});
+  async showDetail(model?:ModelData){
+    const modelEx=model?JSON.parse(JSON.stringify(model)):null;
+    const ip=modelEx?{modelEx,groups:this.groups}:{groups:this.groups}
+    const {role,data}=await this.disp.showModal(ToolDetailPage,{...ip});
     if(role.toLowerCase()!='ok') return;
     console.log({data});
   }
 
-  search(){
-
+  update(){
+    const models=this.key.length>=2?searchObj(this.key,this.models):this.models;
+    this.views=this.makeView(models)
   }
+
+  makeView(models:ModelData[]):viewData[]{
+    let groups= separateObj(models,"group",{dataName:'models'});  //group=[{group,models}]
+    const results:viewData[]=groups.map(g=>{
+      const models:ModelExtend[]=g.models.map(m=>{
+        const tools=this.tools.filter(t=>t.model==m.id);
+        return {tools,model:m}
+      })
+      return {group:g.group,models}
+    });
+    return results;
+  } 
 
 }

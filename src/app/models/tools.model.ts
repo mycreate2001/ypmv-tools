@@ -16,8 +16,4 @@ export interface ToolData{
     operation:number;           // status of tool operation, o= OK
     function:number;            // status of tool function, 0=OK
     model:string;                   // model id
-    name?:string;                   // model.name
-    group?:string;                  // model.group
-    image?:string;                  // model.image
-    maintenance?:number ;           // model.maintenance/
 }
