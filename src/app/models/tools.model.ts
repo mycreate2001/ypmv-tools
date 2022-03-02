@@ -7,7 +7,7 @@ export interface ModelData{
     qty?:number;
 }
 
-export interface ToolDetail{
+export interface ToolData{
     id:string;                  // tool id
     startUse:Date;              // start use this tool
     endUse:String;                // destroy date

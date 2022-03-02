@@ -4,7 +4,7 @@ import { initializeApp } from 'firebase/app'
 import { getFirestore,doc,getDoc,getDocs,updateDoc,
          addDoc,collection,deleteDoc,setDoc,connectFirestoreEmulator
                                     } from 'firebase/firestore'
-import { compareObject } from '../../shares/minitools';
+import { compareObject } from '../../utils/minitools';
 
 
 @Injectable({

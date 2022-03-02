@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ToolDetailPage } from '../modals/tool-detail/tool-detail.page';
-import { DisplayService } from '../services/display/display.service';
-import { analysisCode, CodeFormatData, createExtractData, createFormat } from '../shares/codeformat';
-import { fake } from '../shares/fakedata'
-import { getList } from '../shares/minitools';
-import { ModelData } from '../shares/tools.model';
+import { ToolDetailPage } from '../../modals/tool-detail/tool-detail.page';
+import { DisplayService } from '../../services/display/display.service';
+import { fake } from '../../utils/fakedata'
+import { getList } from '../../utils/minitools';
+import { ModelData, ToolData } from '../../models/tools.model';
 
 @Component({
   selector: 'app-tools',
@@ -12,34 +11,19 @@ import { ModelData } from '../shares/tools.model';
   styleUrls: ['./tools.page.scss'],
 })
 export class ToolsPage implements OnInit {
-  /**
-   * tools=[
-   * {id:'001',name:'abc'},
-   * {}
-   * ]
-   */
   views:any[]=[];
   groups:string[]=[];
+  key:string="";
+  models:ModelData[]=[];
+  tools:ToolData[]=[];
   constructor(
     private disp:DisplayService
   ) {
-    //test canalysisCode
-    const formats:CodeFormatData[]=[
-      createFormat(
-        [
-          createExtractData('toolid'),
-          createExtractData('model',{no:1})
-        ],
-        {
-          delimiter:'-',
-          countData:1
-        }
-      )
-    ]
-    const xcode="001-abc";
-    console.log("test1:",analysisCode(xcode,formats));
     ///
-    const names=["Electric drill","Circular saw","Soldering iron","Electric screwdriver","Chainsaw","Nail gun","Hammer","Screwdriver","Mallet","Axe","Saw"]
+    const names=[
+      "Electric drill","Circular saw","Soldering iron","Electric screwdriver","Chainsaw",
+      "Nail gun","Hammer","Screwdriver","Mallet","Axe","Saw"
+    ]
     const images=[
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQLGiJXUT7lcXk00IiIxiRSIVSo9n3uDxUNg&usqp=CAU",
       "https://www.bosch-professional.com/binary/ocsmedia/optimized/750x422/o64925v54_GKS190_CS_pr-02.png",
@@ -88,11 +72,16 @@ export class ToolsPage implements OnInit {
   ngOnInit() {
   }
 
+  //////////// ------------ Handle function -------------------
   async showDetail(model){
     const _model=JSON.parse(JSON.stringify(model));
     const {role,data}=await this.disp.showModal(ToolDetailPage,{model:_model,groups:this.groups});
     if(role.toLowerCase()!='ok') return;
     console.log({data});
+  }
+
+  search(){
+
   }
 
 }

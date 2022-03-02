@@ -43,13 +43,13 @@
       <ion-input [(ngModel)]="model.maintenance" type="number"></ion-input>
     </ion-item>
 
-    <ion-item (click)="isDetial=!isDetial"> 
+    <ion-item (click)="isDetail=!isDetail"> 
       <ion-icon slot="start" name="journal-outline"></ion-icon>
       <ion-label>Quantity</ion-label>
       <ion-text >{{model.tools.length}}</ion-text>
-      <ion-icon slot="end" [name]="isDetial?'chevron-up-outline':'chevron-down-outline'"></ion-icon>
+      <ion-icon slot="end" [name]="isDetail?'chevron-up-outline':'chevron-down-outline'"></ion-icon>
     </ion-item>
-    <ion-item *ngIf="isDetial">
+    <ion-item *ngIf="isDetail">
       <ion-grid>
         <ion-row>
           <ion-col *ngFor="let tool of model.tools">{{tool.id}}</ion-col>

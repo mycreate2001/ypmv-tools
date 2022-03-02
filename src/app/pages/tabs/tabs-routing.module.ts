@@ -13,7 +13,7 @@ const routes: Routes = [
       },
       {
         path: 'tool-detail',
-        loadChildren: () => import('../modals/tool-detail/tool-detail.module').then( m => m.ToolDetailPageModule)
+        loadChildren: () => import('../../modals/tool-detail/tool-detail.module').then( m => m.ToolDetailPageModule)
       },
       {
         path: 'scan',
@@ -21,7 +21,7 @@ const routes: Routes = [
       },
       {
         path: 'format-detail',
-        loadChildren: () => import('../modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
+        loadChildren: () => import('../../modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
       },
       {
         path: 'setting',

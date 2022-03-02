@@ -34,6 +34,10 @@ export class CameraPage implements OnInit {
     })
   }
 
+  loadImageFailed(){
+    console.log("*** ERROR *** load image failed")
+  }
+
   imageCropped(event: ImageCroppedEvent) {
     this.croppedImage = event.base64;
   }

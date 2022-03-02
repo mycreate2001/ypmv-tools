@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { compareObject } from 'src/app/shares/minitools';
-import { ModelData } from 'src/app/shares/tools.model';
-
+import { ModelData } from 'src/app/models/tools.model';
+interface ModelDataExtend extends ModelData{
+  tools:any[]
+}
 @Component({
   selector: 'app-tool-detail',
   templateUrl: './tool-detail.page.html',
   styleUrls: ['./tool-detail.page.scss'],
 })
 export class ToolDetailPage implements OnInit {
-  model:ModelData;
+  model:ModelDataExtend;
   groups:string[]=[];
   backup:ModelData;
+  isDetail:boolean=false;
   constructor(
     private modal:ModalController
   ) {

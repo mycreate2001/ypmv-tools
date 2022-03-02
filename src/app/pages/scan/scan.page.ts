@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { QrcodePage } from '../modals/qrcode/qrcode.page';
-import { DisplayService } from '../services/display/display.service';
+import { QrcodePage } from '../../modals/qrcode/qrcode.page';
+import { DisplayService } from '../../services/display/display.service';
 
 @Component({
   selector: 'app-scan',
@@ -8,7 +8,7 @@ import { DisplayService } from '../services/display/display.service';
   styleUrls: ['./scan.page.scss'],
 })
 export class ScanPage implements OnInit {
-
+  tools=[];
   constructor(
     private disp:DisplayService
   ) { }

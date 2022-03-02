@@ -1,7 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import jsQR from 'jsqr'
-
+import { DisplayService } from 'src/app/services/display/display.service';
+const videospcs={facingMode:{exact:'enviroment'}}
 @Component({
   selector: 'app-qrcode',
   templateUrl: './qrcode.page.html',
@@ -22,10 +23,14 @@ export class QrcodePage implements OnInit {
 
   /** function */
   constructor(
-    private modal:ModalController
+    private modal:ModalController,
+    private disp:DisplayService
   ) { }
 
   ngOnInit() {
+    
+  }
+  ngAfterViewInit() {
     this.scan();
   }
 
@@ -39,7 +44,7 @@ export class QrcodePage implements OnInit {
     })
     .catch(err=>{
       this.videoStart=false;
-      console.log("start video error");
+      console.log("***ERR ***\nstart video error");
       console.dir(err);
     })
   }

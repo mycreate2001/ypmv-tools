@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActionSheetController, ActionSheetOptions, ModalController } from '@ionic/angular';
+import { ActionSheetController, ActionSheetOptions, AlertController, AlertOptions, ModalController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +8,8 @@ export class DisplayService {
 
   constructor(
     private modal:ModalController,
-    private act:ActionSheetController
+    private act:ActionSheetController,
+    private alert:AlertController
     ) { }
 
   /**
@@ -27,6 +28,13 @@ export class DisplayService {
     })
     await modal.present();
     return await modal.onDidDismiss();
+  }
+
+  async msgbox(msg:string,opts?:AlertOptions){
+    const _opts:AlertOptions={header:'Information',...opts,message:msg}
+    const alert=await this.alert.create(_opts)
+    alert.present();
+    return await alert.onDidDismiss();
   }
 
   async selectAction(opts:ActionSheetOptions){

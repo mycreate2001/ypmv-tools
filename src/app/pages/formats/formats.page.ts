@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormatDetailPage } from '../modals/format-detail/format-detail.page';
-import { QrcodePage } from '../modals/qrcode/qrcode.page';
-import { DisplayService } from '../services/display/display.service';
-import { analysisCode } from '../shares/codeformat';
+import { FormatDetailPage } from '../../modals/format-detail/format-detail.page';
+import { QrcodePage } from '../../modals/qrcode/qrcode.page';
+import { DisplayService } from '../../services/display/display.service';
+import { analysisCode } from '../../utils/codeformat';
 
 @Component({
   selector: 'app-formats',

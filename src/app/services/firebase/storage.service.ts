@@ -4,7 +4,7 @@ import {  getStorage,uploadString,ref,
           getDownloadURL,listAll,deleteObject,
           uploadBytesResumable,
           FirebaseStorage,          } from 'firebase/storage';
-import { Base64 } from 'src/app/shares/base64';
+import { Base64 } from 'src/app/utils/base64';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
