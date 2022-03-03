@@ -16,8 +16,8 @@ const routes: Routes = [
         loadChildren: () => import('../../modals/model/model.module').then( m => m.ToolDetailPageModule)
       },
       {
-        path: 'scan',
-        loadChildren: () => import('../scan/scan.module').then( m => m.ScanPageModule)
+        path: 'add',
+        loadChildren: () => import('../add/add.module').then( m => m.ScanPageModule)
       },
       {
         path: 'format-detail',

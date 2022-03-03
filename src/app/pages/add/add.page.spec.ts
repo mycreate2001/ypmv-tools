@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ScanPage } from './scan.page';
+import { ScanPage } from './add.page';
 
 describe('ScanPage', () => {
   let component: ScanPage;

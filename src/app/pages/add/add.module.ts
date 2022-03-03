@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ScanPageRoutingModule } from './scan-routing.module';
+import { ScanPageRoutingModule } from './add-routing.module';
 
-import { ScanPage } from './scan.page';
+import { ScanPage } from './add.page';
 
 @NgModule({
   imports: [

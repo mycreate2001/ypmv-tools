@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ScanPage } from './scan.page';
+import { ScanPage } from './add.page';
 
 const routes: Routes = [
   {

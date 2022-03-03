@@ -3,9 +3,9 @@ import { QrcodePage } from '../../modals/qrcode/qrcode.page';
 import { DisplayService } from '../../services/display/display.service';
 
 @Component({
-  selector: 'app-scan',
-  templateUrl: './scan.page.html',
-  styleUrls: ['./scan.page.scss'],
+  selector: 'app-add',
+  templateUrl: './add.page.html',
+  styleUrls: ['./add.page.scss'],
 })
 export class ScanPage implements OnInit {
   tools=[];
