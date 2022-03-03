@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ToolDetailPageRoutingModule } from './tool-detail-routing.module';
+import { ToolDetailPageRoutingModule } from './model-routing.module';
 
-import { ToolDetailPage } from './tool-detail.page';
+import { ToolDetailPage } from './model.page';
 
 @NgModule({
   imports: [

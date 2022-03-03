@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ToolDetailPage } from './tool-detail.page';
+import { ToolDetailPage } from './model.page';
 
 describe('ToolDetailPage', () => {
   let component: ToolDetailPage;

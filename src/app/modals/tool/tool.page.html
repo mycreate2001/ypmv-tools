@@ -1,0 +1,98 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start" (click)="done(false)">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+      <ion-label>Back</ion-label>
+    </ion-buttons>
+    <ion-title>Tool Detail</ion-title>
+    <ion-buttons slot="end">
+      <div *ngIf="isEdit">
+        <ion-button>
+          <ion-icon name="save-outline"></ion-icon>
+        </ion-button>
+        <ion-button>
+          <ion-icon color="danger" name="trash-outline"></ion-icon>
+        </ion-button>
+      </div>
+      <ion-button (click)="isEdit=!isEdit" >
+        <ion-icon [name]="isEdit?'book-outline':'create-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <img [src]="model.image">
+
+    <!-- tool information -->
+    <ion-item>
+      <ion-label>id</ion-label>
+      <ion-text>{{tool.id}}</ion-text>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>start use</ion-label>
+      <ion-text>{{tool.startUse|date:'yy-MMM-dd'}}</ion-text>
+    </ion-item>
+
+    <ion-item >
+      <ion-label>Last maintenance</ion-label>
+      <ion-text>{{tool.lastMaintenance|date:'yy-MMM-dd'}}</ion-text>
+    </ion-item>
+
+    <ion-accordion-group>
+      <ion-accordion>
+        <ion-item slot="header">
+          <ion-label>Status</ion-label>
+          <ion-text>{{(tool.vitual+tool.operation+tool.function)?"NG":"OK"}}</ion-text>
+        </ion-item>
+        <ion-list slot="content">
+          <!-- view page -->
+          <div *ngIf="!isEdit">
+            <ion-item>
+              <ion-label>Visual status</ion-label>
+              <ion-text>{{tool.visual?tool.visual:'OK'}}</ion-text>
+            </ion-item>
+      
+            <ion-item>
+              <ion-label>Operation status</ion-label>
+              <ion-text>{{tool.operation?tool.operation:'OK'}}</ion-text>
+            </ion-item>
+      
+            <ion-item>
+              <ion-label>Function status</ion-label>
+              <ion-text>{{tool.function?tool.function:'OK'}}</ion-text>
+            </ion-item>
+          </div>
+          <!-- edit page -->
+          <div *ngIf="isEdit">
+            <ion-item>
+              <ion-label>Visual status</ion-label>
+              <ion-select [(ngModel)]="tool.visual">
+                <ion-select-option [value]="pos" *ngFor="let status of visualStatus;let pos=index">{{status}}</ion-select-option>
+              </ion-select>
+            </ion-item>
+      
+            <ion-item>
+              <ion-label>Operation status</ion-label>
+              <ion-select [(ngModel)]="tool.operation">
+                <ion-select-option [value]="pos" *ngFor="let status of operationStatus;let pos=index">{{status}}</ion-select-option>
+              </ion-select>
+            </ion-item>
+      
+            <ion-item>
+              <ion-label>Function status</ion-label>
+              <ion-select [(ngModel)]="tool.function">
+                <ion-select-option [value]="pos" *ngFor="let status of functionStatus;let pos=index">{{status}}</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </ion-list>
+      </ion-accordion>
+    </ion-accordion-group>
+  
+   
+  </ion-list>
+  
+</ion-content>

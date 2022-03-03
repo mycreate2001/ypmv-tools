@@ -28,24 +28,7 @@
 </ion-content>
 
 <ion-fab vertical="bottom" horizontal="start" slot="fixed" >
-  <ion-fab-button>
+  <ion-fab-button (click)="showDetail()">
     <ion-icon name="add"></ion-icon>
   </ion-fab-button>
-
-  <ion-fab-list side="top">
-    <ion-fab-button>
-      <ion-icon name="trail-sign-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-label>Group</ion-label>
-
-    <ion-fab-button (click)="showDetail()">
-      <ion-icon name="hammer-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-label>Model</ion-label>
-
-    <ion-fab-button>
-      <ion-icon name="barcode-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-label>Tool</ion-label>
-  </ion-fab-list>
 </ion-fab>

@@ -13,7 +13,12 @@ const routes: Routes = [
   {
     path: 'qrcode',
     loadChildren: () => import('./modals/qrcode/qrcode.module').then( m => m.QrcodePageModule)
+  },  {
+    path: 'tool',
+    loadChildren: () => import('./modals/tool/tool.module').then( m => m.ToolPageModule)
   },
+
+
 
   
 

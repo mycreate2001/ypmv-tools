@@ -12,8 +12,8 @@ const routes: Routes = [
         loadChildren: () => import('../tools/tools.module').then( m => m.ToolsPageModule)
       },
       {
-        path: 'tool-detail',
-        loadChildren: () => import('../../modals/tool-detail/tool-detail.module').then( m => m.ToolDetailPageModule)
+        path: 'model',
+        loadChildren: () => import('../../modals/model/model.module').then( m => m.ToolDetailPageModule)
       },
       {
         path: 'scan',

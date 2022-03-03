@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ToolDetailPage } from '../../modals/tool-detail/tool-detail.page';
+import { ToolDetailPage } from '../../modals/model/model.page';
 import { DisplayService } from '../../services/display/display.service';
 import { fake } from '../../utils/fakedata'
 import { getList } from '../../utils/minitools';
