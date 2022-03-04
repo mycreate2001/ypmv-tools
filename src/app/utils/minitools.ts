@@ -86,6 +86,36 @@ export function digit(ip:any,len:number,texture:string=" ",align:string="left"):
 
 }
 
+/**
+ * make id diffrent from arrays
+ * @param arrs arrays, it need when want to check duplicate
+ * @param len the length of id
+ * @returns id
+ * @example const arrs=[{name:'abc',id:'001'},{name:'xyz',id:'002'}]
+ *          const id=makeId(3,arrs);//id='xxx'
+ */
+export function makeId(len:number=15,arrs:any|any[]=[]):string{
+    let id:string;
+    const _arrs=[].concat(arrs);
+    let done:boolean=false;
+    while(done==false){
+        id=makeRandStr(len);
+        if(!_arrs.find(x=>x.id==id)) done=true;
+    }
+    return id;
+}
+
+
+//private
+function makeRandStr(len:number=15){
+    const n=Math.ceil(len/10);
+    let str:string='';
+    for(let i=0;i<n;i++){
+        str+=Math.random().toString(36).substring(2,11)
+    }
+    return str.substring(0,len-1)
+}
+
 function makeTexture(n:number,texture:string):string{
     if(n<1) return "";
     let out=""
@@ -94,5 +124,7 @@ function makeTexture(n:number,texture:string):string{
     }
     return out;
 }
+
+
 
 //private
