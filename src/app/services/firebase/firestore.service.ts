@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { initializeApp } from 'firebase/app'
 import { getFirestore,doc,getDoc,getDocs,updateDoc,
-         addDoc,collection,deleteDoc,setDoc,connectFirestoreEmulator
+         addDoc,collection,deleteDoc,setDoc,connectFirestoreEmulator,
+         onSnapshot
                                     } from 'firebase/firestore'
 import { compareObject } from '../../utils/minitools';
 
@@ -11,7 +12,7 @@ import { compareObject } from '../../utils/minitools';
   providedIn: 'root'
 })
 export class FirestoreService {
-
+  private _offlineDatas:any={};
   private db:any;
   constructor() { 
     const app=initializeApp(environment.firebaseConfig);
@@ -23,10 +24,38 @@ export class FirestoreService {
   /** create refdb */
   connect(tbl:string){
     const that=this;
+    const _data=[];
+    let _callback:Function=null;
+    const del=(id:string)=>{
+      console.log("delete '%s'",id);
+      const i=_data.findIndex(x=>x.id==id);
+      if(i!=-1) _data.splice(i,1);
+    }
+    const _ctr=this.monitor(tbl,({updated,removed})=>{
+      removed.forEach(id=>del(id));
+      updated.forEach(data=>_data.push(data));
+      const data=JSON.parse(JSON.stringify(_data));
+      if(_callback) _callback(data);
+    })
     return{
-      async add(data:any){return await that.add(tbl,data)},
-      async get(id:string){return await that.get(tbl,id)},
-      async search(opts={}){ return await that.search(tbl,opts)},
+      disconnect(){
+        _ctr();
+        _callback=null
+      },
+      async add(data:any,debug){return await that.add(tbl,data,debug)},
+      get(id:string){
+        const out=_data.find(x=>x.id==id);
+        if(!out) return;
+        return JSON.parse(JSON.stringify(out))
+      },
+      search(opts={}){
+        const keys=Object.keys(opts);
+        const outs=_data.filter(data=>keys.every(key=>opts[key]==data[key]))||[];
+        return JSON.parse(JSON.stringify(outs))
+      },
+      onUpdate(callback:(data:any[])=>any){
+        _callback=callback;
+      },
       async delete(id:string){ return await that.delete(tbl,id)}
     }
   }
@@ -36,31 +65,9 @@ export class FirestoreService {
     return await deleteDoc(doc(this.db,tbl,id))
   }
 
-  /** create or update doc async */
-  async add2(tbl:string,data:any){
-
-    console.log("[%s]: start",tbl);
-    let {id,...rawData}=data;
-    if(rawData==undefined) {
-      console.log("[%s] case #0",tbl);
-      return new Error("data is error");}
-    //new record
-    if(!id) {
-      console.log("[%s] case #1",tbl);
-      return await addDoc(collection(this.db,tbl),data);
-    }
-    const origin=await this.get(tbl,id);
-    console.log("TEST-1, origin:",origin);
-    if(!origin || !compareObject(data,origin)){
-      console.log("[%s] case #2",tbl);
-      return await setDoc(doc(this.db,tbl,id),rawData)
-    }
-    console.log("[%s] case #3",tbl);
-    return id;
-  }
-
+  
   /** create or update doc */
-  add(tbl:string,data:any):Promise<any>{
+  add(tbl:string,data:any,debug:boolean=false):Promise<any>{
     console.log("add record to '%s'",tbl);
     return new Promise(async (resolve,reject)=>{
       let {id,...rawData}=data;
@@ -68,6 +75,7 @@ export class FirestoreService {
         try{
           const docRef=await addDoc(collection(this.db,tbl),data);
           id=docRef.id;
+          if(debug) console.log("add new data '%s'",id);
           return resolve(id);
         }
         catch(err){
@@ -81,6 +89,7 @@ export class FirestoreService {
       if(!origin ||!compareObject(data,origin)){/** new data with id */
         try{
           await updateDoc(doc(this.db,tbl,id),rawData);
+          if(debug) console.log("add new data '%s'",id);
           return resolve(id);
         }
         catch(err){
@@ -90,11 +99,10 @@ export class FirestoreService {
       }
 
       /** no need update */
-      console.log("not update");
+      if(debug) console.log("note update '%s'",id);
       return resolve(id);
     })
   }
-
 
   search(tbl:string,opts={}):Promise<any[]>{
     return new Promise(async (resolve,reject)=>{
@@ -124,6 +132,26 @@ export class FirestoreService {
       const docSnap=await getDoc(docRef);
       if(docSnap.exists()) return resolve({id,...docSnap.data()})
       return reject(new Error(`not exist doc '${id}'`));//nothing
+    })
+  }
+
+  monitor(tbl:string,callback:Function){
+    const c=collection(this.db,tbl);
+    return onSnapshot(c,snap=>{
+      const updated=[];
+      const removed=[];
+      snap.docChanges().forEach(change=>{
+        console.log("have update data");
+        if(change.type==='added'||change.type==='modified'){
+          const data=change.doc.data()
+          updated.push({...data,id:change.doc.id})
+        }else if(change.type==='removed'){
+          removed.push(change.doc.id);
+        }
+      });
+      if(updated.length+removed.length){
+        callback({updated,removed})
+      }
     })
   }
 }
