@@ -1,8 +1,10 @@
 <ion-header>
   <ion-toolbar>
+
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/setting"></ion-back-button>
     </ion-buttons>
+
     <ion-searchbar 
       color="light" 
       [(ngModel)]="code" 
@@ -10,25 +12,27 @@
       searchIcon="checkmark-circle"
       (ionChange)="update()"
       ></ion-searchbar>
+
     <ion-buttons slot="end">
-      <ion-button>
+      <ion-button (click)="showDetail()">
         <ion-icon name="add-outline"></ion-icon>
       </ion-button>
       <ion-button (click)="scan()">
         <ion-icon name="qr-code-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ion-list>
-    <ion-item button *ngFor="let format of formats" (click)="showDetail(format)">
+    <ion-item button *ngFor="let format of formats;let fpos=index" (click)="showDetail(format)">
       <ion-text slot="start">{{format.order}}</ion-text>
       <ion-label>
         {{format.name}}
-        <ion-badge *ngIf="code" [color]="format.check?'primary':'danger'">
-          {{format.check?"OK":"NG"}}
+        <ion-badge *ngIf="code" [color]="checks[fpos]=='OK'?'primary':'danger'">
+          {{checks[fpos]}}
         </ion-badge>
       </ion-label>
       <ion-buttons slot="end">

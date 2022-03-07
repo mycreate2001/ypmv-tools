@@ -14,9 +14,9 @@
         </ion-label>
       </ion-item>
       <ion-list slot="content">
-        <ion-item *ngFor="let model of view.models;let mpos=index" (click)="showDetail(model)">
+        <ion-item *ngFor="let model of view.models;let mpos=index" (click)="showDetail(model.model)">
           <ion-thumbnail slot="start">
-            <img [src]="model.model.image">
+            <img [src]="model.model.images[0]">
           </ion-thumbnail>
           <ion-label>
             {{mpos+1}}. {{model.model.name}} 
@@ -28,7 +28,19 @@
 </ion-content>
 
 <ion-fab vertical="bottom" horizontal="start" slot="fixed" >
-  <ion-fab-button (click)="showDetail()">
+  <ion-fab-button >
     <ion-icon name="add"></ion-icon>
   </ion-fab-button>
+  <ion-fab-list side="top">
+    <ion-fab-button (click)="showDetail()">
+      <ion-icon name="hammer-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>Tool</ion-label>
+
+    <ion-fab-button (click)="addCatelogy()">
+      <ion-icon name="pricetags-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>Category</ion-label>
+
+  </ion-fab-list>
 </ion-fab>

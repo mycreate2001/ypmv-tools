@@ -24,6 +24,15 @@ interface ShareDatabase{
   db:any[];
 }
 
+export interface ConnectData{
+  disconnect:Function;
+  add:Function;
+  get:Function;
+  search:Function;
+  onUpdate:Function;
+  delete:Function;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -56,26 +65,37 @@ export class FirestoreService {
    *                userdb.onUpdate((users)=>console.log("update users",users)) //handler update data
    *                userdb.disconnect() //disconnet
    */
-  connect(tbl:string){
+  connect(tbl:string):ConnectData{
     const that=this;
+    let offline=null;
+    let isNeedUpdate:boolean=true;         //first time run
+    /** not yet register this db */
     if(!this._offline[tbl]){//not exist
       this._offline[tbl]={db:[],ctr:null,callbacks:[]}
-    }
-    //each offline
-    const offline=this._offline[tbl] as ShareDatabase;
-    const id=makeId(15,offline.callbacks);
-    const del=(id:string)=>{
-      const i=offline.db.findIndex(x=>x.id==id);
-      if(i!=-1) offline.db.splice(i,1);
-    }
+      offline=this._offline[tbl];
+      // isNew=true;
+      offline.ctr=this.monitor(tbl,(added:any[],modified:any[],removed:string[])=>{
+        log("before update",{db:offline.db,added,modified,removed})
+        removed.forEach(id=>del(offline.db,id));
 
-    offline.ctr=this.monitor(tbl,(updated,removed)=>{
-      removed.forEach(id=>del(id));
-      updated.forEach(data=>offline.db.push(data));
-      const data=JSON.parse(JSON.stringify(offline.db));
-      if(!offline || !offline.callbacks || offline.callbacks.length) return;//error
-      offline.callbacks.forEach(x=>x.callback(data))
-    })
+        modified.forEach(m=>{
+          const i=offline.db.findIndex(x=>x.id==m.id);
+          if(i!=-1) offline.db[i]=m;
+        })
+
+        added.forEach(data=>offline.db.push(data));
+        
+        log("current db",offline.db);
+        if(!offline || !offline.callbacks || !offline.callbacks.length) {
+          log("callbacks error");return;
+        }
+        offline.callbacks.forEach(x=>x.callback(offline.db))
+      });
+      isNeedUpdate=false;
+    }
+    offline=this._offline[tbl] as ShareDatabase;
+    const id=makeId(15,offline.callbacks);
+    
     //return function
     return{
       /**
@@ -89,6 +109,7 @@ export class FirestoreService {
         if(pos!=-1) offline.callbacks.splice(pos,1)
         //unsubscribe
         if(!offline.callbacks.length) offline.ctr();
+        log("'%s' disconnect with '%s'",id,tbl,{offline,globalOffline:that._offline})
       },
 
       /**
@@ -135,8 +156,12 @@ export class FirestoreService {
         const pos=offline.callbacks.findIndex(x=>x.id==id);
         if(pos!=-1) offline.callbacks.splice(pos,1);
         offline.callbacks.push({id,callback});
+        if(isNeedUpdate){
+          callback(offline.db);
+          isNeedUpdate=false;
+        }
         //debug
-        log('onUpdate',{offline,globalOffline:that._offline})
+        log('onUpdate',{offline,globalOffline:that._offline,callback:callback.toString()})
       },
 
       /**
@@ -171,14 +196,16 @@ export class FirestoreService {
    * @example try{db.add('users',{userid:'123',name:'abc',age:21})}catch(err=>console.log(err))
    */
   add(tbl:string,data:any,debug:boolean=false):Promise<any>{
-    console.log("add record to '%s'",tbl);
+    if(debug) console.log("\nfirestore.add '%s'\n---------------",tbl,data);
     return new Promise(async (resolve,reject)=>{
-      let {id,...rawData}=data;
-      if(!id){/** new data without id */
+      let id=data['id'];
+      /** new data without id */
+      if(!id){
         try{
+          if(debug) console.log(`add new doc without...`);
           const docRef=await addDoc(collection(this.db,tbl),data);
           id=docRef.id;
-          if(debug) console.log("add new data '%s'",id);
+          if(debug) console.log(`done!, id="${id}"\n`);
           return resolve(id);
         }
         catch(err){
@@ -187,23 +214,19 @@ export class FirestoreService {
         }
       }
 
-      /** need update */
-      const origin=await this.get(tbl,id);
-      if(!origin ||!compareObject(data,origin)){/** new data with id */
+      /** create or override data with id */
+      else{
+        if(debug) console.log("create/overwrite record ");
         try{
-          await updateDoc(doc(this.db,tbl,id),rawData);
-          if(debug) console.log("add new data '%s'",id);
+          await setDoc(doc(this.db,tbl),data);
+          if(debug) console.log(`done! id="${id}"\n`);
           return resolve(id);
         }
         catch(err){
-          console.log("#ERR-02:",err);
+          console.log("err:",{err});
           return reject(err);
         }
       }
-
-      /** no need update */
-      if(debug) console.log("note update '%s'",id);
-      return resolve(id);
     })
   }
 
@@ -262,24 +285,38 @@ export class FirestoreService {
   monitor(tbl:string,callback:Function){
     const c=collection(this.db,tbl);
     return onSnapshot(c,snap=>{
-      const updated=[];
+      const modified=[];
       const removed=[];
+      const added=[];
       snap.docChanges().forEach(change=>{
         console.log("have update data");
-        if(change.type==='added'||change.type==='modified'){
+        if(change.type==='added'){
           const data=change.doc.data()
-          updated.push({...data,id:change.doc.id})
+          added.push({...data,id:change.doc.id})
+        }
+        if(change.type==='modified'){
+          const data=change.doc.data()
+          modified.push({...data,id:change.doc.id})
         }else if(change.type==='removed'){
           removed.push(change.doc.id);
         }
       });
-      if(updated.length+removed.length){
-        callback(updated,removed)
+      if(modified.length+removed.length+added.length){
+        callback(added,modified,removed)
       }
     })
   }
 }
 
 function log(msg,...args){
-  console.log('\n-----TEST-----\n'+msg,...args);
+  console.log('\n---------------\n'+msg,...args);
+}
+
+function del(arrs:any[],id:any){
+  if(!id) return -3;
+  if(!arrs || !Array.isArray(arrs)) return -2;
+  const pos=arrs.findIndex(x=>x.id==id);
+  if(pos==-1) return -1;
+  arrs.splice(pos,1);
+  return pos;
 }

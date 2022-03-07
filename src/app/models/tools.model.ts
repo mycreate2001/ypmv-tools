@@ -1,18 +1,68 @@
-export class ModelData{
-    id:string='';
-    name:string='';
-    group:string='';
-    maintenance:number=0;         // day of maintenance
-    image:string='';               // image
-    constructor(opts?:ModelData){
-        if(!opts) return;
-        Object.keys(this).forEach(key=>{
-            this[key]=opts[key]||this[key]
-        })
-    }
+import { createOpts } from "../utils/minitools";
+
+export interface SaveInfo{
+    userId:string;
+    createAt:string;
+    comment:string;
 }
 
-export interface ToolDataOptions{
+export interface SaveInfoOpts{
+    userId?:string;
+    createAt?:string;
+    comment?:string;
+}
+
+export function createSaveInf(opts?:SaveInfoOpts):SaveInfo{
+    const df:SaveInfo={
+        userId:'',
+        createAt:new Date().toISOString(),
+        comment:''
+    }
+    return createOpts(df,opts) as SaveInfo;
+}
+
+/**
+ * Model management database
+ * SaveInfo
+ * ModelData
+ */
+export interface ModelData extends SaveInfo{
+    id:string;                  // model ID
+    name:string;                // name of tool
+    group:string;               // Category
+    maintenance:number;         // day of maintenance
+    images:string[];            // images
+}
+
+export interface ModelDataOpts extends SaveInfoOpts{
+    id?:string;                  // model ID
+    name?:string;                // name of tool
+    group?:string;               // Category
+    maintenance?:number;         // day of maintenance
+    images?:string[];            // images
+}
+
+/** make new modeldata from default & option */
+export function createModelData(opts?:ModelDataOpts,debug:boolean=false):ModelData{
+    const df:ModelData={
+        ...createSaveInf(),
+        id:'',
+        name:'',
+        group:'',
+        maintenance:180,
+        images:[]
+    }
+    const model= createOpts(df,opts) as ModelData
+    if(debug) console.log("\ncreateModelData",{opts,model});
+    return model;
+}
+
+
+/**
+ * Tool manage management
+ * toolDataOpts
+ */
+export interface ToolDataOpts extends SaveInfoOpts{
     id?:string;                  // tool id
     startUse?:Date;              // start use this tool
     endUse?:String;                // destroy date
@@ -23,49 +73,29 @@ export interface ToolDataOptions{
     model?:string;           
 }
 
-export class ToolData{
-    id:string='';                  // tool id
-    startUse:Date=new Date();              // start use this tool
-    endUse:String='';                // destroy date
+export interface ToolData extends SaveInfo{
+    id:string;                  // tool id
+    startUse:Date;              // start use this tool
+    endUse:String;                // destroy date
     lastMaintenance:Date;       // last maintenance
-    vitual:number=0;              // status vitual of tool, 0=OK, 1,2,3... NG
-    operation:number=0;           // status of tool operation, o= OK
-    function:number=0;            // status of tool function, 0=OK
-    model:string='';                   // model id
-    constructor(opts?:ToolDataOptions){
-        if(!opts) return;
-        Object.keys(opts).forEach(key=>{
-            this[key]=opts[key]
-        })
-    }
+    vitual:number;              // status vitual of tool, 0=OK, 1,2,3... NG
+    operation:number;           // status of tool operation, o= OK
+    function:number;            // status of tool function, 0=OK
+    model:string;                   // model id
 }
 
-export interface BackupData{
-    userId:string;
-    date:Date;
-    comment:string;
-}
 
-/** backup tool data */
-export class ToolSave{
-    tool:ToolData=new ToolData();
-    saveInfo:BackupData={
-        date:new Date(),
-        comment:'',
-        userId:''
+export function createToolData(opts?:ToolDataOpts):ToolData{
+    const df:ToolData={
+        ...createSaveInf(),
+        id:'',
+        startUse:new Date(),
+        endUse:'',
+        lastMaintenance:null,
+        vitual:0,
+        operation:0,
+        function:0,
+        model:''
     }
-    constructor(opts?:ToolSave){
-        if(!opts ||!opts.saveInfo) return
-        if(opts.tool){
-            Object.keys(this.tool).forEach(key=>{
-                this.tool[key]=opts.tool[key]||this.tool[key]
-            })
-        }
-        if(opts.saveInfo){
-            Object.keys(this.saveInfo).forEach(key=>{
-                this.saveInfo[key]=opts.saveInfo[key]||this.saveInfo[key];
-            })
-        }
-        
-    }
+    return createOpts(df,opts) as ToolData;
 }

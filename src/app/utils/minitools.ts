@@ -2,7 +2,7 @@ export function compareObject(obj1:object,obj2:object,debug=true):boolean{
     //keys not compare
     const keys1=Object.keys(obj1);
     const keys2=Object.keys(obj2);
-    const label=digit("compareObject",10);
+    const label=digit("compareObject",{length:10});
     // console.log("[%s] test-001",label,{obj1,obj2});
     //keys is not same
     if(keys1.length!=keys2.length) {
@@ -40,7 +40,7 @@ export function compareObject(obj1:object,obj2:object,debug=true):boolean{
 }
 
 export function compareArr(arr1:any[],arr2:any[],debug=true):boolean{
-    const PRG=digit("compareArr",15)
+    const PRG=digit("compareArr",{length:15})
     if(arr1.length!=arr2.length) {
         if(debug) console.log('[%s] case1',PRG);
         return false;
@@ -52,35 +52,57 @@ export function compareArr(arr1:any[],arr2:any[],debug=true):boolean{
     return result;
 }
 
-export function getList(arrs:any[],key:string="id"):any[]{
+export function getList(arrs:any[],key:string="id"):string[]{
     const outs=[];
+    let tmp:string;
     arrs.forEach(arr=>{
-        if(arr[key]==undefined||outs.includes(arr[key])) return;
-        outs.push(arr[key]);
+        tmp=arr[key];
+        if(arr[key]==undefined||tmp==""||outs.includes(arr[key])) return;
+        outs.push(tmp+"");
     })
     return outs;
 }
 
+export function createOpts(defaultValue:Object,opts?:any,debug:boolean=false):object{
+    if(!opts) return defaultValue;
+    Object.keys(defaultValue).forEach(key=>{
+        if(opts[key]==undefined) return;
+        defaultValue[key]=opts[key]
+    });
+    if(debug) console.log("\ncreateOpts\n",{opts,result:defaultValue})
+    return {...defaultValue};
+}
 
+export declare type AlignType="Right"|"Left"|"Center"
+export interface DigitOpts{
+    length?:number;
+    texture?:string;
+    align?:AlignType;
+}
 
-export function digit(ip:any,len:number,texture:string=" ",align:string="left"):string{
-    const l=(ip+"").length;
+export function digit(ip:any,opts?:DigitOpts):string{
+    const _opts=createOpts({length:2,texture:" ",align:'Right'},opts);
+    console.log("test",{ip,opts:_opts})
+    let texture=_opts['texture'] as string;
+    const length=_opts["length"] as number;
+    const align=_opts["align"] as AlignType;
+    // const l=(ip+"").length;
     if(!texture.length) texture=" ";
     else if(texture.length>1) texture=texture.substring(0,0);
-    align=align.toUpperCase();
-    if(align=='RIGHT'){
-        texture=makeTexture(len,texture)+ ip;
-        return texture.substring(texture.length-len);
+    if(align=="Right"){
+        texture=makeTexture(length,texture)+ ip;
+        return texture.substring(texture.length-length);
     }
-    else if(align=='LEFT'){
-        texture=ip+makeTexture(len,texture);
-        return texture.substring(0,len)
+    else if(align=="Left"){
+        texture=ip+makeTexture(length,texture);
+        return texture.substring(0,length)
     }
+    //center
     else{
-        texture=makeTexture(len,texture);
+        texture=makeTexture(length,texture);
         texture=texture+ip+texture;
-        const l1=Math.round(texture.length/2-len/2)
-        return texture.substring(l1,len);
+        const l1=Math.round(texture.length/2-length/2)
+        return texture.substring(l1,length);
 
     }
 

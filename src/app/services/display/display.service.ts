@@ -20,18 +20,19 @@ export class DisplayService {
    * @returns data
    */
   async showModal(component,props={},backdrop:boolean=false){
-    const _props=JSON.parse(JSON.stringify(props))
+    const _props=JSON.parse(JSON.stringify(props));
+    console.log("props:",_props);
     const modal=await this.modal.create({
       component,
-      componentProps:_props,
+      componentProps:props,
       backdropDismiss:backdrop
     })
-    await modal.present();
+    modal.present();
     return await modal.onDidDismiss();
   }
 
   async msgbox(msg:string,opts?:AlertOptions){
-    const _opts:AlertOptions={header:'Information',...opts,message:msg}
+    const _opts:AlertOptions={header:'Information',buttons:['OK'],...opts,message:msg}
     const alert=await this.alert.create(_opts)
     alert.present();
     return await alert.onDidDismiss();

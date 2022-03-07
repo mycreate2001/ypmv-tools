@@ -2,7 +2,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="done(false)">
+      <ion-button (click)="done('back')">
         <ion-icon name="chevron-back-outline"></ion-icon>
         <ion-label>Back</ion-label>
       </ion-button>
@@ -11,10 +11,10 @@
 
     <ion-buttons slot="end">
       <div *ngIf="isEdit">
-        <ion-button>
+        <ion-button (click)="done('ok')">
           <ion-icon name="save-outline"></ion-icon>
         </ion-button>
-        <ion-button>
+        <ion-button (click)="btnDelete()">
           <ion-icon color="danger" name="trash-outline"></ion-icon>
         </ion-button>
       </div>
@@ -88,13 +88,31 @@
       </ion-row>
     </ion-grid>
     <!-- image -->
-    <ion-grid>
-      <ion-row>
-        <ion-col >
-          <img [src]="model.image">
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    <ion-card>
+      <!-- tool -->
+      <ion-item lines="none">
+        <ion-button (click)="addImage()">
+          <ion-icon name="camera"></ion-icon>
+          <ion-label>Take photo</ion-label>
+        </ion-button>
+      </ion-item>
+      <!-- display Images -->
+      <ion-grid >
+        <ion-row>
+          <!-- database images -->
+          <ion-col size="6" *ngFor="let image of model.image" >
+            <img [src]="image">
+          </ion-col>
+          <!-- temporary images -->
+          <ion-col size="6" *ngFor="let image of images" >
+            <img [src]="image">
+          </ion-col>
+          <ion-col *ngIf="(!model.images||!model.images.length)&&!images.length" size="6">
+            No Image here, pls take photo
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card>
   </ion-list>
 
 
@@ -134,11 +152,11 @@
         </ion-grid>
       </ion-accordion>
     </ion-accordion-group>
-    <!-- image -->
+    <!-- images -->
     <ion-grid>
       <ion-row>
-        <ion-col >
-          <img [src]="model.image">
+        <ion-col size="6" *ngFor="let image of model.images" >
+          <img [src]="image">
         </ion-col>
       </ion-row>
     </ion-grid>

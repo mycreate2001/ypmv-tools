@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ToolDetailPage } from '../../modals/model/model.page';
 import { DisplayService } from '../../services/display/display.service';
-import { fake } from '../../utils/fakedata'
 import { getList } from '../../utils/minitools';
-import { ModelData, ToolData } from '../../models/tools.model';
+import { createModelData, ModelData, ToolData } from '../../models/tools.model';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';
+import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 interface ModelExtend {
   tools:ToolData[];
   model:ModelData;
@@ -27,66 +27,72 @@ export class ToolsPage implements OnInit {
   key:string="";
   models:ModelData[]=[];
   tools:ToolData[]=[];
+  toolDb:ConnectData;
+  modelDb:ConnectData;
+  newGroup:string="";
   constructor(
-    private disp:DisplayService
+    private disp:DisplayService,
+    private db:FirestoreService
   ) {
-    ///
-    const names=[
-      "Electric drill","Circular saw","Soldering iron","Electric screwdriver","Chainsaw",
-      "Nail gun","Hammer","Screwdriver","Mallet","Axe","Saw"
-    ]
-    const images=[
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQLGiJXUT7lcXk00IiIxiRSIVSo9n3uDxUNg&usqp=CAU",
-      "https://www.bosch-professional.com/binary/ocsmedia/optimized/750x422/o64925v54_GKS190_CS_pr-02.png",
-      "https://sc04.alicdn.com/kf/HLB1HPqcUwHqK1RjSZJnq6zNLpXaS.jpg" ,
-      "https://5.imimg.com/data5/HY/XH/MY-19210072/electric-screw-driver-500x500.jpg",
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd0q1U7HmmEYy7OiiB6_j7JZpBs_hQkZ3eYg&usqp=CAU", 
-      "https://cdn-amz.fadoglobal.io/images/I/61FrdJ8rXTL._SR200,200_.jpg", 
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKH0xUpZ7MMU66kYlbNfm_gDG9XYuBAZm9-Q&usqp=CAU", 
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqQFRXUB9wbafVpf5DsIc3dn2dlfsAAgj_AQ&usqp=CAU", 
-      "https://cdn.tatmart.com/images/detailed/41/bua_owok-xe.jpg", 
-      "https://www.gransforsbruk.com/wp-content/uploads/475-large-carving-axe-1440x1026.jpg", 
-      "https://rukminim1.flixcart.com/image/416/416/jk2w7m80/multi-vise-tool/j/b/d/hand-saw-heavy-duty-plastic-handle-16-abbyhus-original-imaf7gkrbgg2zhtf.jpeg?q=70",       
-    ]
-    this.groups=["standard tools","Spare parts","Jigs"];
-    this.models=fake(names.length,{id:'%i%',name:names,group:this.groups,maintenance:100,image:images}) as ModelData[];
-    this.tools=fake(1000,
-      {
-        id:'%i%%N%',
-        startUse:new Date(),
-        endUse:'',
-        lastMaintenance:new Date(),
-        vitual:0,
-        operation:0,
-        function:0,
-        model:getList(this.models)
-      }
-    );
-      console.log("initvalue",{tools:this.tools,models:this.models})
+     //connect db
+    this.modelDb=this.db.connect("models");
+    this.modelDb.onUpdate((models:ModelData[])=>{
+      //test
+      this.models=models;
+      //update model
+      this.makeView(models);
+      //handle group
+      this.groups=getList(models,"group");
+      const check=includesText(this.groups,this.newGroup);
+      if(check) this.newGroup="";
+      else this.groups.push(this.newGroup);
+      console.log("\nupdate models\n",{models:this.models,tools:this.tools,groups:this.groups,views:this.views})
+    })
+    
+    this.toolDb=this.db.connect("tools");
+    this.toolDb.onUpdate((tools:ToolData[])=>{
+      //test
+      this.tools=tools;
+      this.makeView(this.models);
+      console.log("\nupdate tools\n",{models:this.models,tools:this.tools,groups:this.groups,views:this.views})
+    })
   }
 
   ngOnInit() {
     this.update();
   }
 
+  ngOnDestroy(){
+    this.modelDb.disconnect();
+    this.toolDb.disconnect();
+    console.log("leave tools");
+  }
+
   /** update data */
 
   //////////// ------------ Handle function -------------------
   async showDetail(model?:ModelData){
-    const modelEx=model?JSON.parse(JSON.stringify(model)):null;
-    const ip=modelEx?{modelEx,groups:this.groups}:{groups:this.groups}
-    const {role,data}=await this.disp.showModal(ToolDetailPage,{...ip});
+    const isNew=model?false:true;
+    const isEdit=model?false:true;
+    model=model||createModelData();
+
+    const tools=this.tools.filter(t=>t.model==model.id);
+    const groups=[...this.groups,this.newGroup];
+    const {role,data}=await this.disp.showModal(ToolDetailPage,{model,tools,groups,isNew,isEdit});
     if(role.toLowerCase()!='ok') return;
     console.log({data});
+    // this.modelDb.add(data);
   }
 
   update(){
     const models=this.key.length>=2?searchObj(this.key,this.models):this.models;
-    this.views=this.makeView(models)
+    this.makeView(models);
   }
 
-  makeView(models:ModelData[]):viewData[]{
+  makeView(models:ModelData[]){
+    console.log("make view-step1:",{models})
     let groups= separateObj(models,"group",{dataName:'models'});  //group=[{group,models}]
+    console.log("make view-step2:",{groups})
     const results:viewData[]=groups.map(g=>{
       const models:ModelExtend[]=g.models.map(m=>{
         const tools=this.tools.filter(t=>t.model==m.id);
@@ -94,7 +100,34 @@ export class ToolsPage implements OnInit {
       })
       return {group:g.group,models}
     });
-    return results;
-  } 
+    console.log("make view-step3:",{results})
+    this.views=results;
+  }
 
+
+  async addCatelogy(){
+    await this.disp.msgbox(
+      "add new category",
+      {
+        mode:'ios',
+        inputs:[{type:'text',placeholder:'new catelogy'}],
+        buttons:[
+          {
+            text:'OK',role:'OK',
+            handler:(data)=>{
+              const newgroup=data[0] as string;
+              const check=includesText(this.groups,newgroup)
+              if(check) return this.disp.msgbox(`category '${newgroup}' is already exist`);
+              this.newGroup=newgroup;
+            }
+          }
+        ]
+      }
+    )
+  }
+
+}
+
+function includesText(arrs:string[],key:string):boolean{
+  return arrs.some(text=>text.toUpperCase()==key.toUpperCase())
 }

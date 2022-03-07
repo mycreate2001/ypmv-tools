@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormatDetailPage } from '../../modals/format-detail/format-detail.page';
-import { QrcodePage } from '../../modals/qrcode/qrcode.page';
+import { QrcodePage, QRResultType } from '../../modals/qrcode/qrcode.page';
 import { DisplayService } from '../../services/display/display.service';
-import { analysisCode } from '../../utils/codeformat';
+import { analysisCode, CodeFormatData, createFormatData } from '../../models/codeformat';
+import { FirestoreService } from 'src/app/services/firebase/firestore.service';
+
 
 @Component({
   selector: 'app-formats',
@@ -11,63 +13,57 @@ import { analysisCode } from '../../utils/codeformat';
 })
 
 export class FormatsPage implements OnInit {
-  formats:any[]=[
-    {
-      name: "tool",
-      countData: 2,
-      delimiter: "-",
-      length: 0,
-      order: 0,
-      prefix: "T",
-      subfix: "",
-      extractDatas:[
-        {
-          finish: 0,
-          ignores: [],
-          name: "id",
-          no: 0,
-          start: 1
-        },
-        {
-          finish: 0,
-          ignores: [],
-          name: "modelid",
-          no: 1,
-          start: 0
-        }
-      ]
-    }
-  ]
-  code:string='';
-  checkAll:boolean=true;
+  /** variable */
+  formats:CodeFormatData[]=[];    // formats
+  code:string='';                 //  input test
+  dFormat:any;
+  checks:any={};
+  /** function */
   constructor(
-    private disp:DisplayService
-  ) {
-    // console.log(this.formats);
-   }
+    private disp:DisplayService,
+    private db:FirestoreService
+  ){
+    this.dFormat=this.db.connect('formats');
+    this.dFormat.onUpdate(formats=>{
+      console.log("formats1:",formats);
+      this.formats=formats;
+      this.update();
+      console.log("formats:",this.formats);
+    })
+  }
 
   ngOnInit() {
   }
 
+  ngOnDestroy(){
+    console.log("ngOnDestroy");
+    this.dFormat.disconnect();
+  }
+
   async scan(){
-    const {data,role}=await this.disp.showModal(QrcodePage,{},true);
+    const resultType:QRResultType='data only';
+    const {data,role}=await this.disp.showModal(QrcodePage,{resultType},true);
     if(role.toLowerCase()!='ok') return;
-    this.code=data.data;
+    this.code=data;
   }
 
 
   update(){
-    console.log("\nupdate");
-    this.checkAll=true;
+    this.checks=[];
     this.formats.forEach(f=>{
       const result= analysisCode(this.code,f);
-      f.check=result?true:false;
-      if(!f.check) this.checkAll=false;
+      this.checks.push(result?"OK":"NG")
     })
   }
 
-  async showDetail(format){
-    const result=await this.disp.showModal(FormatDetailPage,{format,code:this.code},true)
+  async showDetail(xdata:CodeFormatData){
+    const format=xdata||createFormatData();
+    
+    const {role,data}=await this.disp.showModal(FormatDetailPage,{format,code:this.code});
+    if(role.toLowerCase()!='ok') return;
+
+    console.log("data:",data);
+    this.dFormat.add(data);
   }
 
 }

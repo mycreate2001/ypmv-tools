@@ -1,22 +1,31 @@
-//abc-xyz =>abc-xyz
-const codeformats=[
-    {prefix:'',remorePrefix:false,}
-]
-
 export interface CodeFormatData{
+    id:string;
     order:number;
     name:string;
+    prefix:string;
+    subfix:string;
+    delimiter:string;
+    countData:number;
+    length:number;
+    extractDatas:ExtractData[];
+}
+
+export interface CodeFormatDataOpts{
+    id?:string;
+    order?:number;
+    name?:string;
     prefix?:string;
     subfix?:string;
     delimiter?:string;
     countData?:number;
     length?:number;
-    extractDatas:ExtractData[];
+    extractDatas?:ExtractData[];
 }
 
-export function createFormat(extract:ExtractData[],opts:any={}):CodeFormatData{
+export function createFormatData(opts?:CodeFormatDataOpts):CodeFormatData{
     const df:CodeFormatData={
-        order:1,
+        id:'',
+        order:0,
         name:'',
         prefix:'',
         subfix:'',
@@ -25,9 +34,24 @@ export function createFormat(extract:ExtractData[],opts:any={}):CodeFormatData{
         length:0,
         extractDatas:[]
     }
-    return {...df,...opts,extractDatas:extract}
+
+    if(opts){
+        Object.keys(df).forEach(key=>{
+            if(opts[key]!=undefined) df[key]=df[key]
+        })
+    }
+    
+    return df;
 }
 
+export interface ExtractDataOpts{
+    name?:string;
+    no?:number;
+    start?:number;
+    finish?:number;
+    ignores?:string;
+    delimiter?:string;
+}
 
 export interface ExtractData{
     name:string;
@@ -36,22 +60,24 @@ export interface ExtractData{
     finish:number;
     ignores:string;
     delimiter:string;
-    // startBy:string;
-    // exitBy:string;
 }
 
-export function createExtractData(name:string,opts:any={}):ExtractData{
-    const df:ExtractData={
+export function createExtractData(opts?:ExtractDataOpts):ExtractData{
+    const df={
         name:'',
         no:0,
-        start:0,
+        start:1,
         finish:0,
         ignores:'',
-        delimiter:','
+        delimiter:''
     }
-    return {...df,...opts,name}
+    if(opts){
+        Object.keys(df).forEach(key=>{
+            if(opts[key]!=undefined) df[key]=opts[key]
+        })
+    }
+    return df;
 }
-
 
 /**
  * analysis code
@@ -84,7 +110,7 @@ export function analysisCode(code:string,formats:CodeFormatData|CodeFormatData[]
                 console.log("case #4")
                 return false;
             }
-            if(!f.countData && arrs.length!=f.countData){
+            if(f.countData && arrs.length!=f.countData){
                 console.log('case #5');
                 return false;
             }
@@ -113,17 +139,16 @@ export function analysisCode(code:string,formats:CodeFormatData|CodeFormatData[]
 
 export function checkCode(code:string, format:CodeFormatData){
     const out:any={};
-    out.length=(format.length && code.length!=format.length)?false:true;
-    out.prefix=(format.prefix && !code.startsWith(format.prefix))?false:true;
-    out.subfix=(format.subfix && !code.endsWith(format.subfix))?false:true
-    out.delimiter=code.includes(format.delimiter);
-    if(format.delimiter ) {
+    out.length=(format.length && code.length!=format.length)?code.length:"";
+    out.prefix=(format.prefix && !code.startsWith(format.prefix))?
+        code.substring(0,format.prefix.length):"";
+    out.subfix=(format.subfix && !code.endsWith(format.subfix))?
+        code.substring(code.length-format.subfix.length):""
+    out.delimiter=code.includes(format.delimiter)?"":"none";
+    if(format.delimiter && format.countData ) {
         const arrs=code.split(format.delimiter);
-        if((arrs.length<=1)||(format.countData && arrs.length!=format.countData)){
-            out.countData=false;
-        }
-        else out.countData=true;
+        out.countData=arrs.length!=format.countData?arrs.length:""
     }
-    else  out.countData=true;
+    else  out.countData="";
     return out;
 }

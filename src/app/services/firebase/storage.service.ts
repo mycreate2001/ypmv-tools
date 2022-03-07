@@ -3,9 +3,14 @@ import { initializeApp } from 'firebase/app';
 import {  getStorage,uploadString,ref,
           getDownloadURL,listAll,deleteObject,
           uploadBytesResumable,
-          FirebaseStorage,          } from 'firebase/storage';
+          FirebaseStorage,
+          UploadResult,          } from 'firebase/storage';
 import { Base64 } from 'src/app/utils/base64';
 import { environment } from 'src/environments/environment';
+
+export interface UploadImageResult extends UploadResult{
+  url:string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -24,19 +29,23 @@ export class StorageService {
     return uploadBytesResumable(ref(this.storage,path),data)
   }
 
+ 
   /**
    * 
    * @param base64 base64 from crop-image, eg:"data:image/png;base64,iVBORw0KGgoAAAANSU"
    * @param path folder & file name of image, default is "images/" if path="<folder>/" filename automatic create
    * @returns Promise<any>
    */
-  uploadImagebase64(base64:string,path="images/"){
+  uploadImagebase64(base64:string,path="images/"):Promise<UploadImageResult>{
     return new Promise((resolve,reject)=>{
       if(!base64) return reject(new Error("image is empty"));
       const {contentType,data}= new Base64(base64);
       if(path.endsWith("/")) path+=(new Date()).getTime()+".jpg"      //auto create filename as jpg
       uploadString(ref(this.storage,path),data,'base64',{contentType})
-      .then(result=>resolve(result))
+      .then(async result=>{
+        const url=await this.getURL(result.ref.fullPath);
+        resolve({url,...result})
+      })
       .catch(err=>reject(err))
     })
     

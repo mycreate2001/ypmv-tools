@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { ModelData, ToolData } from 'src/app/models/tools.model';
+import { createToolData, ModelData, ToolData } from 'src/app/models/tools.model';
 
 @Component({
   selector: 'app-tool',
@@ -30,7 +30,7 @@ export class ToolPage implements OnInit {
     if(!this.tool){
       this.isEdit=true;
       this.isNew=true;
-      this.tool=new ToolData({model:this.model.id});
+      this.tool=createToolData({model:this.model.id})//({model:this.model.id});
     }else{
       this.isEdit=false;
       this.isNew=false;

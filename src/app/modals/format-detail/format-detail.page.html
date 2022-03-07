@@ -1,7 +1,7 @@
 <ion-header mode="ios">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="done(false)">
+      <ion-button (click)="done('cancel')">
         <ion-icon name="chevron-back-outline"></ion-icon>
         <ion-label>Cancel</ion-label>
       </ion-button>
@@ -14,7 +14,7 @@
         <ion-icon name="qr-code"></ion-icon>
         <ion-label>scan</ion-label>
       </ion-button>
-      <ion-button>
+      <ion-button (click)="done()">
         <ion-icon name="chevron-down-circle"></ion-icon>
         <ion-label>Save</ion-label>
       </ion-button>
@@ -29,37 +29,12 @@
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <ion-item>
-          <ion-label color="primary">Name</ion-label>
-          <ion-input  [(ngModel)]="format.name"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label color="primary">Order</ion-label>
-          <ion-input  type="number" [(ngModel)]="format.order"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label color="primary">Prefix</ion-label>
-          <ion-input  placeholder="(blank)" [(ngModel)]="format.prefix" (ionChange)="update()"></ion-input>
-          <ion-badge *ngIf="code" [color]="checks.prefix=='OK'?'primary':'danger'">{{checks.prefix}}</ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-label color="primary">Subfix</ion-label>
-          <ion-input  placeholder="(blank)" [(ngModel)]="format.subfix" (ionChange)="update()"></ion-input>
-          <ion-badge *ngIf="code" [color]="checks.subfix=='OK'?'primary':'danger'">{{checks.subfix}}</ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-label color="primary">Length</ion-label>
-          <ion-input  type="number" [(ngModel)]="format.length" (ionChange)="update()"></ion-input>
-          <ion-badge *ngIf="code"  [color]="checks.length=='OK'?'primary':'danger'">{{checks.length}}</ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-label color="primary" >Delimiter</ion-label>
-          <ion-input  placeholder="(blank)" [(ngModel)]="format.delimiter" (ionChange)="update()"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label color="primary" >Data Count</ion-label>
-          <ion-input type="number" [(ngModel)]="format.countData" (ionChange)="update()"></ion-input>
-          <ion-badge *ngIf="code" [color]="checks.countData=='OK'?'primary':'danger'">{{checks.countData}}</ion-badge>
+        <ion-item *ngFor="let item of LIST">
+          <ion-label color="primary">{{item.n}}</ion-label>
+          <ion-input placeholder="(blank)" [(ngModel)]="format[item.v]" (ionChange)="update()"></ion-input>
+          <ion-badge *ngIf="code &&checks[item.v]!=underfined" [color]="checks[item.v]?'danger':'primary'">
+            {{checks[item.v]?checks[item.v]:"OK"}}
+          </ion-badge>
         </ion-item>
       </ion-list>
     </ion-card-content>
@@ -85,7 +60,7 @@
       <ion-accordion-group>
         <ion-accordion *ngFor="let item of format.extractDatas">
           <ion-item slot="header">
-            <ion-label>{{item.name}}
+            <ion-label>{{item.name?item.name:"(new)"}}
             </ion-label>
             <ion-badge *ngIf="code" color="dark">{{results[item.name]}}</ion-badge>
           </ion-item>

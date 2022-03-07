@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DisplayService } from 'src/app/services/display/display.service';
-import { analysisCode, checkCode, CodeFormatData, createExtractData } from 'src/app/utils/codeformat';
-import { QrcodePage } from '../qrcode/qrcode.page';
+import { analysisCode, checkCode, CodeFormatData, createExtractData, ExtractData } from 'src/app/models/codeformat';
+import { QrcodePage, QRResultType } from '../qrcode/qrcode.page';
 
 @Component({
   selector: 'app-format-detail',
@@ -12,36 +12,44 @@ import { QrcodePage } from '../qrcode/qrcode.page';
 export class FormatDetailPage implements OnInit {
   format:CodeFormatData;
   code:string;
-  checks:any={}
-  results:any={}
+  checks:any={};
+  results:any={};
+  LIST=[
+    {n:"name",v:"name"},
+    {n:"Prefix",v:"prefix"},
+    {n:"Subfix",v:"subfix"},
+    {n:"Delimiter",v:"delimiter"},
+    {n:"CountData",v:"countData"},
+    {n:"Length",v:"length"}
+  ]
   constructor(
     private modal:ModalController,
     private disp:DisplayService
-  ) { }
+  ){ }
 
   ngOnInit() {
+    console.log("format:",this.format);
     this.update();
   }
 
   update(){
-    const checks=checkCode(this.code,this.format);
-    Object.keys(checks).forEach(key=>{
-      if(checks[key]) this.checks[key]="OK"
-      else this.checks[key]="NG"
-    })
+    this.checks=checkCode(this.code,this.format);
     this.results=analysisCode(this.code,this.format)||{}
     console.log("test",{code:this.code,format:this.format,checks:this.checks,results:this.results})
   }
 
   async scan(){
-    const {data,role}=await this.disp.showModal(QrcodePage);
+    const resultType:QRResultType='data only'
+    const {data,role}=await this.disp.showModal(QrcodePage,{resultType});
     if(role.toLowerCase()!='ok') return;
-    this.code=data.data;
+    this.code=data;
   }
 
-  done(isdone:boolean=true){
-    if(!isdone) return this.modal.dismiss(null,'cancel');
-    this.modal.dismiss(this.format,'ok');
+  done(role:string='',data=null){
+    if(!role) role='ok'
+    const _data=data?data:this.format
+    this.modal.dismiss({..._data},role);
+    
   }
 
   async delete(){
@@ -54,7 +62,8 @@ export class FormatDetailPage implements OnInit {
   }
 
   add(){
-    const e=createExtractData('new');
+    const e=createExtractData();
+    console.log("extract Data:",e);
     this.format.extractDatas.push(e);
   }
 

@@ -1,59 +1,70 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { Mode } from 'jsqr/dist/decoder/decodeData';
-import { ModelData, ToolData } from 'src/app/models/tools.model';
+import { createModelData, ModelData, ToolData } from 'src/app/models/tools.model';
 import { DisplayService } from 'src/app/services/display/display.service';
+import { FirestoreService } from 'src/app/services/firebase/firestore.service';
+import { StorageService } from 'src/app/services/firebase/storage.service';
+import { CameraPage } from '../camera/camera.page';
 import { ToolPage } from '../tool/tool.page';
-interface ModelDataExtend{
-  tools:any[];
-  model:ModelData;
-}
+const _DB_MODEL="models"
 @Component({
   selector: 'app-tool-detail',
   templateUrl: './model.page.html',
   styleUrls: ['./model.page.scss'],
 })
 export class ToolDetailPage implements OnInit {
-  modelEx:ModelDataExtend;
   model:ModelData;
   tools:ToolData[]=[];
   groups:string[]=[];
   isNew:boolean=false;
   isEdit:boolean=false;
+  images:string[]=[];//base64 for temporary images
   constructor(
     private modal:ModalController,
-    private disp:DisplayService
+    private disp:DisplayService,
+    private storage:StorageService,
+    private db:FirestoreService
   ) {
     // console.log("model:",this.model);
     // this.backup=JSON.parse(JSON.stringify(this.model));
   }
 
   ngOnInit() {
-    if(!this.modelEx){
-      this.model=createModel();
-      this.isNew=true;
-      this.isEdit=true;
-      return;
-    }
-
-    this.model=this.modelEx.model||createModel();
-    this.tools=this.modelEx.tools;
-    console.log("model:",this.model);
+    console.log("initial value:",{model:this.model,tools:this.tools,groups:this.groups});
   }
 
   //buttons
 
   //save, back
-  done(isSuccess:boolean=true){
-    if(!isSuccess) return this.modal.dismiss(null,"cancel");
-    console.log("save");
-    return this.modal.dismiss(null,"ok");
+  done(role?:any){
+    console.log("done, role:",role);
+    role=(role+"").toUpperCase();
+    if(!role) role="OK"
+    if(role=='OK'){//handle OK
+      if(this.images.length){//new image
+        const urls:string[]=[]
+        const promiseAll=this.images.map(image=>{
+          return this.storage.uploadImagebase64(image,"models/")
+          .then(x=>x.url)
+        })
+        Promise.all(promiseAll)
+        .then((result)=>{
+          this.model.images=this.model.images.concat(result);
+          this.db.add('models',this.model,true);
+        })
+        .catch(err=>this.disp.msgbox("ERR<br>"+err.message))
+      }
+      else{
+        this.db.add('models',this.model,true);
+      }
+    }
+    return this.modal.dismiss(this.model,role);
   }
 
   //new
   btnNew(){
     this.isNew=true;
-    this.model=createModel(this.model.group);
+    this.model=createModelData({group:this.model.group});
     this.tools=[];
   }
 
@@ -61,7 +72,8 @@ export class ToolDetailPage implements OnInit {
   btnDelete(){
     //@@@
     console.log("delete tool '%s'",this.model.id);
-    return this.done(false);
+    this.db.delete(_DB_MODEL,this.model.id);
+    return this.done('delete');
   }
 
   // detail each tool
@@ -74,21 +86,17 @@ export class ToolDetailPage implements OnInit {
   //duplicate
   duplicate(){
     const {id,...data}=this.model;
-    this.model=new ModelData({id:'',...data});
+    this.model=createModelData({...data});
     this.tools=[];
     this.isEdit=true;
     this.isNew=true;
   }
 
-}
-
-function createModel(group:string=""):ModelData{
-  const out= {
-    id:'',
-    name:'',
-    group:'',
-    maintenance:0,
-    image:''
+  //add new image
+  async addImage(){
+    const {data,role}=await this.disp.showModal(CameraPage);
+    if(role.toUpperCase()!="OK") return;
+    this.images.push(data);
   }
-  return {...out,group}
+
 }

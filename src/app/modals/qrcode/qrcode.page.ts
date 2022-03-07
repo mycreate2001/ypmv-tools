@@ -2,7 +2,11 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import jsQR from 'jsqr'
 import { DisplayService } from 'src/app/services/display/display.service';
-const videospcs={facingMode:{exact:'enviroment'}}
+import { FirestoreService } from 'src/app/services/firebase/firestore.service';
+import { analysisCode, CodeFormatData } from 'src/app/models/codeformat';
+
+export declare type QRResultType = 'pure data' | 'data only' | 'analysis';
+
 @Component({
   selector: 'app-qrcode',
   templateUrl: './qrcode.page.html',
@@ -14,24 +18,34 @@ export class QrcodePage implements OnInit {
   @ViewChild('canvas',{static:false}) canvasRef:ElementRef;
 
   /** veriable */
-  videoStart=false;
-  medias:MediaStreamConstraints={
+  private videoStart=false;
+  private medias:MediaStreamConstraints={
     video:false,
     audio:false
   };
-  timout:any=null;
-
+  private timout:any=null;
+  formats:CodeFormatData[]=[];
+  private formatDb:any;
+  resultType:QRResultType='analysis';
   /** function */
   constructor(
     private modal:ModalController,
+    private db:FirestoreService,
     private disp:DisplayService
-  ) { }
+  ) {
+    this.formatDb=this.db.connect('formats');
+    this.formatDb.onUpdate((formats)=>this.formats=formats);
+  }
 
   ngOnInit() {
     
   }
+
   ngAfterViewInit() {
     this.scan();
+  }
+  ngOnDestroy(){
+    this.formatDb.disconnect();
   }
 
   scan(){
@@ -74,11 +88,36 @@ export class QrcodePage implements OnInit {
     if(code){
       console.log("code:",code);
       this.stopScan(false);
-      this.modal.dismiss(code,'OK');
+      //have result
+      switch(this.resultType){
+        /** pure scan code */
+        case 'pure data':{
+          this.modal.dismiss(code,'ok');
+        }
+        break;
+        /** data only */
+        case 'data only':{
+          this.modal.dismiss(code.data,'ok');
+        }
+        break;
+        /** analysis */
+        case 'analysis':{
+          const result=analysisCode(code.data,this.formats);
+          if(!result) {
+            this.disp.msgbox(`analysis code NG<br>code:${code.data}`);
+            this.modal.dismiss(null,'code error');
+          }
+          else this.modal.dismiss(result,'OK');
+        }
+        break;
+        default:
+          console.log("ERROR: out of case")
+      }
+      return;
+   
     }
-    else{
-      this.timout=setTimeout(()=>this.checkImage(),100);
-    }
+    
+    this.timout=setTimeout(()=>this.checkImage(),100);
   }
 
 }
