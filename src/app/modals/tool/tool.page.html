@@ -1,16 +1,16 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-buttons slot="start" (click)="done(false)">
+    <ion-buttons slot="start" (click)="done('back')">
       <ion-icon name="chevron-back-outline"></ion-icon>
       <ion-label>Back</ion-label>
     </ion-buttons>
     <ion-title>Tool Detail</ion-title>
     <ion-buttons slot="end">
       <div *ngIf="isEdit">
-        <ion-button>
+        <ion-button (click)="done()">
           <ion-icon name="save-outline"></ion-icon>
         </ion-button>
-        <ion-button>
+        <ion-button (click)="done('delete')">
           <ion-icon color="danger" name="trash-outline"></ion-icon>
         </ion-button>
       </div>
@@ -28,7 +28,8 @@
     <!-- tool information -->
     <ion-item>
       <ion-label>id</ion-label>
-      <ion-text>{{tool.id}}</ion-text>
+      <ion-input *ngIf="isNew && isEdit" [(ngModel)]="tool.id"></ion-input>
+      <ion-text *ngIf="!isEdit">{{tool.id}}</ion-text>
     </ion-item>
 
     <ion-item>

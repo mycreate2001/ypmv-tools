@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { createModelData, ModelData, ToolData } from 'src/app/models/tools.model';
+import { createModelData, createToolData, ModelData, ToolData } from 'src/app/models/tools.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
@@ -30,7 +30,7 @@ export class ToolDetailPage implements OnInit {
   }
 
   ngOnInit() {
-    console.log("initial value:",{model:this.model,tools:this.tools,groups:this.groups});
+    console.log("initial value:",this);
   }
 
   //buttons
@@ -44,12 +44,17 @@ export class ToolDetailPage implements OnInit {
       if(this.images.length){//new image
         const urls:string[]=[]
         const promiseAll=this.images.map(image=>{
-          return this.storage.uploadImagebase64(image,"models/")
-          .then(x=>x.url)
+          return this.storage.uploadImagebase64(image,`models/${this.model.id||"none"}/`)
+          .then(x=>{
+            console.log("url:",x.url)
+            return x.url
+          })
         })
         Promise.all(promiseAll)
-        .then((result)=>{
-          this.model.images=this.model.images.concat(result);
+        .then((urls)=>{
+          console.log("result:",urls);
+          if(this.model.images) this.model.images=this.model.images.concat(urls);
+          else this.model.images=urls;
           this.db.add('models',this.model,true);
         })
         .catch(err=>this.disp.msgbox("ERR<br>"+err.message))
@@ -77,10 +82,23 @@ export class ToolDetailPage implements OnInit {
   }
 
   // detail each tool
-  async detail(tool){
-    const data=tool?{tool,model:this.model}:{model:this.model}
-    console.log("test-001",{...data})
-    await this.disp.showModal(ToolPage,{...data});
+  async detail(iTool?:ToolData){
+    const isNew=iTool?false:true;
+    const tool=iTool||createToolData({model:this.model.id})
+    const model=this.model;
+    const result=await this.disp.showModal(ToolPage,{isNew,tool,model});
+    const role=result.role.toUpperCase();
+    switch(role){
+      case 'OK':{
+        console.log("test, data:",result.data);
+        this.db.add('tools',result.data);
+      }
+      break;
+
+      case 'DELETE':{
+        this.db.delete('tools',result.data.id);
+      }
+    }
   }
 
   //duplicate

@@ -52,12 +52,16 @@ export function compareArr(arr1:any[],arr2:any[],debug=true):boolean{
     return result;
 }
 
-export function getList(arrs:any[],key:string="id"):string[]{
+export function getList(arrs:any[],key:string="id",debug:boolean=false):string[]{
     const outs=[];
-    let tmp:string;
+    let tmp:any;
     arrs.forEach(arr=>{
         tmp=arr[key];
-        if(arr[key]==undefined||tmp==""||outs.includes(arr[key])) return;
+        if(!tmp||outs.includes(tmp)) {
+            if(debug) console.log("invailid data",{arr,key,tmp});
+            return;
+        }
+        if(debug) console.log("validate data:",{arr,key,tmp})
         outs.push(tmp+"");
     })
     return outs;
@@ -128,6 +132,20 @@ export function makeId(len:number=15,arrs:any|any[]=[]):string{
 }
 
 
+export function convert(obj:any,keys?:string[]){
+    if(!obj['constructor']) return obj;
+    //class
+    const out:any={};
+    keys=keys||Object.keys(obj);
+    keys.forEach(key=>{
+      if(obj[key]==undefined) return;
+      out[key]=convert(obj[key])
+    })
+    return out;
+  }
+  
+
+
 //private
 function makeRandStr(len:number=15){
     const n=Math.ceil(len/10);
@@ -148,5 +166,3 @@ function makeTexture(n:number,texture:string):string{
 }
 
 
-
-//private

@@ -6,11 +6,11 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let tool of tools">
+    <ion-item *ngFor="let scan of scans">
       <ion-thumbnail slot="start">
-        <img [src]="tool.image">
+        <img [src]="scan.model.images[0]">
       </ion-thumbnail>
-      <ion-label>{{tool.name}}</ion-label>
+      <ion-label>{{scan.model.name}}</ion-label>
     </ion-item>
   </ion-list>
 </ion-content>

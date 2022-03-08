@@ -7,7 +7,7 @@
         <ion-label>Back</ion-label>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{isNew?'new':model.id}}</ion-title>
+    <ion-title>{{model.name?model.name:"(new)"}}</ion-title>
 
     <ion-buttons slot="end">
       <div *ngIf="isEdit">
@@ -87,7 +87,7 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-    <!-- image -->
+    <!-- images -->
     <ion-card>
       <!-- tool -->
       <ion-item lines="none">
@@ -100,7 +100,7 @@
       <ion-grid >
         <ion-row>
           <!-- database images -->
-          <ion-col size="6" *ngFor="let image of model.image" >
+          <ion-col size="6" *ngFor="let image of [model.images]" >
             <img [src]="image">
           </ion-col>
           <!-- temporary images -->

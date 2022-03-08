@@ -196,9 +196,10 @@ export class FirestoreService {
    * @example try{db.add('users',{userid:'123',name:'abc',age:21})}catch(err=>console.log(err))
    */
   add(tbl:string,data:any,debug:boolean=false):Promise<any>{
+    const _data=JSON.parse(JSON.stringify(data))
     if(debug) console.log("\nfirestore.add '%s'\n---------------",tbl,data);
     return new Promise(async (resolve,reject)=>{
-      let id=data['id'];
+      let {id,...rawData}=_data;
       /** new data without id */
       if(!id){
         try{
@@ -218,7 +219,7 @@ export class FirestoreService {
       else{
         if(debug) console.log("create/overwrite record ");
         try{
-          await setDoc(doc(this.db,tbl),data);
+          await setDoc(doc(this.db,tbl,id),rawData);
           if(debug) console.log(`done! id="${id}"\n`);
           return resolve(id);
         }
@@ -306,6 +307,7 @@ export class FirestoreService {
       }
     })
   }
+
 }
 
 function log(msg,...args){

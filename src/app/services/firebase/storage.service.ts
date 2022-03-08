@@ -44,6 +44,7 @@ export class StorageService {
       uploadString(ref(this.storage,path),data,'base64',{contentType})
       .then(async result=>{
         const url=await this.getURL(result.ref.fullPath);
+        console.log("url2:",url);
         resolve({url,...result})
       })
       .catch(err=>reject(err))

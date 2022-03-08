@@ -78,7 +78,7 @@ export interface ToolData extends SaveInfo{
     startUse:Date;              // start use this tool
     endUse:String;                // destroy date
     lastMaintenance:Date;       // last maintenance
-    vitual:number;              // status vitual of tool, 0=OK, 1,2,3... NG
+    visual:number;              // status vitual of tool, 0=OK, 1,2,3... NG
     operation:number;           // status of tool operation, o= OK
     function:number;            // status of tool function, 0=OK
     model:string;                   // model id
@@ -92,7 +92,7 @@ export function createToolData(opts?:ToolDataOpts):ToolData{
         startUse:new Date(),
         endUse:'',
         lastMaintenance:null,
-        vitual:0,
+        visual:0,
         operation:0,
         function:0,
         model:''

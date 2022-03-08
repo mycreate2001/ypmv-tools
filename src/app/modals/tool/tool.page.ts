@@ -11,13 +11,12 @@ export class ToolPage implements OnInit {
   /** variable */
   tool:ToolData;
   model:ModelData;
+  isNew:boolean=false;
+  isEdit:boolean=false;
   isDetail:boolean=false;
   visualStatus=['OK','Scratch','broken'];
   operationStatus=['OK','cannot operation'];
   functionStatus=['OK',"tolerance's out of specs"];
-  isEdit:boolean=false;
-  isNew:boolean=false;
-
   /** function */
   constructor(
     private modal:ModalController
@@ -26,21 +25,14 @@ export class ToolPage implements OnInit {
   }
 
   ngOnInit() {
-    console.log("initial data:",{tool:this.tool,model:this.model});
-    if(!this.tool){
-      this.isEdit=true;
-      this.isNew=true;
-      this.tool=createToolData({model:this.model.id})//({model:this.model.id});
-    }else{
-      this.isEdit=false;
-      this.isNew=false;
-    }
-    console.log("tool:",this.tool);
+    if(this.isNew) this.isEdit=true;
+    console.log("initial data:",this);
   }
 
-  done(isOK:boolean=true){
-    if(!isOK) return this.modal.dismiss(null,"cancel");
-    this.modal.dismiss(null,'ok');
+  done(role?:string){
+    if(!role) role='OK';
+    role=role.toUpperCase();
+    return this.modal.dismiss(this.tool,role);
   }
 
   //

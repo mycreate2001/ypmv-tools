@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ToolDetailPage } from '../../modals/model/model.page';
 import { DisplayService } from '../../services/display/display.service';
-import { getList } from '../../utils/minitools';
+import { convert, getList } from '../../utils/minitools';
 import { createModelData, ModelData, ToolData } from '../../models/tools.model';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -34,21 +34,27 @@ export class ToolsPage implements OnInit {
     private disp:DisplayService,
     private db:FirestoreService
   ) {
-     //connect db
+
+    /** test */
+    const model=createModelData();
+    const list=Object.keys(model);
+    // const md=convert(as);
+    console.log("\n\ntest\n",{model,list,test1:model['hasOwnProperty'],test2:list['hasOwnProperty'],test3:model['constructor']});
+    /** Models */
     this.modelDb=this.db.connect("models");
     this.modelDb.onUpdate((models:ModelData[])=>{
       //test
       this.models=models;
-      //update model
       this.makeView(models);
       //handle group
-      this.groups=getList(models,"group");
+      this.groups=getList(models,"group",true);
       const check=includesText(this.groups,this.newGroup);
       if(check) this.newGroup="";
       else this.groups.push(this.newGroup);
       console.log("\nupdate models\n",{models:this.models,tools:this.tools,groups:this.groups,views:this.views})
     })
     
+    /** tools */
     this.toolDb=this.db.connect("tools");
     this.toolDb.onUpdate((tools:ToolData[])=>{
       //test
@@ -77,7 +83,7 @@ export class ToolsPage implements OnInit {
     model=model||createModelData();
 
     const tools=this.tools.filter(t=>t.model==model.id);
-    const groups=[...this.groups,this.newGroup];
+    const groups=this.newGroup?[...this.groups,this.newGroup]:this.groups;
     const {role,data}=await this.disp.showModal(ToolDetailPage,{model,tools,groups,isNew,isEdit});
     if(role.toLowerCase()!='ok') return;
     console.log({data});
@@ -120,7 +126,8 @@ export class ToolsPage implements OnInit {
               if(check) return this.disp.msgbox(`category '${newgroup}' is already exist`);
               this.newGroup=newgroup;
             }
-          }
+          },
+          {text:'Cancel',role:'cancel'}
         ]
       }
     )
