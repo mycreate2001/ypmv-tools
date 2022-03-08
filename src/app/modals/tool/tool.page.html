@@ -23,13 +23,13 @@
 
 <ion-content>
   <ion-list>
-    <img [src]="model.image">
+    <img [src]="model.images[0]">
 
     <!-- tool information -->
     <ion-item>
       <ion-label>id</ion-label>
       <ion-input *ngIf="isNew && isEdit" [(ngModel)]="tool.id"></ion-input>
-      <ion-text *ngIf="!isEdit">{{tool.id}}</ion-text>
+      <ion-text *ngIf="!isNew||!isEdit">{{tool.id}}</ion-text>
     </ion-item>
 
     <ion-item>
@@ -46,7 +46,7 @@
       <ion-accordion>
         <ion-item slot="header">
           <ion-label>Status</ion-label>
-          <ion-text>{{(tool.vitual+tool.operation+tool.function)?"NG":"OK"}}</ion-text>
+          <ion-text>{{(tool.visual+tool.operation+tool.function)?"NG":"OK"}}</ion-text>
         </ion-item>
         <ion-list slot="content">
           <!-- view page -->
@@ -70,25 +70,36 @@
           <div *ngIf="isEdit">
             <ion-item>
               <ion-label>Visual status</ion-label>
-              <ion-select [(ngModel)]="tool.visual">
+              <ion-select [(ngModel)]="tool.visual" >
                 <ion-select-option [value]="pos" *ngFor="let status of visualStatus;let pos=index">{{status}}</ion-select-option>
               </ion-select>
             </ion-item>
       
             <ion-item>
               <ion-label>Operation status</ion-label>
-              <ion-select [(ngModel)]="tool.operation">
+              <ion-select [(ngModel)]="tool.operation" >
                 <ion-select-option [value]="pos" *ngFor="let status of operationStatus;let pos=index">{{status}}</ion-select-option>
               </ion-select>
             </ion-item>
       
             <ion-item>
               <ion-label>Function status</ion-label>
-              <ion-select [(ngModel)]="tool.function">
+              <ion-select [(ngModel)]="tool.function" >
                 <ion-select-option [value]="pos" *ngFor="let status of functionStatus;let pos=index">{{status}}</ion-select-option>
               </ion-select>
             </ion-item>
           </div>
+        </ion-list>
+      </ion-accordion>
+      <ion-accordion>
+        <ion-item slot="header">
+          <ion-label>Others Infor</ion-label>
+        </ion-item>
+        <ion-list slot="content">
+          <ion-item *ngFor="let item of mItems">
+            <ion-label>{{item.n}}</ion-label>
+            <ion-text>{{model[item.v]}}</ion-text>
+          </ion-item>
         </ion-list>
       </ion-accordion>
     </ion-accordion-group>

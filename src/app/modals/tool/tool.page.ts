@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { createToolData, ModelData, ToolData } from 'src/app/models/tools.model';
+import { ModelData, ToolData } from 'src/app/models/tools.model';
 
 @Component({
   selector: 'app-tool',
@@ -13,10 +13,16 @@ export class ToolPage implements OnInit {
   model:ModelData;
   isNew:boolean=false;
   isEdit:boolean=false;
-  isDetail:boolean=false;
+  status:boolean=false;//NG
   visualStatus=['OK','Scratch','broken'];
   operationStatus=['OK','cannot operation'];
   functionStatus=['OK',"tolerance's out of specs"];
+  mItems=[
+    {n:"Part No",v:"id"},
+    {n:"Part Name",v:"name"},
+    {n:"Category",v:"group"},
+    {n:"Maintenance Period [days]",v:"maintenance"}
+  ]
   /** function */
   constructor(
     private modal:ModalController
@@ -34,7 +40,5 @@ export class ToolPage implements OnInit {
     role=role.toUpperCase();
     return this.modal.dismiss(this.tool,role);
   }
-
-  //
 
 }
