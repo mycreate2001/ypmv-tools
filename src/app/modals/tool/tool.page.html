@@ -14,7 +14,7 @@
           <ion-icon color="danger" name="trash-outline"></ion-icon>
         </ion-button>
       </div>
-      <ion-button (click)="isEdit=!isEdit" >
+      <ion-button (click)="isEdit=!isEdit" *ngIf="editEnable">
         <ion-icon [name]="isEdit?'book-outline':'create-outline'"></ion-icon>
       </ion-button>
     </ion-buttons>

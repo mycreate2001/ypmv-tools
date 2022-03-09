@@ -6,11 +6,15 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let scan of scans">
+    <ion-item *ngFor="let scan of scans" >
       <ion-thumbnail slot="start">
         <img [src]="scan.model.images[0]">
       </ion-thumbnail>
-      <ion-label>{{scan.model.name}}</ion-label>
+      <ion-label>
+        {{scan.model.name}}
+        <ion-badge>{{scan.tools.length}}</ion-badge>
+        <p><a (click)="detail({model:scan.model,tool})" *ngFor="let tool of scan.tools">{{tool.id}}</a></p>
+      </ion-label>
     </ion-item>
   </ion-list>
 </ion-content>
@@ -20,15 +24,16 @@
   </ion-fab-button>
 
   <ion-fab-list side="top">
-    <ion-fab-button>
-      <ion-icon name="add-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-label>input</ion-label>
-
+    
     <ion-fab-button (click)="qrcode()">
       <ion-icon name="qr-code-outline"></ion-icon>
     </ion-fab-button>
     <ion-label>scan</ion-label>
+
+    <ion-fab-button (click)="search()">
+      <ion-icon name="search-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-label>search</ion-label>
 
   </ion-fab-list>
 </ion-fab>

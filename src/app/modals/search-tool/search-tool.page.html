@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="done('back')">
+        <ion-icon [name]="btns.back.icon"></ion-icon>
+        <ion-label>{{btns.back.label}}</ion-label>
+      </ion-button>
+    </ion-buttons>
+    <ion-searchbar
+        [(ngModel)]="key"
+        (ionChange)="search()"
+      >
+    </ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="light">
+  <ion-accordion-group>
+    <ion-accordion *ngFor="let view of views">
+      <ion-item slot="header">
+        <ion-label>{{view.group}}</ion-label>
+        <ion-badge>{{view.searchs.length}}</ion-badge>
+      </ion-item>
+      <ion-list slot="content" >
+        <ion-item *ngFor="let search of view.searchs" (click)="select(search)">
+          <ion-thumbnail slot="start">
+            <img [src]="search.model.images[0]">
+          </ion-thumbnail>
+          <ion-label>
+            {{search.model.name}}
+            <ion-badge>{{search.tools.length}}</ion-badge>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-accordion>
+  </ion-accordion-group>
+</ion-content>

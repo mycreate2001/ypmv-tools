@@ -25,14 +25,15 @@ export class DisplayService {
     const modal=await this.modal.create({
       component,
       componentProps:props,
-      backdropDismiss:backdrop
+      backdropDismiss:backdrop,
+      mode:'ios'
     })
     modal.present();
     return await modal.onDidDismiss();
   }
 
   async msgbox(msg:string,opts?:AlertOptions){
-    const _opts:AlertOptions={header:'Information',buttons:['OK'],...opts,message:msg}
+    const _opts:AlertOptions={header:'Information',buttons:[{text:'OK',role:'OK'}],...opts,message:msg}
     const alert=await this.alert.create(_opts)
     alert.present();
     return await alert.onDidDismiss();

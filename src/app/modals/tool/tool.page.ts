@@ -13,6 +13,7 @@ export class ToolPage implements OnInit {
   model:ModelData;
   isNew:boolean=false;
   isEdit:boolean=false;
+  editEnable:boolean=true;
   status:boolean=false;//NG
   visualStatus=['OK','Scratch','broken'];
   operationStatus=['OK','cannot operation'];
