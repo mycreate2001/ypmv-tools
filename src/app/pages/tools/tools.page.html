@@ -1,6 +1,11 @@
 <ion-header>
   <ion-toolbar>
     <ion-searchbar [(ngModel)]="key" (ionChange)="update()"></ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="test_showmenu($event)">
+        <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

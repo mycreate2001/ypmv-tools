@@ -21,6 +21,10 @@ const routes: Routes = [
     path: 'search-tool',
     loadChildren: () => import('./modals/search-tool/search-tool.module').then( m => m.SearchToolPageModule)
   },
+  {
+    path: 'menu',
+    loadChildren: () => import('./modals/menu/menu.module').then( m => m.MenuPageModule)
+  },
 
 
 

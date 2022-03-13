@@ -1,0 +1,16 @@
+<ion-content>
+  <ion-list>
+    <div *ngFor="let menu of menus;let pos =index" (click)="close(pos)">
+      <ion-item *ngIf="menu.icon">
+        <ion-icon [name]="menu.icon"></ion-icon>
+        <ion-label>{{menu.name}}</ion-label>
+        <ion-icon slot ="end" name="chevron-forward-outline"></ion-icon>
+      </ion-item>
+      <ion-item *ngIf="!menu.icon">
+        <ion-label>{{menu.name}}</ion-label>
+        <ion-icon slot ="end" name="chevron-forward-outline"></ion-icon>
+      </ion-item>
+    </div>
+  </ion-list>
+
+</ion-content>
