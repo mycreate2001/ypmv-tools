@@ -1,0 +1,57 @@
+<ion-content color="light">
+  <ion-grid>
+    <ion-row>
+      <ion-col></ion-col>
+      <ion-col size-xs="12" size-md="8" size-lg="6" size-xl="4">
+        <ion-card>
+          <ion-title class="header">{{isRegister?'Register':'Login'}} Form</ion-title>
+          <ion-list lines="none" *ngIf="!isRegister">
+            <ion-item>
+              <ion-label>E-mail</ion-label>
+              <ion-input [(ngModel)]="email"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label>Password</ion-label>
+              <ion-input [(ngModel)]="pass" type="password"></ion-input>
+            </ion-item>
+           <ion-row>
+             <ion-col></ion-col>
+             <ion-col>
+              <ion-button expand="full" class="center" (click)="login()">
+                Login
+              </ion-button>
+             </ion-col>
+             <ion-col></ion-col>
+           </ion-row>
+          </ion-list>
+          <!-- register form -->
+          <ion-list lines="none" *ngIf="isRegister">
+            <ion-item>
+              <ion-label>E-mail</ion-label>
+              <ion-input [(ngModel)]="email"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label>Password</ion-label>
+              <ion-input [(ngModel)]="pass" type="password"></ion-input>
+            </ion-item>
+           <ion-row>
+             <ion-col></ion-col>
+             <ion-col>
+              <ion-button expand="full" class="center" (click)="register()">
+                Register
+              </ion-button>
+             </ion-col>
+             <ion-col></ion-col>
+           </ion-row>
+          </ion-list>
+          <ion-note class="msg">{{msg}}</ion-note>
+        </ion-card>
+        <div class="center">
+          <a *ngIf="!isRegister">Not yet have account? <b (click)="isRegister=true">Register</b></a>
+          <a *ngIf="isRegister">Already have account? <b (click)="isRegister=false">Login</b></a>
+        </div>
+      </ion-col>
+      <ion-col></ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

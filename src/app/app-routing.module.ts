@@ -13,7 +13,8 @@ const routes: Routes = [
   {
     path: 'qrcode',
     loadChildren: () => import('./modals/qrcode/qrcode.module').then( m => m.QrcodePageModule)
-  },  {
+  },
+  {
     path: 'tool',
     loadChildren: () => import('./modals/tool/tool.module').then( m => m.ToolPageModule)
   },
@@ -25,6 +26,11 @@ const routes: Routes = [
     path: 'menu',
     loadChildren: () => import('./modals/menu/menu.module').then( m => m.MenuPageModule)
   },
+  {
+    path: 'login',
+    loadChildren: () => import('./pages/login/login.module').then( m => m.LoginPageModule)
+  },
+
 
 
 

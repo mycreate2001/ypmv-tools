@@ -1,11 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { LoginGuard } from 'src/app/guards/login.guard';
 import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
   {
-    path: 'tabs',
+    path: 'main',
     component: TabsPage,
+    canActivate:[LoginGuard],
     children: [
       {
         path: 'tools',
@@ -31,17 +33,21 @@ const routes: Routes = [
         path:'formats',
         loadChildren:()=>import('../formats/formats.module').then(m=>m.FormatsPageModule)
       },
+      {
+        path: 'profile',
+        loadChildren: () => import('../profile/profile.module').then( m => m.ProfilePageModule)
+      },
 
       {
         path: '',
-        redirectTo: '/tabs/tools',
+        redirectTo: '/main/tools',
         pathMatch: 'full'
       }
     ]
   },
   {
     path: '',
-    redirectTo: '/tabs/tools',
+    redirectTo: '/main/tools',
     pathMatch: 'full'
   }
 ];
