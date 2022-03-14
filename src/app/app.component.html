@@ -1,3 +1,30 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-menu contentId="main-content" type="overlay">
+    <div class="menu-head-bg"></div>
+    <div class="header-content" *ngIf="user">
+      <img [src]="user.image?user.image:'../assets/image/no avatar.png'">
+      <ion-label (click)="menu($event)">
+        <h2>{{user.name?user.name:user.email}}</h2>
+        <p>{{user.name?user.email:''}}</p>
+      </ion-label>
+    </div>
+    <ion-content>
+      <ion-list>
+        <ion-menu-toggle auto-hide="true" *ngFor="let p of pages;let i=index">
+          <ion-item 
+            (click)="selectIndex=i" 
+            routerDirection="root" 
+            [routerLink]="[p.url]" 
+            lines="none"
+            detail="false"
+            [class.selected]="selectIndex==i"
+          >
+            <ion-icon slot="start" [name]="p.icon" [color]="p.iconColor?p.iconColor:''"></ion-icon>
+            <ion-label>{{p.name}}</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+  <ion-router-outlet id="main-content"></ion-router-outlet>
 </ion-app>

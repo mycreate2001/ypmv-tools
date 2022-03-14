@@ -44,10 +44,17 @@ export class AuthService {
     return signOut(this.auth)
   }
 
-  onAuthStatusChange(cb:Function):Unsubscribe{
-    return onAuthStateChanged(this.auth,user=>{
-      cb(user);
-    })
+  /**
+   * event when user status change
+   * @param cb handler when login/signout
+   * @param errHandler handler when error
+   * @returns monitor
+   */
+  onAuthStatusChange(cb:{(user:User):any},errHandler?:{(err:Error):any}):Unsubscribe{
+    return onAuthStateChanged(this.auth,
+      user=>cb(user),
+      err=>{if(errHandler) errHandler(err)}
+      )
   }
 
   /** get user */
@@ -70,7 +77,7 @@ export class AuthService {
       //verify password
       if(!pass ||pass.length<6 ) return reject(new Error('invalid password'));
       //email
-      if(!email ||!email.toUpperCase().includes('@YAMAHA')|| !email.includes('.')) return reject(new Error('invalid email'))
+      if(!email ||!email.includes('@')|| !email.includes('.')) return reject(new Error('invalid email'))
       createUserWithEmailAndPassword(this.auth,email,pass)
       .then(data=>{
         console.log("send verification email");

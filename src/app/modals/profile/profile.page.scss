@@ -1,0 +1,24 @@
+.img-cover{
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+img{
+    border: 0;
+    width: 40%;
+    aspect-ratio: 1;
+    display: block;
+    object-fit: contain;
+    border-radius: 50%;
+}
+.add-image {
+    position: absolute;
+    top: 70px;
+    font-size: 2rem;
+    color: rgba(153, 150, 150, 0.5);
+    /* background: rgba(0,0,0,0.8); */
+}
+ion-input{
+    text-align: right;
+}

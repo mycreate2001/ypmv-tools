@@ -1,8 +1,10 @@
 <ion-header>
   <ion-toolbar>
-
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/setting"></ion-back-button>
+      <ion-button [routerLink]="['/']">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        Back
+      </ion-button>
     </ion-buttons>
 
     <ion-searchbar 

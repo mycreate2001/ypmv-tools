@@ -1,13 +1,11 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { LoginGuard } from './guards/login/login.guard';
 
 const routes: Routes = [
   {
-    path: '',
-    loadChildren: () => import('./pages/tabs/tabs.module').then(m => m.TabsPageModule)
-  },
-  {
     path: 'camera',
+    canActivate:[LoginGuard],
     loadChildren: () => import('./modals/camera/camera.module').then( m => m.CameraPageModule)
   },
   {
@@ -16,10 +14,12 @@ const routes: Routes = [
   },
   {
     path: 'tool',
+    canActivate:[LoginGuard],
     loadChildren: () => import('./modals/tool/tool.module').then( m => m.ToolPageModule)
   },
   {
     path: 'search-tool',
+    canActivate:[LoginGuard],
     loadChildren: () => import('./modals/search-tool/search-tool.module').then( m => m.SearchToolPageModule)
   },
   {
@@ -30,12 +30,45 @@ const routes: Routes = [
     path: 'login',
     loadChildren: () => import('./pages/login/login.module').then( m => m.LoginPageModule)
   },
-
-
-
-
-  
-
+  {
+    path: 'tools',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./pages/tools/tools.module').then( m => m.ToolsPageModule)
+  },
+  {
+    path: 'model',
+    loadChildren: () => import('./modals/model/model.module').then( m => m.ToolDetailPageModule)
+  },
+  {
+    path: 'add',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./pages/add/add.module').then( m => m.ScanPageModule)
+  },
+  {
+    path: 'format-detail',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
+  },
+  {
+    path: 'setting',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./pages/setting/setting.module').then( m => m.SettingPageModule)
+  },
+  {
+    path:'formats',
+    canActivate:[LoginGuard],
+    loadChildren:()=>import('./pages/formats/formats.module').then(m=>m.FormatsPageModule)
+  },
+  {
+    path: 'profile',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./modals/profile/profile.module').then( m => m.ProfilePageModule)
+  },
+  {
+    path:'',
+    redirectTo:'add',
+    pathMatch:'full'
+  }
 ];
 @NgModule({
   imports: [

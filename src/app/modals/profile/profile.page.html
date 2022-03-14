@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="done('back')">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        Back
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Profile</ion-title>
+    <ion-buttons slot="end">
+      <ng-container *ngIf="isEdit">
+        <ion-button (click)="save()" *ngIf="isChange">
+          <ion-icon name="save-outline"></ion-icon>
+        </ion-button>
+      </ng-container>
+      <ion-button (click)="isEdit=!isEdit">
+        <ion-icon [name]="isEdit?'book':'create'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="user">
+  <div class="img-cover" >
+    <!-- <img [src]="user.photoURL?user.photoURL:'../assets/image/no avatar.png'" *ngIf="!isEdit" > -->
+    <img [src]="image?image:user.image?user.image:'../assets/image/no avatar.png'" >
+    <div class="add-image" *ngIf="isEdit" (click)="addImage()">add image</div>
+  </div>
+  <ion-list>
+    <ion-item  *ngIf="isEdit">
+      <ion-label color="primary">Name</ion-label>
+      <ion-input [(ngModel)]="user.name" (ionChange)="isChange=true"></ion-input>
+    </ion-item>
+    <ion-item *ngIf="!isEdit">
+      <ion-label>Name</ion-label>
+      <ion-text>{{user.name}}</ion-text>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>e-mail</ion-label>
+      <ion-text>{{user.email}}</ion-text>
+    </ion-item>
+    <ion-item>
+      <ion-label>Role</ion-label>
+      <ion-text>{{user.role?user.role:'user'}}</ion-text>
+    </ion-item>
+  </ion-list>
+</ion-content>
