@@ -15,3 +15,35 @@ ion-button {
 .pointer{
     cursor: pointer !important;
 }
+
+img{
+    width: 100%;
+    object-fit:cover;
+}
+
+img.image-square{
+    aspect-ratio: 1;
+}
+
+img.image-169{
+    aspect-ratio: 16/9;
+}
+
+.image-more {
+    position: absolute;
+    font-size: 3rem;
+    width: 50%;
+    height: 50%;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0,0,0,0.5);
+    text-align: center;
+    color: white;
+}
+.image-fake{
+    max-width: 50%;
+}
+
+.add-more-image{
+
+}

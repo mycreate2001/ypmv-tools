@@ -1,165 +1,127 @@
-<!-- header -->
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-button (click)="done('back')">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-        <ion-label>Back</ion-label>
+        <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{model.name?model.name:"(new)"}}</ion-title>
-
+    <ion-title>Tool Information</ion-title>
     <ion-buttons slot="end">
-      <div *ngIf="isEdit">
-        <ion-button (click)="done('ok')">
-          <ion-icon name="save-outline"></ion-icon>
+      <ng-container *ngIf="isEdit">
+        <ion-button (click)="save()" *ngIf="isChange">
+          <ion-icon name="save"></ion-icon>
         </ion-button>
-        <ion-button (click)="btnDelete()">
-          <ion-icon color="danger" name="trash-outline"></ion-icon>
+        <ion-button (click)="duplicate()" title="Duplicate">
+          <ion-icon name="duplicate"></ion-icon>
         </ion-button>
-      </div>
-      <ion-button (click)="duplicate()">
-        <ion-icon name="duplicate-outline"></ion-icon>
-      </ion-button>
-      <ion-button (click)="isEdit=!isEdit" >
-        <ion-icon [name]="isEdit?'book-outline':'create-outline'"></ion-icon>
+        <ion-button (click)="delete()" title="delete">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
+      </ng-container>
+      <ion-button (click)="isEdit=!isEdit">
+        <ion-icon [name]="isEdit?'book':'create'"></ion-icon>
       </ion-button>
     </ion-buttons>
-
   </ion-toolbar>
 </ion-header>
 
-<!-- content -->
-<ion-content>
-
-  <!-- edit page -->
-  <ion-list *ngIf="isEdit">
-    <ion-item>
-      <ion-label>id</ion-label>
-      <ion-text *ngIf="!isNew">{{model.id?model.id:'(new)'}}</ion-text>
-      <ng-container *ngIf="isNew">
-        <ion-input placeholder="(new)" [(ngModel)]="model.id"></ion-input>
-        <ion-buttons slot="end">
-          <ion-button>
-            <ion-icon name="qr-code"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ng-container>
-    </ion-item>
-    
-    <ion-item>
-      <ion-label>Name</ion-label>
-      <ion-input [(ngModel)]="model.name"></ion-input>
-    </ion-item>
-    
-    <ion-item>
-      <ion-label>Group</ion-label>
-      <ion-select [(ngModel)]="model.group">
-        <ion-select-option [value]="group" *ngFor="let group of groups">{{group}}</ion-select-option>
-      </ion-select>
-    </ion-item>
-
-    <ion-item>
-      <ion-label>Maintenance Period</ion-label>
-      <ion-input [(ngModel)]="model.maintenance" type="number"></ion-input>
-    </ion-item>
-
-    <ion-item (click)="isDetail=!isDetail"> 
-      <ion-label>Quantity</ion-label>
-      <ion-text >{{tools.length}}</ion-text>
-      <ion-icon slot="end" [name]="isDetail?'chevron-up-outline':'chevron-down-outline'"></ion-icon>
-    </ion-item>
-    <!-- detail tools -->
-    <ion-grid *ngIf="isDetail">
-      <ion-row>
-        <ion-col>
-          <ion-item lines="none">
-            <ion-button (click)="detail()">
-              <ion-icon name="add-outline"></ion-icon>
-              <ion-label>New</ion-label>
-            </ion-button>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col *ngFor="let tool of tools" (click)="detail(tool)">
-          <ion-label class="link">{{tool.id}}</ion-label>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-    <!-- images -->
-    <ion-card>
-      <!-- tool -->
-      <ion-item lines="none">
-        <ion-button (click)="addImage()">
-          <ion-icon name="camera"></ion-icon>
-          <ion-label>Take photo</ion-label>
-        </ion-button>
-      </ion-item>
-      <!-- display Images -->
-      <ion-grid >
-        <ion-row>
-          <!-- database images -->
-          <ion-col size="6" *ngFor="let image of [model.images]" >
-            <img [src]="image">
-          </ion-col>
-          <!-- temporary images -->
-          <ion-col size="6" *ngFor="let image of images" >
-            <img [src]="image">
-          </ion-col>
-          <ion-col *ngIf="(!model.images||!model.images.length)&&!images.length" size="6">
-            No Image here, pls take photo
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card>
-  </ion-list>
-
-
-  <!-- view page -->
-  <ion-list *ngIf="!isEdit">
-    <ion-item>
-      <ion-label>id</ion-label>
-      <ion-text>{{model.id?model.id:'(new)'}}</ion-text>
-    </ion-item>
-    
-    <ion-item>
-      <ion-label>Name</ion-label>
-      <ion-text>{{model.name}}</ion-text>
-    </ion-item>
-    
-    <ion-item>
-      <ion-label>Group</ion-label>
-      <ion-text>{{model.group}}</ion-text>
-    </ion-item>
-
-    <ion-item>
-      <ion-label>Maintenance Period</ion-label>
-      <ion-text>{{model.maintenance}}</ion-text>
-    </ion-item>
-
-    <ion-accordion-group>
-      <ion-accordion>
-        <ion-item slot="header"> 
-          <ion-label>Quantity</ion-label>
-          <ion-text >{{tools.length}}</ion-text>
-        </ion-item>
-
-        <ion-grid slot="content">
-          <ion-row>
-            <ion-col *ngFor="let tool of tools" (click)="detail(tool)" class="poiter">{{tool.id}}</ion-col>
-          </ion-row>
-        </ion-grid>
-      </ion-accordion>
-    </ion-accordion-group>
-    <!-- images -->
+<ion-content color="light" >
+  <ion-card (click)="showImage()">
     <ion-grid>
-      <ion-row>
-        <ion-col size="6" *ngFor="let image of model.images" >
-          <img [src]="image">
+      <ion-row *ngIf="!model.images.length">
+        <ion-col>
+          <img src="./../../../assets/image/no-image.png" class="image-169">
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="model.images.length==1">
+        <ion-col>
+          <img [src]="model.images[0]" class="image-169">
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="model.images.length==2">
+        <ion-col>
+          <img [src]="model.images[0]" class="image-square">
+        </ion-col>
+        <ion-col>
+          <img [src]="model.images[1]" class="image-square">
+        </ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="model.images.length>=3">
+        <ion-col size="8">
+          <img [src]="model.images[0]" class="image-square">
+        </ion-col>
+        <ion-col size="4" offset="0">
+          <ion-row >
+            <ion-col>
+              <img [src]="model.images[1]" class="image-square">
+            </ion-col>
+          </ion-row>
+          <ion-row >
+            <ion-col>
+              <img [src]="model.images[2]" class="image-square last">
+              <div class="image-more" *ngIf="model.images.length>3">{{model.images.length-3}}</div>
+            </ion-col>
+          </ion-row>
         </ion-col>
       </ion-row>
     </ion-grid>
+  </ion-card>
+  <!-- information -->
+  <ion-list >
+    <!-- edit page -->
+    <ng-container *ngIf="isEdit">
+      <ion-item>
+        <ion-label color="primary">Part No</ion-label>
+        <ion-input [(ngModel)]="model.id"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Part Name</ion-label>
+        <ion-input [(ngModel)]="model.name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Category</ion-label>
+        <ion-input [(ngModel)]="model.group"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Maintenance Period [day]</ion-label>
+        <ion-input [(ngModel)]="model.maintenance"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Comp Qty[pcs]</ion-label>
+        <ion-input [(ngModel)]="model.comQty"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary">Quantity [pcs]</ion-label>
+        <ion-text>{{tools.length}}</ion-text>
+      </ion-item>
+    </ng-container>
+    <!-- view page -->
+    <ng-container *ngIf="!isEdit">
+      <ion-item>
+        <ion-label>Part No</ion-label>
+        <ion-text>{{model.id}}</ion-text>
+      </ion-item>
+      <ion-item>
+        <ion-label>Part Name</ion-label>
+        <ion-text >{{model.name}}</ion-text>
+      </ion-item>
+      <ion-item>
+        <ion-label>Category</ion-label>
+        <ion-text >{{model.group}}</ion-text>
+      </ion-item>
+      <ion-item>
+        <ion-label>Maintenance Period [day]</ion-label>
+        <ion-text >{{model.maintenance}}</ion-text>
+      </ion-item>
+      <ion-item>
+        <ion-label>Comp Qty[pcs]</ion-label>
+        <ion-text >{{model.comQty}}</ion-text>
+      </ion-item>
+      <ion-item>
+        <ion-label>Quantity [pcs]</ion-label>
+        <ion-text>{{tools.length}}</ion-text>
+      </ion-item>
+    </ng-container>
   </ion-list>
-
 </ion-content>

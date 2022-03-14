@@ -16,9 +16,14 @@ export class ToolDetailPage implements OnInit {
   model:ModelData;
   tools:ToolData[]=[];
   groups:string[]=[];
-  isNew:boolean=false;
+  pos:number=0; //tool position
+  isChange:boolean=false;
   isEdit:boolean=false;
   images:string[]=[];//base64 for temporary images
+  /** it's may get from database */
+  visualStatus=["OK","scratch","Crack","other"];
+  operationStatus=["OK","Not smomthly","Cannot operation","other"];
+  functionStatus=["OK","Not correctly","other"];
   constructor(
     private modal:ModalController,
     private disp:DisplayService,
@@ -35,40 +40,15 @@ export class ToolDetailPage implements OnInit {
 
   //buttons
 
-  //save, back
-  done(role?:any){
-    console.log("done, role:",role);
-    role=(role+"").toUpperCase();
-    if(!role) role="OK"
-    if(role=='OK'){//handle OK
-      if(this.images.length){//new image
-        const urls:string[]=[]
-        const promiseAll=this.images.map(image=>{
-          return this.storage.uploadImagebase64(image,`models/${this.model.id||"none"}/`)
-          .then(x=>{
-            console.log("url:",x.url)
-            return x.url
-          })
-        })
-        Promise.all(promiseAll)
-        .then((urls)=>{
-          console.log("result:",urls);
-          if(this.model.images) this.model.images=this.model.images.concat(urls);
-          else this.model.images=urls;
-          this.db.add('models',this.model,true);
-        })
-        .catch(err=>this.disp.msgbox("ERR<br>"+err.message))
-      }
-      else{
-        this.db.add('models',this.model,true);
-      }
-    }
-    return this.modal.dismiss(this.model,role);
+  /** end of modal */
+  done(role:string="OK"){
+    role=role.toUpperCase();
+    this.modal.dismiss(this.model,role)
   }
 
   //new
   btnNew(){
-    this.isNew=true;
+    // this.isNew=true;
     this.model=createModelData({group:this.model.group});
     this.tools=[];
   }
@@ -107,7 +87,7 @@ export class ToolDetailPage implements OnInit {
     this.model=createModelData({...data});
     this.tools=[];
     this.isEdit=true;
-    this.isNew=true;
+    // this.isNew=true;
   }
 
   //add new image
@@ -115,6 +95,28 @@ export class ToolDetailPage implements OnInit {
     const {data,role}=await this.disp.showModal(CameraPage);
     if(role.toUpperCase()!="OK") return;
     this.images.push(data);
+  }
+
+  //upload image
+  uploadImage():Promise<ModelData>{
+    return new Promise((resolve,reject)=>{
+      if(!this.images.length) return resolve(this.model);
+      const all=this.images.map(image=>this.storage.uploadImagebase64(image));
+      Promise.all(all)
+      .then(uImages=>{
+        const urls=uImages.map(x=>x.url);
+        this.model.images=this.model.images.concat(urls);
+        return resolve(this.model)
+      })
+      .catch(err=>reject(err))
+    })
+  }
+
+  /** button save */
+  save(){
+    this.uploadImage()
+    .then(model=> this.db.add(_DB_MODEL,model))
+    .then(()=>this.done())
   }
 
 }

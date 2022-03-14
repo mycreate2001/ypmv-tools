@@ -32,6 +32,7 @@ export interface ModelData extends SaveInfo{
     group:string;               // Category
     maintenance:number;         // day of maintenance
     images:string[];            // images
+    compQty:number;             // quantity of component
 }
 
 export interface ModelDataOpts extends SaveInfoOpts{
@@ -40,6 +41,7 @@ export interface ModelDataOpts extends SaveInfoOpts{
     group?:string;               // Category
     maintenance?:number;         // day of maintenance
     images?:string[];            // images
+    compQty?:number;
 }
 
 /** make new modeldata from default & option */
@@ -50,7 +52,8 @@ export function createModelData(opts?:ModelDataOpts,debug:boolean=false):ModelDa
         name:'',
         group:'',
         maintenance:180,
-        images:[]
+        images:[],
+        compQty:1
     }
     const model= createOpts(df,opts) as ModelData
     if(debug) console.log("\ncreateModelData",{opts,model});
@@ -64,38 +67,46 @@ export function createModelData(opts?:ModelDataOpts,debug:boolean=false):ModelDa
  */
 export interface ToolDataOpts extends SaveInfoOpts{
     id?:string;                  // tool id
-    startUse?:Date;              // start use this tool
+    startUse?:string;              // start use this tool
     endUse?:String;                // destroy date
-    lastMaintenance?:Date;       // last maintenance
-    vitual?:number;              // status vitual of tool, 0=OK, 1,2,3... NG
+    lastMaintenance?:string;       // last maintenance
+    visual?:number;              // status vitual of tool, 0=OK, 1,2,3... NG
     operation?:number;           // status of tool operation, o= OK
     function?:number;            // status of tool function, 0=OK
-    model?:string;           
+    model?:string; 
+    stay?:string;               // where keep this tool
+    parentsId?:string;         // parents id (like book, cover)         
 }
 
 export interface ToolData extends SaveInfo{
     id:string;                  // tool id
-    startUse:Date;              // start use this tool
+    startUse:string;              // start use this tool
     endUse:String;                // destroy date
-    lastMaintenance:Date;       // last maintenance
+    lastMaintenance:string;       // last maintenance
     visual:number;              // status vitual of tool, 0=OK, 1,2,3... NG
     operation:number;           // status of tool operation, o= OK
     function:number;            // status of tool function, 0=OK
-    model:string;                   // model id
+    model:string;               // model id
+    stay:string;                // where keep tool (stay alone)
+    parentsId:string;           // cover/box keep this tool
 }
 
 
 export function createToolData(opts?:ToolDataOpts):ToolData{
+    const now=new Date();
+    const id="TL="+now.getTime().toString(36);
     const df:ToolData={
-        ...createSaveInf(),
-        id:'',
-        startUse:new Date(),
+        ...createSaveInf({createAt:now.toISOString()}),
+        id,
+        startUse:now.toISOString(),
         endUse:'',
         lastMaintenance:null,
         visual:0,
         operation:0,
         function:0,
-        model:''
+        model:'',
+        stay:'',
+        parentsId:''
     }
     return createOpts(df,opts) as ToolData;
 }
