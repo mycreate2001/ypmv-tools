@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ModelData, ToolData } from 'src/app/models/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
+import QrCreator from 'qr-creator';
 const _DB_TOOL='tools'
 @Component({
   selector: 'app-tool',
@@ -45,8 +46,16 @@ export class ToolPage implements OnInit {
   /** print code */
   print(){
     const windowp=window.open('','','left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-    windowp.document.write("hello would");
-    windowp.document.close();
+    windowp.document.write("<div id='qr-code'></div>");
+    QrCreator.render({
+      text:"TL-"+this.tool.id,
+      radius:0,
+      ecLevel:'H',
+      // fill:'#536DFE',
+      background:null,
+      // size:128
+    }, windowp.document.querySelector('#qr-code'))
+    console.log("query:",windowp.document.querySelector("#qr-code"))
     windowp.focus();
     windowp.print();
     windowp.close();
