@@ -6,3 +6,11 @@ export interface PageData{
     icon:string;
     iconColor?:ColorType;
 }
+
+export interface MenuData{
+    name:string;
+    icon?:string;
+    iconColor?:ColorType;
+    handler?:Function;
+    role?:string;
+}

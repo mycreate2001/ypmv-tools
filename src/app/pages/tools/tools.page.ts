@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ToolDetailPage } from '../../modals/model/model.page';
 import { DisplayService } from '../../services/display/display.service';
-import { convert, getList } from '../../utils/minitools';
+import { getList } from '../../utils/minitools';
 import { createModelData, ModelData, ToolData } from '../../models/tools.model';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { MenuData } from 'src/app/modals/menu/menu.page';
+import { MenuData } from 'src/app/models/util.model';
+// import { MenuData } from 'src/app/modals/menu/menu.page';
 interface ModelExtend {
   tools:ToolData[];
   model:ModelData;
@@ -137,11 +138,8 @@ export class ToolsPage implements OnInit {
   test_showmenu(event){
     console.log("menu running");
     const menus:MenuData[]=[
-      {name:'test-01',handler:()=>console.log("click-1"),role:'1'},
-      {name:'test-02',handler:()=>console.log("click-2"),role:'2'},
-      {name:'test-03',handler:()=>console.log("click-3"),role:'3'},
-      {name:'test-04',handler:()=>console.log("click-4"),role:'4'},
-      {name:'test-05',handler:()=>console.log("click-5"),role:'5'}
+      {name:'New tool Infor',handler:()=>this.showDetail(),role:'1'},
+      {name:'new Category',handler:()=>this.addCatelogy(),role:'2'},
     ]
     this.disp.showMenu(event,{menus}).then(result=>{
       console.log("result of menu",result);

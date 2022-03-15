@@ -1,13 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { ColorType } from 'src/app/models/util.model';
-export interface MenuData{
-  name:string;
-  handler?:Function;
-  role?:string;
-  icon?:string;
-  iconColor?:ColorType;
-}
+import { PopoverController } from '@ionic/angular';
+import { ColorType, MenuData } from 'src/app/models/util.model';
+
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.page.html',

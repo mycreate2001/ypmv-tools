@@ -71,6 +71,14 @@ const routes: Routes = [
   },  {
     path: 'image-view',
     loadChildren: () => import('./modals/image-view/image-view.module').then( m => m.ImageViewPageModule)
+  },
+  {
+    path: 'companies',
+    loadChildren: () => import('./pages/companies/companies.module').then( m => m.CompaniesPageModule)
+  },
+  {
+    path: 'company',
+    loadChildren: () => import('./modals/company/company.module').then( m => m.CompanyPageModule)
   }
 
 ];

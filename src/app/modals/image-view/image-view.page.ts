@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { MenuData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { CameraPage } from '../camera/camera.page';
-import { MenuData } from '../menu/menu.page';
+// import { MenuData } from '../menu/menu.page';
 
 @Component({
   selector: 'app-image-view',

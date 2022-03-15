@@ -1,14 +1,12 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Unsubscribe } from 'firebase/auth';
-import { MenuData } from './modals/menu/menu.page';
 import { ProfilePage } from './modals/profile/profile.page';
 import { UserData } from './models/user.model';
-import { PageData } from './models/util.model';
+import { MenuData, PageData } from './models/util.model';
 import { DisplayService } from './services/display/display.service';
 import { AuthService } from './services/firebase/auth.service';
-import { ConnectData, FirestoreService } from './services/firebase/firestore.service';
-import { StorageService } from './services/firebase/storage.service';
+import { FirestoreService } from './services/firebase/firestore.service';
 const _DB_USER='users';
 
 @Component({
@@ -19,9 +17,10 @@ const _DB_USER='users';
 export class AppComponent {
   /** variable */
   pages:PageData[]=[
-    {name:'Scan',url:'add',icon:'scan-circle-outline',iconColor:'success'},
-    {name:'Tools',url:'tools',icon:'hammer-outline',iconColor:'primary'},
-    {name:'Code Format',url:'formats',icon:'qr-code-outline',iconColor:'tertiary'},
+    {name:'Scan',url:'add',icon:'scan-circle',iconColor:'success'},
+    {name:'Tools',url:'tools',icon:'hammer',iconColor:'primary'},
+    {name:'Code Format',url:'formats',icon:'qr-code',iconColor:'tertiary'},
+    {name:'Companies',url:'companies',icon:'briefcase'},//<ion-icon name="briefcase"></ion-icon>
   ]
   user:UserData=null;
   selectIndex:number=0;

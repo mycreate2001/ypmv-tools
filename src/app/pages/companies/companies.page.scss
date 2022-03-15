@@ -1,0 +1,32 @@
+ion-list.infor{
+    font-size: 0.7rem;
+}
+
+ion-card{
+    padding: 12px;
+}
+ion-card.infor{
+    max-width: 600px !important;
+    margin: 5px !important;
+}
+
+ion-icon{
+    margin-right: 12px;
+    font-size: 1.5rem !important;
+}
+
+ion-col.infor{
+    display: flex;
+    justify-content: center;
+}
+
+ion-col.image{
+    display: flex;
+    justify-content: center;
+}
+
+ion-col img{
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+}
