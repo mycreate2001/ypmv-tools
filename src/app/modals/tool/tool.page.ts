@@ -42,6 +42,16 @@ export class ToolPage implements OnInit {
     return this.modal.dismiss(this.tool,role);
   }
 
+  /** print code */
+  print(){
+    const windowp=window.open('','','left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
+    windowp.document.write("hello would");
+    windowp.document.close();
+    windowp.focus();
+    windowp.print();
+    windowp.close();
+  }
+
   save(){
     this.db.add(_DB_TOOL,this.tool)
     .then(()=>this.done())
