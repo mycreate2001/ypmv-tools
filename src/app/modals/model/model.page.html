@@ -7,14 +7,14 @@
     </ion-buttons>
     <ion-title>Tool Information</ion-title>
     <ion-buttons slot="end">
+      <!-- edit -->
       <ng-container *ngIf="isEdit">
-
         <ion-button (click)="save()" *ngIf="isChange" title="Save tool Infor">
           <ion-icon name="save"></ion-icon>
         </ion-button>
 
-        <ion-button (click)="detail()" title="new tool">
-          <ion-icon name="add-circle"></ion-icon>
+        <ion-button (click)="addImage()" title="add Image">
+          <ion-icon name="camera"></ion-icon>
         </ion-button>
 
         <ion-button (click)="duplicate()" title="Duplicate tool infor">
@@ -24,8 +24,11 @@
         <ion-button (click)="delete()" title="delete tool Infor">
           <ion-icon name="trash"></ion-icon>
         </ion-button>
-
       </ng-container>
+      <!-- new tool -->
+      <ion-button (click)="detail()" title="new tool">
+        <ion-icon name="add-circle"></ion-icon>
+      </ion-button>
 
       <ion-button (click)="isEdit=!isEdit" [title]="isEdit?'View':'Edit'">
         <ion-icon *ngIf="isEdit" title="Edit" name="book"></ion-icon>
@@ -38,39 +41,39 @@
 <ion-content color="light" >
   <ion-card (click)="showImage()">
     <ion-grid>
-      <ion-row *ngIf="!model.images.length">
+      <ion-row *ngIf="!viewImages.length">
         <ion-col>
           <img src="./../../../assets/image/no-image.png" class="image-43">
         </ion-col>
       </ion-row>
-      <ion-row *ngIf="model.images.length==1">
+      <ion-row *ngIf="viewImages.length==1">
         <ion-col>
-          <img [src]="model.images[0]" class="image-43">
+          <img [src]="viewImages[0]" class="image-43">
         </ion-col>
       </ion-row>
-      <ion-row *ngIf="model.images.length==2">
+      <ion-row *ngIf="viewImages.length==2">
         <ion-col>
-          <img [src]="model.images[0]" class="image-square">
+          <img [src]="viewImages[0]" class="image-square">
         </ion-col>
         <ion-col>
-          <img [src]="model.images[1]" class="image-square">
+          <img [src]="viewImages[1]" class="image-square">
         </ion-col>
       </ion-row>
 
-      <ion-row *ngIf="model.images.length>=3">
+      <ion-row *ngIf="viewImages.length>=3">
         <ion-col size="8">
-          <img [src]="model.images[0]" class="image-square">
+          <img [src]="viewImages[0]" class="image-square">
         </ion-col>
         <ion-col size="4" offset="0">
           <ion-row >
             <ion-col>
-              <img [src]="model.images[1]" class="image-square">
+              <img [src]="viewImages[1]" class="image-square">
             </ion-col>
           </ion-row>
           <ion-row >
             <ion-col>
-              <img [src]="model.images[2]" class="image-square last">
-              <div class="image-more" *ngIf="model.images.length>3">{{model.images.length-3}}</div>
+              <img [src]="viewImages[2]" class="image-square last">
+              <div class="image-more" *ngIf="viewImages.length>3">{{viewImages.length-3}}</div>
             </ion-col>
           </ion-row>
         </ion-col>
@@ -84,23 +87,23 @@
       <ng-container *ngIf="isEdit">
         <ion-item>
           <ion-label color="primary">Part No</ion-label>
-          <ion-input [(ngModel)]="model.id"></ion-input>
+          <ion-input (ionChange)="isChange=true" [(ngModel)]="model.id"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label color="primary">Part Name</ion-label>
-          <ion-input [(ngModel)]="model.name"></ion-input>
+          <ion-input  (ionChange)="isChange=true" [(ngModel)]="model.name"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label color="primary">Category</ion-label>
-          <ion-input [(ngModel)]="model.group"></ion-input>
+          <ion-input (ionChange)="isChange=true" [(ngModel)]="model.group"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label color="primary">Maintenance Period [day]</ion-label>
-          <ion-input [(ngModel)]="model.maintenance"></ion-input>
+          <ion-input (ionChange)="isChange=true" [(ngModel)]="model.maintenance"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label color="primary">Comp Qty[pcs]</ion-label>
-          <ion-input [(ngModel)]="model.comQty"></ion-input>
+          <ion-input (ionChange)="isChange=true" [(ngModel)]="model.compQty"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label color="primary">Quantity [pcs]</ion-label>
@@ -127,7 +130,7 @@
         </ion-item>
         <ion-item>
           <ion-label>Comp Qty[pcs]</ion-label>
-          <ion-text >{{model.comQty}}</ion-text>
+          <ion-text >{{model.compQty}}</ion-text>
         </ion-item>
       </ng-container>
   

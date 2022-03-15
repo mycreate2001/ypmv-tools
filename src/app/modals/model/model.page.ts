@@ -20,10 +20,10 @@ export class ToolDetailPage implements OnInit {
   model:ModelData;
   tools:ToolData[]=[];
   groups:string[]=[];
-  pos:number=0; //tool position
   isChange:boolean=false;
   isEdit:boolean=false;
   images:string[]=[];       //iamges wil add more to db
+  viewImages:string[]=[];
   delImages:string[]=[];    //image will delete
   user:UserData=null;
   /** it's may get from database */
@@ -40,10 +40,13 @@ export class ToolDetailPage implements OnInit {
     // console.log("model:",this.model);
     // this.backup=JSON.parse(JSON.stringify(this.model));
   }
-
+  private _updateImageView(){
+    this.viewImages=this.images.concat(this.model.images);
+  }
   ngOnInit() {
     console.log("initial value:",this);
     this.user=this.auth.currentUser;
+    this._updateImageView();
   }
 
   /** upload image */
@@ -81,12 +84,6 @@ export class ToolDetailPage implements OnInit {
     // this.isNew=true;
   }
 
-  /** button for handling add image */
-  async addImage(){
-    const {data,role}=await this.disp.showModal(CameraPage,{aspectRatio:modelconfig.aspectRatio});
-    if(role.toUpperCase()!="OK") return;
-    this.images.push(data);
-  }
 
   /** button show image */
   showImage(){
@@ -101,10 +98,21 @@ export class ToolDetailPage implements OnInit {
         this.model.images=images;
         this.images=addImages;
         this.delImages=delImages;
+        this._updateImageView();
       }
     })
   }
 
+  /** button add image */
+  addImage(){
+    this.disp.showModal(CameraPage)
+    .then(result=>{
+      if(result.role.toUpperCase()!='OK') return;
+      this.images.push(result.data)
+      this.isChange=true;
+      this._updateImageView();
+    })
+  }
 
   /** button save */
   save(){
@@ -125,10 +133,11 @@ export class ToolDetailPage implements OnInit {
   }
 
   /** button tool detail */
-  detail(tool:ToolData){
+  detail(tool:ToolData=null){
+    const isNew:boolean=tool?false:true;
     const isEdit:boolean=tool?false:true;
     if(!tool) tool=createToolData({model:this.model.id,userId:this.user.id})
-    this.disp.showModal(ToolPage,{model:this.model,tool,isEdit})
+    this.disp.showModal(ToolPage,{model:this.model,tool,isEdit,isNew})
   }
 
 }

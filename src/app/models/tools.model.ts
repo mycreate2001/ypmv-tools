@@ -46,9 +46,11 @@ export interface ModelDataOpts extends SaveInfoOpts{
 
 /** make new modeldata from default & option */
 export function createModelData(opts?:ModelDataOpts,debug:boolean=false):ModelData{
+    const now=new Date();
+    const id="M-"+now.getTime().toString(36);
     const df:ModelData={
-        ...createSaveInf(),
-        id:'',
+        ...createSaveInf({createAt:now.toISOString()}),
+        id,
         name:'',
         group:'',
         maintenance:180,

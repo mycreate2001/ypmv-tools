@@ -1,17 +1,22 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="close()">
-        <ion-icon name="save"></ion-icon>
-        <ion-label>Save</ion-label>
+      <ion-button (click)="close(false)">
+        <ion-icon name="arrow-back"></ion-icon>
+        <ion-label>Cancel</ion-label>
       </ion-button>
     </ion-buttons>
     <ion-title>camera</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="close(false)">
-        <ion-icon name="close"></ion-icon>
-        <ion-label>Cancel</ion-label>
+
+      <ion-button (click)="turnImage()">
+        <ion-icon name="reload"></ion-icon>
       </ion-button>
+
+      <ion-button (click)="close()">
+        <ion-icon name="save"></ion-icon>
+      </ion-button>
+
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -21,10 +26,13 @@
     [imageBase64]="image"
     [maintainAspectRatio]="fix" 
     [aspectRatio]="aspectRatio"
-    format="jpg"
+    format="jpeg"
     (imageCropped)="imageCropped($event)" 
     (imageLoaded)="imageLoaded()" 
     (cropperReady)="cropperReady()"
-    (loadImageFailed)="loadImageFailed()">
+    (loadImageFailed)="loadImageFailed()"
+    [canvasRotation]="rotation"
+    [transform]="transform"
+  >
   </image-cropper>
 </ion-content>

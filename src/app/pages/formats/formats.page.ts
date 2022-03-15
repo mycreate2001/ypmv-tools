@@ -56,7 +56,7 @@ export class FormatsPage implements OnInit {
     })
   }
 
-  async showDetail(xdata:CodeFormatData){
+  async showDetail(xdata:CodeFormatData=null){
     const format=xdata||createFormatData();
     
     const {role,data}=await this.disp.showModal(FormatDetailPage,{format,code:this.code});

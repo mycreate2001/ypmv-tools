@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { ModalController } from '@ionic/angular';
-import { ImageCroppedEvent } from 'ngx-image-cropper';
+import { ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
 
 @Component({
   selector: 'app-camera',
@@ -14,11 +14,21 @@ export class CameraPage implements OnInit {
   croppedImage:any;
   aspectRatio:number=4/3;
   fix:boolean=true;
+  rotation:number=0;
+  transform:ImageTransform={}
   /** functions */
   constructor(private modal:ModalController) {
     console.log("this:",this);
   }
-
+  private _afterRotating(){
+    const flipH=this.transform.flipH;
+    const flipV=this.transform.flipV;
+    this.transform={
+      ...this.transform,
+      flipH:flipV,
+      flipV:flipH
+    }
+  }
   takeImage(){
     const image=Camera.getPhoto({
       quality:90,
@@ -46,6 +56,13 @@ export class CameraPage implements OnInit {
   }
   cropperReady(){
     console.log("crop ready now");
+  }
+
+  turnImage(){
+    this.rotation--;
+    this._afterRotating();
+    console.log("rotation:",this.rotation);
+
   }
 
   ngOnInit() {

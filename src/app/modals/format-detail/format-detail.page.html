@@ -32,7 +32,7 @@
         <ion-item *ngFor="let item of LIST">
           <ion-label color="primary">{{item.n}}</ion-label>
           <ion-input placeholder="(blank)" [(ngModel)]="format[item.v]" (ionChange)="update()"></ion-input>
-          <ion-badge *ngIf="code &&checks[item.v]!=underfined" [color]="checks[item.v]?'danger':'primary'">
+          <ion-badge *ngIf="code &&checks[item.v]!=undefined" [color]="checks[item.v]?'danger':'primary'">
             {{checks[item.v]?checks[item.v]:"OK"}}
           </ion-badge>
         </ion-item>

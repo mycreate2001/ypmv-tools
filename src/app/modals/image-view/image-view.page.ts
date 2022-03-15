@@ -22,6 +22,7 @@ export class ImageViewPage implements OnInit {
   ) { }
 
   ngOnInit() {
+    if(!this.images||!this.images.length) this.add()
   }
 
   done(role:string="OK"){

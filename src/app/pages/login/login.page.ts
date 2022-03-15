@@ -19,6 +19,7 @@ export class LoginPage implements OnInit {
   email:string='';
   pass:string='';
   msg:string='';
+  isRegister:boolean=false;
   constructor(
       private auth:AuthService,
       private router:Router,

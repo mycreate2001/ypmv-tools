@@ -35,10 +35,13 @@
 
     <!-- tool information -->
     <ion-card class="infor">
-      <ion-item>
+      <ion-item *ngIf="isNew && isEdit">
         <ion-label>Series No</ion-label>
-        <ion-input *ngIf="isNew && isEdit" [(ngModel)]="tool.id"></ion-input>
-        <ion-text *ngIf="!isNew||!isEdit">{{tool.id}}</ion-text>
+        <ion-input  [(ngModel)]="tool.id"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="!isNew||!isEdit">
+        <ion-label>Series No</ion-label>
+        <ion-text >{{tool.id}}</ion-text>
       </ion-item>
   
       <ion-item>
@@ -53,7 +56,7 @@
   
       <ion-item>
         <ion-label>Stay</ion-label>
-        <ion-text>{{tool.staty}}</ion-text>
+        <ion-text>{{tool.stay}}</ion-text>
       </ion-item>
   
       <ion-accordion-group>

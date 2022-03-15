@@ -21,11 +21,15 @@
   <ion-card *ngFor="let image of images;let pos=index">
     <ion-toolbar lines="none">
       <ion-title>title of image</ion-title>
+
       <ion-buttons slot="end">
+
         <ion-button (click)="menu($event,pos)">
           <ion-icon name="ellipsis-vertical"></ion-icon>
         </ion-button>
+
       </ion-buttons>
+
     </ion-toolbar>
     <img [src]="image">
   </ion-card>
@@ -35,7 +39,7 @@
       <ion-buttons slot="end">
         <ion-button (click)="menu($event,pos,true)">
           <ion-icon name="ellipsis-vertical"></ion-icon>
-        </ion-button>"
+        </ion-button>
       </ion-buttons>
     </ion-toolbar>
     <img [src]="image">
