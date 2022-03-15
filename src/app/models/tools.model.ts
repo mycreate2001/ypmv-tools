@@ -94,7 +94,7 @@ export interface ToolData extends SaveInfo{
 
 export function createToolData(opts?:ToolDataOpts):ToolData{
     const now=new Date();
-    const id="TL="+now.getTime().toString(36);
+    const id="TL-"+now.getTime().toString(36);
     const df:ToolData={
         ...createSaveInf({createAt:now.toISOString()}),
         id,

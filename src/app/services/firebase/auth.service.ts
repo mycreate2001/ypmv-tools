@@ -5,18 +5,33 @@ import { Auth,getAuth, connectAuthEmulator,
          createUserWithEmailAndPassword,
          sendEmailVerification,signOut,
          User,onAuthStateChanged, UserCredential, Unsubscribe                      } from 'firebase/auth'
+import { Observable, Observer, of } from 'rxjs';
+import { UserData } from 'src/app/models/user.model';
 import { environment } from 'src/environments/environment';
-
+import { FirestoreService } from './firestore.service';
+const _DB_USER="users"
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   unsubcribe:Unsubscribe;
   auth:Auth;
-  constructor() {
+  currentUser:UserData=null;
+  constructor(
+    private db:FirestoreService
+  ) {
     const app=initializeApp(environment.firebaseConfig);
     this.auth=getAuth(app);
     // connectAuthEmulator(this.auth,'http://localhost:9099');//emulator
+    this.unsubcribe=this.onAuthStatusChange(user=>{
+      if(!user){ this.currentUser=null; return}
+      const id=user.uid;
+      this.db.get(_DB_USER,id)
+      .then(data=>{
+        this.currentUser=data;
+      })
+      .catch(err=>this.currentUser=null)
+    })
   }
 
   /**

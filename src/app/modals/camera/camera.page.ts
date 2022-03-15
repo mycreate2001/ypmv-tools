@@ -12,7 +12,7 @@ export class CameraPage implements OnInit {
   /** variable */
   image:any;
   croppedImage:any;
-  ratio:number=4/3;
+  aspectRatio:number=4/3;
   fix:boolean=true;
   /** functions */
   constructor(private modal:ModalController) {

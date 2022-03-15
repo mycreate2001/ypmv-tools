@@ -6,4 +6,17 @@ ion-accordion.accordion-expanding,
   ion-accordion.accordion-expanded {
     width: calc(100% - 32px);
     margin: 16px auto;
-  }
+}
+
+img{
+  width: 100%;
+}
+
+img.image-43 {
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+ion-card.infor{
+  padding: 24px 12px;
+}

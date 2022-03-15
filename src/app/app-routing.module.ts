@@ -68,7 +68,11 @@ const routes: Routes = [
     path:'',
     redirectTo:'add',
     pathMatch:'full'
+  },  {
+    path: 'image-view',
+    loadChildren: () => import('./modals/image-view/image-view.module').then( m => m.ImageViewPageModule)
   }
+
 ];
 @NgModule({
   imports: [

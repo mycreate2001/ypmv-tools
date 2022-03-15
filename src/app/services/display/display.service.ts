@@ -46,7 +46,7 @@ export class DisplayService {
     console.log("props:",_props);
     const modal=await this.modal.create({
       component,
-      componentProps:props,
+      componentProps:_props,
       backdropDismiss:backdrop,
       mode:'ios'
     })

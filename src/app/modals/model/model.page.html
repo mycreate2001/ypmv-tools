@@ -8,18 +8,28 @@
     <ion-title>Tool Information</ion-title>
     <ion-buttons slot="end">
       <ng-container *ngIf="isEdit">
-        <ion-button (click)="save()" *ngIf="isChange">
+
+        <ion-button (click)="save()" *ngIf="isChange" title="Save tool Infor">
           <ion-icon name="save"></ion-icon>
         </ion-button>
-        <ion-button (click)="duplicate()" title="Duplicate">
+
+        <ion-button (click)="detail()" title="new tool">
+          <ion-icon name="add-circle"></ion-icon>
+        </ion-button>
+
+        <ion-button (click)="duplicate()" title="Duplicate tool infor">
           <ion-icon name="duplicate"></ion-icon>
         </ion-button>
-        <ion-button (click)="delete()" title="delete">
+
+        <ion-button (click)="delete()" title="delete tool Infor">
           <ion-icon name="trash"></ion-icon>
         </ion-button>
+
       </ng-container>
-      <ion-button (click)="isEdit=!isEdit">
-        <ion-icon [name]="isEdit?'book':'create'"></ion-icon>
+
+      <ion-button (click)="isEdit=!isEdit" [title]="isEdit?'View':'Edit'">
+        <ion-icon *ngIf="isEdit" title="Edit" name="book"></ion-icon>
+        <ion-icon *ngIf="!isEdit" title="View" name="create"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -30,12 +40,12 @@
     <ion-grid>
       <ion-row *ngIf="!model.images.length">
         <ion-col>
-          <img src="./../../../assets/image/no-image.png" class="image-169">
+          <img src="./../../../assets/image/no-image.png" class="image-43">
         </ion-col>
       </ion-row>
       <ion-row *ngIf="model.images.length==1">
         <ion-col>
-          <img [src]="model.images[0]" class="image-169">
+          <img [src]="model.images[0]" class="image-43">
         </ion-col>
       </ion-row>
       <ion-row *ngIf="model.images.length==2">
@@ -68,60 +78,72 @@
     </ion-grid>
   </ion-card>
   <!-- information -->
-  <ion-list >
-    <!-- edit page -->
-    <ng-container *ngIf="isEdit">
-      <ion-item>
-        <ion-label color="primary">Part No</ion-label>
-        <ion-input [(ngModel)]="model.id"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label color="primary">Part Name</ion-label>
-        <ion-input [(ngModel)]="model.name"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label color="primary">Category</ion-label>
-        <ion-input [(ngModel)]="model.group"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label color="primary">Maintenance Period [day]</ion-label>
-        <ion-input [(ngModel)]="model.maintenance"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label color="primary">Comp Qty[pcs]</ion-label>
-        <ion-input [(ngModel)]="model.comQty"></ion-input>
-      </ion-item>
-      <ion-item>
-        <ion-label color="primary">Quantity [pcs]</ion-label>
-        <ion-text>{{tools.length}}</ion-text>
-      </ion-item>
-    </ng-container>
-    <!-- view page -->
-    <ng-container *ngIf="!isEdit">
-      <ion-item>
-        <ion-label>Part No</ion-label>
-        <ion-text>{{model.id}}</ion-text>
-      </ion-item>
-      <ion-item>
-        <ion-label>Part Name</ion-label>
-        <ion-text >{{model.name}}</ion-text>
-      </ion-item>
-      <ion-item>
-        <ion-label>Category</ion-label>
-        <ion-text >{{model.group}}</ion-text>
-      </ion-item>
-      <ion-item>
-        <ion-label>Maintenance Period [day]</ion-label>
-        <ion-text >{{model.maintenance}}</ion-text>
-      </ion-item>
-      <ion-item>
-        <ion-label>Comp Qty[pcs]</ion-label>
-        <ion-text >{{model.comQty}}</ion-text>
-      </ion-item>
-      <ion-item>
-        <ion-label>Quantity [pcs]</ion-label>
-        <ion-text>{{tools.length}}</ion-text>
-      </ion-item>
-    </ng-container>
-  </ion-list>
+  <ion-card class="info">
+    <ion-list >
+      <!-- edit page -->
+      <ng-container *ngIf="isEdit">
+        <ion-item>
+          <ion-label color="primary">Part No</ion-label>
+          <ion-input [(ngModel)]="model.id"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Part Name</ion-label>
+          <ion-input [(ngModel)]="model.name"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Category</ion-label>
+          <ion-input [(ngModel)]="model.group"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Maintenance Period [day]</ion-label>
+          <ion-input [(ngModel)]="model.maintenance"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Comp Qty[pcs]</ion-label>
+          <ion-input [(ngModel)]="model.comQty"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label color="primary">Quantity [pcs]</ion-label>
+          <ion-text>{{tools.length}}</ion-text>
+        </ion-item>
+      </ng-container>
+      <!-- view page -->
+      <ng-container *ngIf="!isEdit">
+        <ion-item>
+          <ion-label>Part No</ion-label>
+          <ion-text>{{model.id}}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Part Name</ion-label>
+          <ion-text >{{model.name}}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Category</ion-label>
+          <ion-text >{{model.group}}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Maintenance Period [day]</ion-label>
+          <ion-text >{{model.maintenance}}</ion-text>
+        </ion-item>
+        <ion-item>
+          <ion-label>Comp Qty[pcs]</ion-label>
+          <ion-text >{{model.comQty}}</ion-text>
+        </ion-item>
+      </ng-container>
+  
+      <ion-accordion-group>
+        <ion-accordion>
+          <ion-item slot="header">
+            <ion-label>Quantity [pcs]</ion-label>
+            <ion-text>{{tools.length}}</ion-text>
+          </ion-item>
+
+          <div slot="content">
+            <ion-chip (click)="detail(tool)" color="primary" *ngFor="let tool of tools">{{tool.id}}</ion-chip>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
+      
+    </ion-list>
+  </ion-card>
 </ion-content>
