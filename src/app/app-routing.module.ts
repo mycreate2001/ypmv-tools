@@ -79,6 +79,10 @@ const routes: Routes = [
   {
     path: 'company',
     loadChildren: () => import('./modals/company/company.module').then( m => m.CompanyPageModule)
+  },
+  {
+    path: 'booking',
+    loadChildren: () => import('./modals/booking/booking.module').then( m => m.BookingPageModule)
   }
 
 ];

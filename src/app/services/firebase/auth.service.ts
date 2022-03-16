@@ -76,7 +76,19 @@ export class AuthService {
   getUser():Promise<User>{
     return new Promise((resolve,reject)=>{
       this.unsubcribe= onAuthStateChanged(this.auth,
-        user=>resolve(user),
+        user=>{
+          if(!user) {
+            this.currentUser=null;
+            return reject(new Error("not yet login"))
+          };
+          const id=user.uid;
+          this.db.get(_DB_USER,id)
+          .then(data=>{
+            this.currentUser=data;
+            return resolve(user)
+          })
+          .catch(err=>reject(err))
+        },
         err=>reject(err),
         ()=>{
           this.unsubcribe();
