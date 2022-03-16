@@ -1,9 +1,60 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="done('back')" title="back">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>company</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" title="Save company infor">
+        <ion-icon name="save"></ion-icon>
+      </ion-button>
+      <ion-button (click)="delete()" title="delete">
+        <ion-icon name="trash"></ion-icon>
+      </ion-button>
+      <ion-button (click)="addImage()" title="Take photo">
+        <ion-icon name="camera"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content color="light">
+  <ion-card class="image">
+    <img  [src]="image?image:company.image?company.image:'../../../assets/image/no-image.png'" (click)="addImage()">
+  </ion-card>
+  <ion-card class="infor">
+    <ion-list>
+      <ion-item>
+        <ion-label>ID</ion-label>
+        <ion-input [(ngModel)]="company.id"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Name</ion-label>
+        <ion-input [(ngModel)]="company.name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Phone</ion-label>
+        <ion-input [(ngModel)]="company.phone"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>E-mail</ion-label>
+        <ion-input [(ngModel)]="company.email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Address</ion-label>
+        <ion-input [(ngModel)]="company.address"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Type</ion-label>
+        <ion-select [(ngModel)]="company.type">
+          <ion-select-option [value]="type" *ngFor="let type of companyTypes">
+            {{type}}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </ion-list>
+  </ion-card>
 
 </ion-content>

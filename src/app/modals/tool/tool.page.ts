@@ -46,7 +46,22 @@ export class ToolPage implements OnInit {
   /** print code */
   print(){
     const windowp=window.open('','','left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-    windowp.document.write("<div id='qr-code'></div>");
+    windowp.document.write(`
+      <style>
+        canvas{ width: 32px;height: 32;} 
+        .cover{display: flex;flex-direction: row;}
+        .content{margin-left: 12px;}
+        .code{font-size: x-small;}
+      </style>`)
+    windowp.document.write(`
+      <div class="cover">
+        <div id="qr-code"></div>
+        <div class="content">
+          <div class="label">${this.model.name.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase())}</div>
+          <div class="code">${this.tool.id}</div>
+        </div>
+      </div>`
+    );
     QrCreator.render({
       text:"TL-"+this.tool.id,
       radius:0,
@@ -57,8 +72,8 @@ export class ToolPage implements OnInit {
     }, windowp.document.querySelector('#qr-code'))
     console.log("query:",windowp.document.querySelector("#qr-code"))
     windowp.focus();
-    windowp.print();
-    windowp.close();
+    // windowp.print();
+    // windowp.close();
   }
 
   save(){

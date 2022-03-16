@@ -1,0 +1,15 @@
+ion-list{
+    padding: 24px 12px;
+}
+ion-card.image{
+    display: flex;
+    justify-content: center;
+}
+img{
+    width: 70%;
+    aspect-ratio: 4/3;
+    object-fit: contain;
+}
+ion-label{
+    font-weight: bold;
+}

@@ -1,4 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { CompanyPage } from 'src/app/modals/company/company.page';
+import { CompanyData, createCompanyData, _DB_COMPANY } from 'src/app/models/company.model';
+import { MenuData } from 'src/app/models/util.model';
+import { DisplayService } from 'src/app/services/display/display.service';
+import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 
 @Component({
   selector: 'app-companies',
@@ -6,76 +11,59 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./companies.page.scss'],
 })
 export class CompaniesPage implements OnInit {
-  companies=[
-    { 
-      name:"Yamaha Motor Parts Menufacturing Co.,ltd",
-      image:'https://yamaha-motor.com.vn/wp/wp-content/webp-express/webp-images/doc-root/wp/wp-content/themes/yamaha/assets/img/share/logo-yamaha.png.webp',
-      url:'https://yamaha-motor.com.vn/',
-      id:'ypmv',
-      phone:'18001588',
-      email:'service@yamaha-motor.com.vn',
-      address:'Blk 207 Henderson Road #01-02/03-02 Henderson Industrial Park Singapore 159550'
-    },
-    {
-      name:'Trans-tec',
-      image:'https://www.trans-tec.com/fontend/images/logo.svg',
-      url:'https://www.trans-tec.com/',
-      id:'trv',
-      phone:'18001588',
-      email:'service@yamaha-motor.com.vn',
-      address:'Blk 207 Henderson Road #01-02/03-02 Henderson Industrial Park Singapore 159550'
-    },
-
-    {
-      name:'',
-      image:'https://images.glints.com/unsafe/160x0/glints-dashboard.s3.amazonaws.com/company-logo/7072fdeff8d12782721e582bdb782c56.png',
-      url:'https://www.trans-tec.com/',
-      id:'MTV',
-      phone:'18001588',
-      email:'service@yamaha-motor.com.vn',
-      address:'Blk 207 Henderson Road #01-02/03-02 Henderson Industrial Park Singapore 159550'
-    },
-    {
-      name:'Trans-tec',
-      image:'https://www.trans-tec.com/fontend/images/logo.svg',
-      url:'https://www.trans-tec.com/',
-      id:'trv',
-      phone:'18001588',
-      email:'service@yamaha-motor.com.vn',
-      address:'Blk 207 Henderson Road #01-02/03-02 Henderson Industrial Park Singapore 159550'
-    },
-    {
-      name:'Trans-tec',
-      image:'https://www.trans-tec.com/fontend/images/logo.svg',
-      url:'https://www.trans-tec.com/',
-      id:'trv',
-      phone:'18001588',
-      email:'service@yamaha-motor.com.vn',
-      address:'Blk 207 Henderson Road #01-02/03-02 Henderson Industrial Park Singapore 159550'
-    },
-    {
-      name:'Trans-tec',
-      image:'https://www.trans-tec.com/fontend/images/logo.svg',
-      url:'https://www.trans-tec.com/',
-      id:'trv',
-      phone:'18001588',
-      email:'service@yamaha-motor.com.vn',
-      address:'Blk 207 Henderson Road #01-02/03-02 Henderson Industrial Park Singapore 159550'
-    },
-    {
-      name:'Trans-tec',
-      image:'https://www.trans-tec.com/fontend/images/logo.svg',
-      url:'https://www.trans-tec.com/',
-      id:'trv',
-      phone:'18001588',
-      email:'service@yamaha-motor.com.vn',
-      address:'Blk 207 Henderson Road #01-02/03-02 Henderson Industrial Park Singapore 159550'
-    },
-
-  ]
-  constructor() { }
+  /** variable */
+  companyDb:ConnectData;
+  companies:CompanyData[]=[];
+  views=[];
+  keyword:string=''
+  constructor(
+    private disp:DisplayService,
+    private db:FirestoreService
+  ) {
+    this.companyDb=this.db.connect(_DB_COMPANY);
+    this.companyDb.onUpdate((companies)=>{
+      this.companies=companies;
+      this.update();
+    })
+  }
 
   ngOnInit() {
+    this.update()
+  }
+
+  update(){
+    if(!this.keyword) {
+      this.views=this.companies;
+      return;
+    }
+    this.views=this.companies
+      .filter(
+        c=>Object.keys(c).some(
+          key=>(c[key]+"").toUpperCase().includes(this.keyword.toUpperCase())
+        )
+      )
+    console.log("update",{keyword:this.keyword,views:this.views})
+  }
+
+  detail(company:CompanyData=null){
+    if(!company) company=createCompanyData();
+    this.disp.showModal(CompanyPage,{company})
+    .then(result=>{
+      if(result.role.toUpperCase()!='OK') return;
+      console.log("data:",result.data)
+    })
+  }
+  ////////// button hander //////////////
+  menu(event){
+    const menus:MenuData[]=[
+      {
+        name:'New',
+        icon:'add-circle',//<ion-icon name="add-circle"></ion-icon>
+        iconColor:'primary',
+        handler:()=>this.detail()
+      }
+    ]
+    this.disp.showMenu(event,{menus})
   }
 
 }
