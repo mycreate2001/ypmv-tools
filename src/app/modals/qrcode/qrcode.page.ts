@@ -6,7 +6,7 @@ import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { analysisCode, CodeFormatData } from 'src/app/models/codeformat';
 
 export declare type QRResultType = 'pure data' | 'data only' | 'analysis';
-
+const _LOCAL_DEVICEID="deviceId"
 @Component({
   selector: 'app-qrcode',
   templateUrl: './qrcode.page.html',
@@ -17,12 +17,14 @@ export class QrcodePage implements OnInit {
   @ViewChild('video',{static:false}) videoRef:ElementRef;
   @ViewChild('canvas',{static:false}) canvasRef:ElementRef;
 
-  /** veriable */
-  private videoStart=false;
+  /** variable */
   private medias:MediaStreamConstraints={
-    video:false,
+    video:{facingMode:'environment',deviceId:''},
     audio:false
   };
+  cameras:any[]=[];
+  cameraPos:number=0;
+  title:string="default camera";
   private timout:any=null;
   formats:CodeFormatData[]=[];
   private formatDb:any;
@@ -38,38 +40,57 @@ export class QrcodePage implements OnInit {
   }
 
   ngOnInit() {
-    
+    navigator.mediaDevices.enumerateDevices()
+    .then(cameras=>{
+      this.cameras=cameras.filter(c=>c.kind=='videoinput');
+      this.medias.video={facingMode:{ideal:'environment'}};
+      //get from last times
+      let deviceId=localStorage.getItem(_LOCAL_DEVICEID);
+      if(deviceId){
+        this.medias.video={deviceId};
+        this.cameraPos=this.cameras.findIndex(x=>x.deviceId==deviceId)
+      }
+      this.scan();
+    })
   }
 
-  ngAfterViewInit() {
-    this.scan();
-  }
   ngOnDestroy(){
     this.formatDb.disconnect();
   }
 
   scan(){
-    this.medias.video=true;
     navigator.mediaDevices.getUserMedia(this.medias)
     .then((stream:MediaStream)=>{
       this.videoRef.nativeElement.srcObject=stream;
-      this.videoStart=true;
       this.checkImage();
     })
     .catch(err=>{
-      this.videoStart=false;
       console.log("***ERR ***\nstart video error");
       console.dir(err);
+      this.modal.dismiss(err.message,"error")
     })
+  }
+
+  changeCamera(){
+    if(++this.cameraPos>=this.cameras.length) this.cameraPos=0
+    //select manual
+    const camera=this.cameras[this.cameraPos];
+    localStorage.setItem(_LOCAL_DEVICEID,camera.deviceId);//save for next times
+    this.stopScan(false);
+    this.medias.video={deviceId:this.cameras[this.cameraPos].deviceId}
+    this.title=this.cameras[this.cameraPos].label
+    this.scan();
   }
 
   stopScan(cancel=true){
     if(this.timout) clearTimeout(this.timout);
     this.medias.video=false;
-    const a=this.videoRef.nativeElement.srcObject.getVideoTracks()[0];
-    a.enable=false;
-    a.stop();
-    this.videoStart=false;
+    const obj=this.videoRef.nativeElement.srcObject;
+    if(obj){
+      const a=obj.getVideoTracks()[0]
+      a.enable=false;
+      a.stop();
+    }
     if(cancel) this.modal.dismiss(null,"cancel");
   }
 

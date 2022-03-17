@@ -33,6 +33,7 @@ export class AppComponent {
     private db:FirestoreService
   ) {
     this.userUnsubcribe=this.auth.onAuthStatusChange(user=>{
+      if(!user) return this.router.navigateByUrl('login');
       this.db.get(_DB_USER,user.uid)
       .then(data=>{
         this.user=data as UserData
