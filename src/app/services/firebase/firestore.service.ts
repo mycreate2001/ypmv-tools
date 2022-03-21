@@ -10,7 +10,9 @@ import { environment } from 'src/environments/environment';
 import { initializeApp } from 'firebase/app'
 import { getFirestore,doc,getDoc,getDocs,updateDoc,
          addDoc,collection,deleteDoc,setDoc,connectFirestoreEmulator,
-         onSnapshot
+         onSnapshot,
+         query,
+         where
                                     } from 'firebase/firestore'
 import { compareObject, makeId } from '../../utils/minitools';
 import { Unsubscribe } from 'firebase/auth';
@@ -75,7 +77,7 @@ export class FirestoreService {
       offline=this._offline[tbl];
       // isNew=true;
       offline.ctr=this.monitor(tbl,(added:any[],modified:any[],removed:string[])=>{
-        log("before update",{db:offline.db,added,modified,removed})
+        console.log("before update",{db:offline.db,added,modified,removed})
         removed.forEach(id=>del(offline.db,id));
 
         modified.forEach(m=>{
@@ -85,9 +87,9 @@ export class FirestoreService {
 
         added.forEach(data=>offline.db.push(data));
         
-        log("current db",offline.db);
+        console.log("current db",offline.db);
         if(!offline || !offline.callbacks || !offline.callbacks.length) {
-          log("callbacks error");return;
+          console.log("callbacks error");return;
         }
         offline.callbacks.forEach(x=>x.callback(offline.db))
       });
@@ -109,7 +111,7 @@ export class FirestoreService {
         if(pos!=-1) offline.callbacks.splice(pos,1)
         //unsubscribe
         if(!offline.callbacks.length) offline.ctr();
-        log("'%s' disconnect with '%s'",id,tbl,{offline,globalOffline:that._offline})
+        console.log("'%s' disconnect with '%s'",id,tbl,{offline,globalOffline:that._offline})
       },
 
       /**
@@ -161,7 +163,7 @@ export class FirestoreService {
           isNeedUpdate=false;
         }
         //debug
-        log('onUpdate',{offline,globalOffline:that._offline,callback:callback.toString()})
+        console.log('onUpdate',{offline,globalOffline:that._offline,callback:callback.toString()})
       },
 
       /**
@@ -308,11 +310,36 @@ export class FirestoreService {
     })
   }
 
+  /** search data from firestore */
+  search2(tbl:string,queries:QueryData[]|QueryData){
+    console.log("[search2] test-002",{tbl,queries})
+    const ref=collection(this.db,tbl);
+    const _queries:QueryData[]=[].concat(queries);
+    const q=query(ref,..._queries.map(qr=>where(qr.key,qr.compare,qr.value)));
+    console.log("[search2] test-003",{q})
+    return getDocs(q).then(docs=>{
+      const outs=[];
+      docs.forEach(doc=>outs.push({id:doc.id,...doc.data()}));
+      console.log("[search2] test-004",{outs})
+      return outs;
+    })
+  }
+
+  searchById(tbl:string,IDs:string[],type:"Include"|"Exclude"="Include"){
+    const ref=collection(this.db,tbl);
+    return getDocs(ref).then(docs=>{
+      const outs=[];
+      docs.forEach(doc=>{
+        const id=doc.id;
+        if(type=="Include" && IDs.includes(id)) outs.push({id,...doc.data()})
+        else if(type=='Exclude' && !IDs.includes(id)) outs.push({id,...doc.data()})
+      })
+      return outs;
+    })
+  }
+
 }
 
-function log(msg,...args){
-  console.log('\n---------------\n'+msg,...args);
-}
 
 function del(arrs:any[],id:any){
   if(!id) return -3;
@@ -322,3 +349,12 @@ function del(arrs:any[],id:any){
   arrs.splice(pos,1);
   return pos;
 }
+
+export interface QueryData{
+  key:string;
+  value:string|string[];
+  compare:CompareType;
+
+}
+
+export declare type CompareType="<"|"<="|"=="|">"|">="|"!="|"in"|"not-in"|"array-contains"|"array-contains-any"
