@@ -1,25 +1,5 @@
 import { createOpts } from "../utils/minitools";
-
-export interface SaveInfo{
-    userId:string;
-    createAt:string;
-    comment:string;
-}
-
-export interface SaveInfoOpts{
-    userId?:string;
-    createAt?:string;
-    comment?:string;
-}
-
-export function createSaveInf(opts?:SaveInfoOpts):SaveInfo{
-    const df:SaveInfo={
-        userId:'',
-        createAt:new Date().toISOString(),
-        comment:''
-    }
-    return createOpts(df,opts) as SaveInfo;
-}
+import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
 
 /**
  * Model management database
@@ -30,24 +10,24 @@ export interface ModelData extends SaveInfo{
     id:string;                  // model ID
     name:string;                // name of tool
     group:string;               // Category
-    maintenance:number;         // day of maintenance
     images:string[];            // images
     compQty:number;             // quantity of component
+    maintenance:number;         // day of maintenance
 }
 
 export interface ModelDataOpts extends SaveInfoOpts{
     id?:string;                  // model ID
     name?:string;                // name of tool
     group?:string;               // Category
-    maintenance?:number;         // day of maintenance
     images?:string[];            // images
     compQty?:number;
+    maintenance?:number;         // day of maintenance
 }
 
 /** make new modeldata from default & option */
-export function createModelData(opts?:ModelDataOpts,debug:boolean=false):ModelData{
+export function createModelData(opts?:ModelDataOpts):ModelData{
     const now=new Date();
-    const id="M-"+now.getTime().toString(36);
+    const id=now.getTime().toString(36);
     const df:ModelData={
         ...createSaveInf({createAt:now.toISOString()}),
         id,
@@ -57,58 +37,74 @@ export function createModelData(opts?:ModelDataOpts,debug:boolean=false):ModelDa
         images:[],
         compQty:1
     }
-    const model= createOpts(df,opts) as ModelData
-    if(debug) console.log("\ncreateModelData",{opts,model});
-    return model;
+    return createOpts(df,opts) 
 }
 
-
-/**
- * Tool manage management
- * toolDataOpts
- */
-export interface ToolDataOpts extends SaveInfoOpts{
-    id?:string;                  // tool id
-    startUse?:string;              // start use this tool
-    endUse?:String;                // destroy date
-    lastMaintenance?:string;       // last maintenance
-    visual?:number;              // status vitual of tool, 0=OK, 1,2,3... NG
-    operation?:number;           // status of tool operation, o= OK
-    function?:number;            // status of tool function, 0=OK
-    model?:string; 
-    stay?:string;               // where keep this tool
-    parentsId?:string;         // parents id (like book, cover)         
-}
-
+/////////////// TOOLS ///////////////////////
 export interface ToolData extends SaveInfo{
     id:string;                  // tool id
     startUse:string;              // start use this tool
     endUse:String;                // destroy date
     lastMaintenance:string;       // last maintenance
-    visual:number;              // status vitual of tool, 0=OK, 1,2,3... NG
-    operation:number;           // status of tool operation, o= OK
-    function:number;            // status of tool function, 0=OK
+    status:ToolStatus;
     model:string;               // model id
     stay:string;                // where keep tool (stay alone)
-    parentsId:string;           // cover/box keep this tool
+    upperId:string;           // cover/box keep this tool
 }
+
+
+export interface ToolDataOpts extends SaveInfoOpts{
+    id?:string;                  // tool id
+    startUse?:string;              // start use this tool
+    endUse?:String;                // destroy date
+    lastMaintenance?:string;       // last maintenance
+    status?:ToolStatus;
+    model?:string; 
+    stay?:string;               // where keep this tool
+    upperId?:string;         // parents id (like book, cover)         
+}
+
 
 
 export function createToolData(opts?:ToolDataOpts):ToolData{
     const now=new Date();
-    const id="TL-"+now.getTime().toString(36);
+    const id=now.getTime().toString(36);
     const df:ToolData={
         ...createSaveInf({createAt:now.toISOString()}),
         id,
         startUse:now.toISOString(),
         endUse:'',
         lastMaintenance:null,
-        visual:0,
-        operation:0,
-        function:0,
+        status:createToolStatus(),
         model:'',
         stay:'',
-        parentsId:''
+        upperId:''
     }
     return createOpts(df,opts) as ToolData;
+}
+
+
+export interface ToolStatus{
+    visual:number;
+    operation:number;
+    function:number;
+    compQty:number;
+}
+
+export interface ToolStatusOpts{
+    visual?:number;
+    operation?:number;
+    function?:number;
+    compQty?:number;
+}
+
+/** create new ToolStatus */
+export function createToolStatus(opts?:ToolStatusOpts){
+    const df:ToolStatus={
+        visual:-1,      // not yet check
+        operation:-1,   // not yet check
+        function:-1,    // not yet check
+        compQty:-1      // not yet check
+    }
+    return createOpts(df,opts)
 }
