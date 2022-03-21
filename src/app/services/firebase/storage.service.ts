@@ -5,6 +5,7 @@ import {  getStorage,uploadString,ref,
           uploadBytesResumable,
           FirebaseStorage,
           UploadResult,          } from 'firebase/storage';
+import { ImageData } from 'src/app/models/util.model';
 import { Base64 } from 'src/app/utils/base64';
 import { environment } from 'src/environments/environment';
 
@@ -29,7 +30,21 @@ export class StorageService {
     return uploadBytesResumable(ref(this.storage,path),data)
   }
 
- 
+  /** upload images to folder */
+  uploadImages(images:ImageData|ImageData[]|string[]|string,path:string):Promise<ImageData[]|string[]>{
+    if(!path.endsWith("/")) path=path+"/";
+    const _images:ImageData[]|string[]=[].concat(images);
+    return new Promise((resolve,reject)=>{
+      if(!_images.length) return resolve([]);//
+      const all=_images.map((image:ImageData|string)=>{
+        if(typeof image=='string') return this.uploadImagebase64(image,path).then(result=>result.url)
+        return this.uploadImagebase64(image['url'],path).then(result=>{return{...image,url:result.url}})
+      })
+      Promise.all(all).then((results:ImageData[]|string[])=>resolve(results))
+    })
+  }
+
+
   /**
    * 
    * @param base64 base64 from crop-image, eg:"data:image/png;base64,iVBORw0KGgoAAAANSU"

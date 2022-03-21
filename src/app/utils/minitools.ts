@@ -67,7 +67,7 @@ export function getList(arrs:any[],key:string="id",debug:boolean=false):string[]
     return outs;
 }
 
-export function createOpts(defaultValue:Object,opts?:any,debug:boolean=false):object{
+export function createOpts<T>(defaultValue:T,opts?:any,debug:boolean=false):T{
     if(!opts) return defaultValue;
     Object.keys(defaultValue).forEach(key=>{
         if(opts[key]==undefined) return;
