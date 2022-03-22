@@ -8,13 +8,10 @@ ion-button{
     }
 }
 
-ion-button {
-    text-transform: none;
+ion-label{
+    font-weight: bold;
 }
 
-.pointer{
-    cursor: pointer !important;
-}
 
 img{
     width: 100%;
@@ -29,7 +26,7 @@ img.image-43{
     aspect-ratio: 4/3;
 }
 
-.image-more {
+.more-image-text {
     position: absolute;
     font-size: 3rem;
     width: 50%;
@@ -40,9 +37,7 @@ img.image-43{
     text-align: center;
     color: white;
 }
-.image-fake{
-    max-width: 50%;
-}
+
 
 ion-card.info{
     padding:24px 12px;

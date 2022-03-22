@@ -1,20 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { ToolDetailPage } from '../../modals/model/model.page';
 import { DisplayService } from '../../services/display/display.service';
-import { getList } from '../../utils/minitools';
-import { createModelData, ModelData, ToolData } from '../../models/tools.model';
+
+import {  createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from '../../models/tools.model';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { MenuData } from 'src/app/models/util.model';
-// import { MenuData } from 'src/app/modals/menu/menu.page';
-interface ModelExtend {
-  tools:ToolData[];
-  model:ModelData;
-}
+import { ButtonData } from 'src/app/models/util.model';
+import { CoverData, _DB_COVERS } from 'src/app/models/cover.model';
+import { BasicData } from 'src/app/models/basic.model';
+import { ModelPage, ModelPageOpts, ModelPageOuts } from '../../modals/model/model.page';
+import { StorageService } from 'src/app/services/firebase/storage.service';
+import { AuthService } from 'src/app/services/firebase/auth.service';
 
 interface viewData {
   group:string;
-  models:ModelExtend[]
+  models:BasicData
 }
 
 @Component({
@@ -23,131 +22,148 @@ interface viewData {
   styleUrls: ['./tools.page.scss'],
 })
 export class ToolsPage implements OnInit {
-  views:viewData[]=[];
-  origin:viewData[]=[];
-  groups:string[]=[];
-  key:string="";
+
+  /** cloud database */
   models:ModelData[]=[];
-  tools:ToolData[]=[];
-  toolDb:ConnectData;
-  modelDb:ConnectData;
+  covers:CoverData[]=[];
+  private _modelDb:ConnectData;
+  private _coverDb:ConnectData;
   newGroup:string="";
+
+  /** internal variable */
+  views:viewData[]=[];
+  key:string="";
+  /** internal control */
+  private _isData={cover:false,model:false};    //control update data
+  buttons:ButtonData[]=btnDefault();
+
   constructor(
     private disp:DisplayService,
-    private db:FirestoreService
+    private db:FirestoreService,
+    private storage:StorageService,
+    private auth:AuthService
   ) {
-
-    /** test */
-    const model=createModelData();
-    const list=Object.keys(model);
-    // const md=convert(as);
-    console.log("\n\ntest\n",{model,list,test1:model['hasOwnProperty'],test2:list['hasOwnProperty'],test3:model['constructor']});
-    /** Models */
-    this.modelDb=this.db.connect("models");
-    this.modelDb.onUpdate((models:ModelData[])=>{
-      //test
-      this.models=models;
-      this.makeView(models);
-      //handle group
-      this.groups=getList(models,"group",true);
-      const check=includesText(this.groups,this.newGroup);
-      if(check) this.newGroup="";
-      else this.groups.push(this.newGroup);
-      console.log("\nupdate models\n",{models:this.models,tools:this.tools,groups:this.groups,views:this.views})
-    })
-    
-    /** tools */
-    this.toolDb=this.db.connect("tools");
-    this.toolDb.onUpdate((tools:ToolData[])=>{
-      //test
-      this.tools=tools;
-      this.makeView(this.models);
-      console.log("\nupdate tools\n",{models:this.models,tools:this.tools,groups:this.groups,views:this.views})
-    })
   }
 
+  /** system OnInit */
   ngOnInit() {
-    this.update();
+  
+    //model
+    this._modelDb=this.db.connect(_DB_MODELS);
+    this._modelDb.onUpdate((models:ModelData[])=>{
+      this.models=models;
+      this._isData.model=true;
+      this.update();
+    })
+
+    //cover
+    this._coverDb=this.db.connect(_DB_COVERS);
+    this._coverDb.onUpdate((covers:CoverData[])=>{
+      this.covers=covers;
+      this._isData.cover=true;
+      this.update;
+    })
   }
 
+  /** system destroy */
   ngOnDestroy(){
-    this.modelDb.disconnect();
-    this.toolDb.disconnect();
-    console.log("leave tools");
+    this._modelDb.disconnect();
+    this._coverDb.disconnect();
   }
 
   /** update data */
+  handlerButton(role:string){
+    role=role.toUpperCase();
+    if(role=='NEW TOOL'){
+      this.detail();
+    }
 
-  //////////// ------------ Handle function -------------------
-  async showDetail(model?:ModelData){
-    const isNew=model?false:true;
-    const isEdit=model?false:true;
-    model=model||createModelData();
-
-    const tools=this.tools.filter(t=>t.model==model.id);
-    const groups=this.newGroup?[...this.groups,this.newGroup]:this.groups;
-    const {role,data}=await this.disp.showModal(ToolDetailPage,{model,tools,groups,isNew,isEdit});
-    if(role.toLowerCase()!='ok') return;
-    console.log({data});
-    // this.modelDb.add(data);
+    if(role=='NEW COVER'){
+      console.log("new cover")
+      return;
+    }
   }
 
+  /** update view */
   update(){
-    const models=this.key.length>=2?searchObj(this.key,this.models):this.models;
-    this.makeView(models);
-  }
-
-  makeView(models:ModelData[]){
-    console.log("make view-step1:",{models})
-    let groups= separateObj(models,"group",{dataName:'models'});  //group=[{group,models}]
-    console.log("make view-step2:",{groups})
-    const results:viewData[]=groups.map(g=>{
-      const models:ModelExtend[]=g.models.map(m=>{
-        const tools=this.tools.filter(t=>t.model==m.id);
-        return {tools,model:m}
-      })
-      return {group:g.group,models}
-    });
-    console.log("make view-step3:",{results})
-    this.views=results;
-  }
-
-
-  async addCatelogy(){
-    await this.disp.msgbox(
-      "add new category",
-      {
-        mode:'ios',
-        inputs:[{type:'text',placeholder:'new catelogy'}],
-        buttons:[
-          {
-            text:'OK',role:'OK',
-            handler:(data)=>{
-              const newgroup=data[0] as string;
-              const check=includesText(this.groups,newgroup)
-              if(check) return this.disp.msgbox(`category '${newgroup}' is already exist`);
-              this.newGroup=newgroup;
-            }
-          },
-          {text:'Cancel',role:'cancel'}
-        ]
+    if(!Object.keys(this._isData).every(key=>this._isData[key]+""))
+      return console.log("data is not available");
+    //available data
+    let models:BasicData[]=[];
+    //model
+    this.models.forEach(model=>{
+      if(!model) return console.warn("\n### ERR[1]: model database is empty");
+      const out:BasicData={
+        id:model.id,
+        name:model.name,
+        group:model.group,
+        images:model.images,
+        type:'tool',
       }
-    )
+      models.push(out);
+    })
+    //cover
+    this.covers.forEach(cover=>{
+      if(!cover) return console.warn("\n### ERR[2]: Cover database is empty");
+      const out:BasicData={
+        id:cover.id,
+        name:cover.name,
+        group:cover.group,
+        images:cover.images,
+        type:'cover',
+      }
+      models.push(out);
+    });
+    console.warn("models:",models);
+    models=this.key.length?searchObj(this.key,models):models;
+    this.views=separateObj(models,"group",{dataName:"models"});
+
+    console.log("data after build",this);
+    console.groupEnd();
   }
-  //test
-  test_showmenu(event){
-    console.log("menu running");
-    const menus:MenuData[]=[
-      {name:'New tool Infor',handler:()=>this.showDetail(),role:'1'},
-      {name:'new Category',handler:()=>this.addCatelogy(),role:'2'},
-    ]
-    this.disp.showMenu(event,{menus}).then(result=>{
-      console.log("result of menu",result);
+
+  /** detail model */
+  detail(model:BasicData=null){
+    const props:ModelPageOpts=model?{model:model.id}:{model:createModelData({userId:this.auth.currentUser.id})}
+    this.disp.showModal(ModelPage,props)
+    .then(result=>{
+      const data=result.data as ModelPageOuts;
+      const model=data.model;
+      switch(result.role.toUpperCase()){
+        case 'OK':
+        case 'SAVE':{
+          if(data.delImages) data.delImages.map(image=>this.storage.delete(image).catch(err=>console.warn("\n### ERR[1]: delete image is error",err)))
+          this.storage.uploadImages(data.addImages,_STORAGE_MODELS)
+          .then(urls=>{
+            model.images=urls.map(image=>typeof image=='string'?image:image.url);
+            return this.db.add(_DB_MODELS,model)
+          })
+          .then(()=>console.log("save model '%s' was successfully!",model.id))
+          .catch(err=>console.log("save model '%s' is failured!",model.id,err))
+        }
+        break;
+
+        case 'DELETE':{
+          //delete image
+          if(model.images.length) {
+            const a=model.images.map(image=>this.storage.delete(image));
+            Promise.all(a).then(()=>console.log("delete images [%s] to model '%s' is successfully",model.images.join(","),model.id))
+            .catch(err=>console.log("delete images [%s] to model '%s' is failured!\n",model.images.join(","),model.id,err))
+          }
+          this.db.delete(_DB_MODELS,model.id)
+          .then(()=>console.log("delete model '%s' was successfully!",model.id))
+          .catch(err=>console.log("delete model '%s' was failured!",model.id))
+        }
+      }
     })
   }
 
 }
 
-function includesText(arrs:string[],key:string):boolean{
-  return arrs.some(text=>text.toUpperCase()==key.toUpperCase())
+
+function btnDefault():ButtonData[]{
+  return [
+    {role:'new tool',icon:'hammer',handler:()=>{console.log("test result",this)}},
+    {role:'new cover',icon:'cube'}//<ion-icon name="cube"></ion-icon>
+  ]
 }

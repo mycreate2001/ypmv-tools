@@ -13,27 +13,36 @@ export interface PageData{
 
 /** Menu data */
 export interface MenuData{
-    role:string;            //key
-    name?:string;           // for label & name
+    name:string;           // for label & name
     icon?:string;           // icon
     iconColor?:ColorType;   // color of icon
     handler?:Function;      // handler
-    image:string;           // url of iamge
+    image?:string;           // url of iamge
+    role?:string;            //key
+}
+
+export interface ButtonData{
+    role:string;
+    icon:string;
+    label?:string;
+    image?:string;
+    handler?:Function;
+    title?:string;
 }
 
 //** data */
-export interface ImageData{
+export interface UrlData{
     url:string;
     caption:string;
 }
 
-export interface ImageDataOpts{
+export interface UrlDataOpts{
     url?:string;
     caption?:string;
 }
 
-export function createImageData(opts?:ImageDataOpts){
-    const df:ImageData={
+export function createUrlData(opts?:UrlDataOpts){
+    const df:UrlData={
         url:'',
         caption:''
     }

@@ -2,6 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { ModalController } from '@ionic/angular';
 import { ImageCroppedEvent, ImageTransform } from 'ngx-image-cropper';
+export interface CameraPageOpts{
+  /** default=4/3 */
+  aspectRatio?:number  //default=4/3
+  /** default=true */
+  fix?:boolean;        // fix aspect ratio, default=true
+}
+
+export interface CameraPageOuts{
+  image:string;//base64
+}
 
 @Component({
   selector: 'app-camera',
@@ -40,7 +50,7 @@ export class CameraPage implements OnInit {
       this.image=image.webPath
     })
     .catch(err=>{
-      this.close(false);
+      this.done('error');
     })
   }
 
@@ -70,9 +80,13 @@ export class CameraPage implements OnInit {
     // console.log("image:",this.image);
   }
 
-  close(isDone:boolean=true){
-    if(!isDone) return this.modal.dismiss(null,"cancel");
-    this.modal.dismiss(this.croppedImage,"OK");
+
+  /** finish camera */
+  done(role:string="OK"){
+    const out:CameraPageOuts={
+      image:this.croppedImage
+    }
+    this.modal.dismiss(out,role);
   }
 
 

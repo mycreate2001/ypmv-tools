@@ -233,32 +233,32 @@ export class FirestoreService {
     })
   }
 
-  /**
-   * search record from firestore
-   * @param tbl table (collection)
-   * @param opts search key
-   * @returns array of record reach target
-   */
-  search(tbl:string,opts={}):Promise<any[]>{
-    return new Promise(async (resolve,reject)=>{
-      if(!opts) return reject (new Error("opts data is error")) //opts data is error
-      try{
-        const querySnap=await getDocs(collection(this.db,tbl));
-        let outs=[];
-        querySnap.forEach(doc=>{
-          outs.push({id:doc.id,...doc.data()})
-        });
-        //filter
-        const keys=Object.keys(opts);
-        outs=outs.filter(out=>keys.every(key=>opts[key]==out[key]))
-        return resolve(outs);
-      }
-      catch(err) {
-        console.log("** ERR ** ",err);
-        return reject(err);
-      }
-    })
-  }
+  // /**
+  //  * search record from firestore
+  //  * @param tbl table (collection)
+  //  * @param opts search key
+  //  * @returns array of record reach target
+  //  */
+  // search(tbl:string,opts={}):Promise<any[]>{
+  //   return new Promise(async (resolve,reject)=>{
+  //     if(!opts) return reject (new Error("opts data is error")) //opts data is error
+  //     try{
+  //       const querySnap=await getDocs(collection(this.db,tbl));
+  //       let outs=[];
+  //       querySnap.forEach(doc=>{
+  //         outs.push({id:doc.id,...doc.data()})
+  //       });
+  //       //filter
+  //       const keys=Object.keys(opts);
+  //       outs=outs.filter(out=>keys.every(key=>opts[key]==out[key]))
+  //       return resolve(outs);
+  //     }
+  //     catch(err) {
+  //       console.log("** ERR ** ",err);
+  //       return reject(err);
+  //     }
+  //   })
+  // }
 
   /**
    * get record with id from firestore
@@ -310,22 +310,27 @@ export class FirestoreService {
     })
   }
 
-  /** search data from firestore */
-  search2(tbl:string,queries:QueryData[]|QueryData){
-    console.log("[search2] test-002",{tbl,queries})
+  /**
+   * search database from condition
+   * @param tbl table/collection of database
+   * @param queries condition for searching
+   * @returns result of searching
+   */
+  search(tbl:string,queries:QueryData[]|QueryData){
+    // console.log("[search2] test-002",{tbl,queries})
     const ref=collection(this.db,tbl);
     const _queries:QueryData[]=[].concat(queries);
     const q=query(ref,..._queries.map(qr=>where(qr.key,qr.compare,qr.value)));
-    console.log("[search2] test-003",{q})
+    // console.log("[search2] test-003",{q})
     return getDocs(q).then(docs=>{
       const outs=[];
       docs.forEach(doc=>outs.push({id:doc.id,...doc.data()}));
-      console.log("[search2] test-004",{outs})
+      console.log("[search] debug",{tbl,queries,outs})
       return outs;
     })
   }
 
-  searchById(tbl:string,IDs:string[],type:"Include"|"Exclude"="Include"){
+  gets(tbl:string,IDs:string[],type:"Include"|"Exclude"="Include"){
     const ref=collection(this.db,tbl);
     return getDocs(ref).then(docs=>{
       const outs=[];

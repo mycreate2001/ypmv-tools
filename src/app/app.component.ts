@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Unsubscribe } from 'firebase/auth';
-import { ProfilePage } from './modals/profile/profile.page';
-import { UserData } from './models/user.model';
-import { MenuData, PageData } from './models/util.model';
+import { UserData, _DB_USERS } from './models/user.model';
+import { PageData } from './models/util.model';
 import { DisplayService } from './services/display/display.service';
 import { AuthService } from './services/firebase/auth.service';
 import { FirestoreService } from './services/firebase/firestore.service';
@@ -33,31 +32,11 @@ export class AppComponent {
   ) {
     this.userUnsubcribe=this.auth.onAuthStatusChange(user=>{
       if(!user) return this.router.navigateByUrl('login');
-      this.db.get(_DB_USER,user.uid)
+      this.db.get(_DB_USERS,user.uid)
       .then(data=>{
         this.user=data as UserData
       })
     })
   }
 
-  menu(event){
-    const menus:MenuData[]=[
-      {
-        name:'Sign Out',icon:'log-out-outline',iconColor:'danger',
-        handler:()=>{
-          this.auth.logout().then(()=>{
-            this.userUnsubcribe();
-            this.user=null;
-            this.router.navigateByUrl("/");
-          });
-        }
-      },
-      {
-        name:'Profile',
-        icon:'person-circle-outline',iconColor:'primary',
-        handler:()=>this.disp.showModal(ProfilePage,{user:this.user})
-      }
-    ];
-    this.disp.showMenu(event,{menus})
-  }
 }

@@ -38,3 +38,6 @@ export function createCoverData(opts?:CoverDataOpts):CoverData{
     }
     return createOpts(df,opts) as CoverData;
 }
+
+export const _DB_COVERS="covers"
+export const _STORAGE_COVERS="covers"

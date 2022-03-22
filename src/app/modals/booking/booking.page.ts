@@ -25,13 +25,13 @@ export class BookingPage implements OnInit {
   )
   {
     this.user=this.auth.currentUser;
-    this.db.search(_DB_COMPANY)
-    .then((companies:CompanyData[])=>{
-      this.companies=companies;
-      // this.isAvailabel=true;
-      this.isAvailable=true;
-      console.log("update company")
-    })
+    // this.db.search(_DB_COMPANY)
+    // .then((companies:CompanyData[])=>{
+    //   this.companies=companies;
+    //   // this.isAvailabel=true;
+    //   this.isAvailable=true;
+    //   console.log("update company")
+    // })
   }
 
   ngOnInit() {

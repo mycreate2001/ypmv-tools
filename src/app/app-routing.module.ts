@@ -4,6 +4,11 @@ import { LoginGuard } from './guards/login/login.guard';
 
 const routes: Routes = [
   {
+    path:'',
+    redirectTo:'histories',
+    pathMatch:'full'
+  },
+  {
     path: 'camera',
     canActivate:[LoginGuard],
     loadChildren: () => import('./modals/camera/camera.module').then( m => m.CameraPageModule)
@@ -37,12 +42,7 @@ const routes: Routes = [
   },
   {
     path: 'model',
-    loadChildren: () => import('./modals/model/model.module').then( m => m.ToolDetailPageModule)
-  },
-  {
-    path: 'add',
-    canActivate:[LoginGuard],
-    loadChildren: () => import('./pages/add/add.module').then( m => m.ScanPageModule)
+    loadChildren: () => import('./modals/model/model.module').then( m => m.ModelPageModule)
   },
   {
     path: 'format-detail',
@@ -65,10 +65,6 @@ const routes: Routes = [
     loadChildren: () => import('./modals/profile/profile.module').then( m => m.ProfilePageModule)
   },
   {
-    path:'',
-    redirectTo:'add',
-    pathMatch:'full'
-  },  {
     path: 'image-view',
     loadChildren: () => import('./modals/image-view/image-view.module').then( m => m.ImageViewPageModule)
   },
@@ -83,7 +79,12 @@ const routes: Routes = [
   {
     path: 'booking',
     loadChildren: () => import('./modals/booking/booking.module').then( m => m.BookingPageModule)
+  },
+  {
+    path: 'histories',
+    loadChildren: () => import('./pages/histories/histories.module').then( m => m.HistoriesPageModule)
   }
+
 
 ];
 @NgModule({

@@ -11,7 +11,7 @@
         <ion-icon name="save"></ion-icon>
       </ion-button>
       <ion-button (click)="add()">
-        <ion-icon name="add-circle"></ion-icon>
+        <ion-icon name="camera"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -20,16 +20,12 @@
 <ion-content color="light">
   <ion-card *ngFor="let image of images;let pos=index">
     <ion-toolbar lines="none">
-      <ion-title>title of image</ion-title>
-
+      <ion-input [(ngModel)]="image.caption" *ngIf="image.url"></ion-input>
       <ion-buttons slot="end">
-
         <ion-button (click)="menu($event,pos)">
           <ion-icon name="ellipsis-vertical"></ion-icon>
         </ion-button>
-
       </ion-buttons>
-
     </ion-toolbar>
     <img [src]="image">
   </ion-card>

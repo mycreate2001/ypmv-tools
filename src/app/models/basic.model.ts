@@ -1,5 +1,5 @@
 import { createOpts } from "../utils/minitools";
-import { ImageData } from "./util.model";
+import { UrlData } from "./util.model";
 
 /** basic infor of tool/cover when display */
 export type BasicDataType="cover"|"tool"
@@ -8,7 +8,7 @@ export interface BasicData{
     name:string;                    // name of information ex: repair station key
     group:string;                   // category, group of tool/cover
     type:BasicDataType;             // information type
-    images:ImageData[]|string[]     // image
+    images:UrlData[]|string[]     // image
 }
 
 export interface BasicDataOpts{
@@ -16,7 +16,7 @@ export interface BasicDataOpts{
     name?:string;                    // name of information ex: repair station key
     group?:string;                   // category, group of tool/cover
     type?:BasicDataType;             // information type
-    images?:ImageData[]|string[]     // image
+    images?:UrlData[]|string[]     // image
 }
 
 export function createBasicData(opts?:BasicDataOpts){

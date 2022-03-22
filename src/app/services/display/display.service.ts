@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { ActionSheetController, ActionSheetOptions, AlertController, AlertOptions, ModalController, PopoverController, PopoverOptions } from '@ionic/angular';
 import { Mode, PopoverAttributes, PopoverSize, PositionAlign, PositionReference, PositionSide } from '@ionic/core';
 import { MenuPage } from 'src/app/modals/menu/menu.page';
@@ -31,7 +32,8 @@ export class DisplayService {
     private modal:ModalController,
     private act:ActionSheetController,
     private alert:AlertController,
-    private popover:PopoverController
+    private popover:PopoverController,
+    private router:Router
     ) { }
 
   /**
@@ -76,5 +78,9 @@ export class DisplayService {
     })
     await popover.present();
     return await popover.onDidDismiss();
+  }
+
+  goto(url:string){
+    return this.router.navigateByUrl(url);
   }
 }

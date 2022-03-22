@@ -1,46 +1,98 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { ModelData, ToolData } from 'src/app/models/tools.model';
+import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import QrCreator from 'qr-creator';
-const _DB_TOOL='tools'
+import { ButtonData } from 'src/app/models/util.model';
+import { AuthService } from 'src/app/services/firebase/auth.service';
+
+export interface ToolPageOpts{
+  /** tool data */
+  tool?:ToolData;
+  /** tool model */
+  model?:ModelData;
+  /** id of tool */
+  toolId?:string;
+}
+
+export interface ToolPageOuts{
+  tool:ToolData
+}
+
 @Component({
   selector: 'app-tool',
   templateUrl: './tool.page.html',
   styleUrls: ['./tool.page.scss'],
 })
 export class ToolPage implements OnInit {
-  /** variable */
+  /** input */
   tool:ToolData;
+  toolId:string;
+  /** model data default get from db */
   model:ModelData;
-  isNew:boolean=false;
-  isEdit:boolean=false;
-  editEnable:boolean=true;
-  visualStatus=['OK','Scratch','broken'];
-  operationStatus=['OK','cannot operation'];
-  functionStatus=['OK',"tolerance's out of specs"];
-  mItems=[
-    {n:"Part No",v:"id"},
-    {n:"Part Name",v:"name"},
-    {n:"Category",v:"group"},
-    {n:"Maintenance Period [days]",v:"maintenance"}
-  ]
+
+  /** internal variable */
+  isAvailable:boolean=false;
+  buttons:ButtonData[]=btnDefault()
+  visualStatus=['OK',"Not check",'Scratch','broken'];
+  operationStatus=['OK',"Not check",'cannot operation'];
+  functionStatus=['OK',"Not check","tolerance's out of specs"];
+  compQtyStatus=["OK","Not check","NG"]
+ 
   /** function */
   constructor(
     private modal:ModalController,
-    private db:FirestoreService
+    private db:FirestoreService,
+    private auth:AuthService
   ) {
 
   }
 
   ngOnInit() {
-    if(this.isNew) this.isEdit=true;
-    if(this.tool.stay)
-    console.log("initial data:",this);
+    this._getTool()
+    .then(tool=>{
+      this.tool=tool;
+      return this._getModel()
+    })
+    .then(model=>{
+      this.model=model;
+      this.isAvailable=true;
+      console.log("\ninitial",{model,all:this});
+    })
+    .catch(err=>console.log("\n### ERROR[2]: get data is error",err))
   }
 
+  /** get Tool data */
+  private _getTool():Promise<ToolData>{
+    return new Promise((resolve,reject)=>{
+      if(!this.tool && !this.toolId) return resolve(createToolData({createAt:this.auth.currentUser.id}))
+      if(this.tool) return resolve(this.tool)
+      if(!this.tool) {
+        this.db.get(_DB_TOOLS,this.toolId)
+        .then((tool:ToolData)=>resolve(tool))
+        .catch(err=>reject(err))
+      }
+    })
+  }
+
+  /** get model data */
+  private _getModel():Promise<ModelData>{
+    return new Promise((resolve,reject)=>{
+      if(!this.model || this.tool.model!=this.model.id){//need to update model
+        this.db.get(_DB_MODELS,this.tool.model)
+        .then((model:ModelData)=>resolve(model))
+        .catch(err=>reject(err))
+      }
+      else resolve(this.model)
+    })
+  }
+
+  /** exit page */
   done(role:string="OK"){
-    return this.modal.dismiss(this.tool,role);
+    const out:ToolPageOuts={
+      tool:this.tool
+    }
+    return this.modal.dismiss(out,role);
   }
 
   /** print code */
@@ -76,14 +128,12 @@ export class ToolPage implements OnInit {
     // windowp.close();
   }
 
-  save(){
-    this.db.add(_DB_TOOL,this.tool)
-    .then(()=>this.done())
-  }
+}
 
-  delete(){
-    this.db.delete(_DB_TOOL,this.tool.id)
-    this.done('delete')
-  }
-
+function btnDefault():ButtonData[]{
+  return [
+    {role:'delete',icon:'trash'},
+    {role:'ok',icon:'save'},
+    {role:'print',icon:'print',handler:()=>{console.log("Test",this)}}
+  ]
 }

@@ -101,17 +101,17 @@ export interface ToolStatusOpts{
 /** create new ToolStatus */
 export function createToolStatus(opts?:ToolStatusOpts){
     const df:ToolStatus={
-        visual:-1,      // not yet check
-        operation:-1,   // not yet check
-        function:-1,    // not yet check
-        compQty:-1      // not yet check
+        visual:1,      // not yet check
+        operation:1,   // not yet check
+        function:1,    // not yet check
+        compQty:1      // not yet check
     }
     return createOpts(df,opts)
 }
 
 
-const _DB_TOOLS="tools"
-const _STORAGE_TOOLS="tools"
+export const _DB_TOOLS="tools"
+export const _STORAGE_TOOLS="tools"
 
-const _DB_MODELS="models"
-const _STORAGE_MODELS="models"
+export const _DB_MODELS="models"
+export const _STORAGE_MODELS="models"

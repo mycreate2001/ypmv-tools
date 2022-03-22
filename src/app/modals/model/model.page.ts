@@ -1,31 +1,44 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { modelconfig } from 'src/app/models/config';
-import { createModelData, createToolData, ModelData, ToolData } from 'src/app/models/tools.model';
+import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
+import { ButtonData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
-import { FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { StorageService } from 'src/app/services/firebase/storage.service';
-import { CameraPage } from '../camera/camera.page';
-import { ImageViewPage } from '../image-view/image-view.page';
-import { ToolPage } from '../tool/tool.page';
-const _DB_MODEL="models"
+
+import {  FirestoreService } from 'src/app/services/firebase/firestore.service';
+
+import { ImageViewOpts, ImageViewOuts, ImageViewPage } from '../image-view/image-view.page';
+import { ToolPage, ToolPageOpts, ToolPageOuts } from '../tool/tool.page';
+export interface ModelPageOpts{
+  model:ModelData|string;   // model data or id, underfind=>create new
+  tools?:ToolData[]         // default
+  isEdit?:boolean;          // Enable edit
+}
 @Component({
   selector: 'app-tool-detail',
   templateUrl: './model.page.html',
   styleUrls: ['./model.page.scss'],
 })
-export class ToolDetailPage implements OnInit {
-  model:ModelData;
-  tools:ToolData[]=[];
+export class ModelPage implements OnInit {
+  /** database */
+  tools:ToolData[]=[];      // can input or database
   groups:string[]=[];
-  isChange:boolean=false;
+
+  /** input */
+  model:ModelData|string;   //model data or modelId
   isEdit:boolean=false;
-  images:string[]=[];       //iamges wil add more to db
-  viewImages:string[]=[];
+
+  /** internal */
+  isAvailble:boolean=false;
+  buttons:ButtonData[]=btnDefault()
+  
+  /** use internal only, it's for view */
+  viewImages:string[]=[];       //iamges wil add more to db
+  addImages:string[]=[];
   delImages:string[]=[];    //image will delete
-  user:UserData=null;
+  user:UserData;
+
   /** it's may get from database */
   visualStatus=["OK","scratch","Crack","other"];
   operationStatus=["OK","Not smomthly","Cannot operation","other"];
@@ -33,111 +46,118 @@ export class ToolDetailPage implements OnInit {
   constructor(
     private modal:ModalController,
     private disp:DisplayService,
-    private storage:StorageService,
     private db:FirestoreService,
     private auth:AuthService
   ) {
-    // console.log("model:",this.model);
-    // this.backup=JSON.parse(JSON.stringify(this.model));
-  }
-  private _updateImageView(){
-    this.viewImages=this.images.concat(this.model.images);
-  }
-  ngOnInit() {
-    console.log("initial value:",this);
-    this.user=this.auth.currentUser;
-    this._updateImageView();
+
   }
 
-  /** upload image */
-  uploadImage():Promise<ModelData>{
+  ngOnInit() { 
+    this._getModel()
+    .then(model=>{
+      this.model=model;
+      return this.db.search(_DB_TOOLS,{key:'model',compare:'==',value:model.id})
+    })
+    .then((tools:ToolData[])=>{
+      this.tools=tools;
+      this._update();
+    })
+
+  }
+
+  /** check & get model data */
+  private async _getModel():Promise<ModelData>{
     return new Promise((resolve,reject)=>{
-      if(!this.images.length) return resolve(this.model);
-      const all=this.images.map(image=>this.storage.uploadImagebase64(image));
-      Promise.all(all)
-      .then(uImages=>{
-        const urls=uImages.map(x=>x.url);
-        this.model.images=this.model.images.concat(urls);
-        return resolve(this.model)
-      })
+      if(typeof this.model!='string') return resolve(this.model)
+      //id
+      this.db.get(_DB_MODELS,this.model)
+      .then((model:ModelData)=>resolve(model))
       .catch(err=>reject(err))
     })
   }
 
+  private _update(){
+    if(typeof this.model=='string') return;
+    this.viewImages=this.model.images.concat(this.addImages)
+    this.isAvailble=true;
+  }
 
-  /////////// buttons ///////////////
-
-  /** end of modal */
+  ///////// exist ////////
   done(role:string="OK"){
-    role=role.toUpperCase();
-    this.modal.dismiss(this.model,role)
+    const out:ModelPageOuts={
+      addImages:this.addImages,
+      delImages:this.delImages,
+      model:this.model as ModelData
+    }
+    this.modal.dismiss(out,role)
   }
 
-  
+  //////// buttons //////////////
+  detailImage(){
+    if(typeof this.model=='string') return;
+    this.model.images as string[]
+    const props:ImageViewOpts={
+      images:this.model.images,
+      delImages:this.delImages,
+      addImages:this.addImages,
 
-  /** button for make duplicate model */
-  duplicate(){
-    const {id,...data}=this.model;
-    this.model=createModelData({...data});
-    this.tools=[];
-    this.isEdit=true;
-    // this.isNew=true;
-  }
-
-
-  /** button show image */
-  showImage(){
-    this.disp.showModal(ImageViewPage,{images:this.model.images})
+    }
+    this.disp.showModal(ImageViewPage,props)
     .then(result=>{
       if(result.role.toUpperCase()!='OK') return;
-      const {images,addImages,delImages}=result.data;
-      console.log({images,addImages,delImages})
-      if(addImages.length+delImages.length) {
-        this.isChange=true;
-        this.isEdit=true;
-        this.model.images=images;
-        this.images=addImages;
-        this.delImages=delImages;
-        this._updateImageView();
+      const data=result.data as ImageViewOuts;
+      if(typeof this.model=='string') return console.log("\n### ERROR: Model data");
+      this.addImages=data.addImages as string[];
+      this.delImages=data.delImages;
+      this.model.images=data.images as string[];
+      this._update();
+    })
+  }
+
+  /** detail tool */
+  detail(tool:ToolData=null){
+    if(typeof this.model=='string') return;
+    console.log("tool:",tool);
+    tool=tool?tool:createToolData({userId:this.auth.currentUser.id,model:this.model.id})
+    const props:ToolPageOpts={tool,model:this.model}
+    this.disp.showModal(ToolPage,props)
+    .then(result=>{
+      const data=result.data as ToolPageOuts
+      const xTool=data.tool;
+      xTool.lastUpdate=new Date().toISOString();
+      switch(result.role.toUpperCase()){
+        case 'OK':
+        case 'SAVE':{
+          this.db.add(_DB_TOOLS,xTool)
+        }
+        break;
+
+        case 'DELETE':{
+          this.db.delete(_DB_TOOLS,xTool.id);
+        }
+        break;
+
+        default:
+          console.log("#ERROR: Out of case, role:",result.role)
       }
     })
+    
   }
 
-  /** button add image */
-  addImage(){
-    this.disp.showModal(CameraPage)
-    .then(result=>{
-      if(result.role.toUpperCase()!='OK') return;
-      this.images.push(result.data)
-      this.isChange=true;
-      this._updateImageView();
-    })
-  }
 
-  /** button save */
-  save(){
-    //delete image
-    if(this.delImages.length) {
-      this.delImages.forEach(image=>this.storage.delete(image))
-    }
-    //upload image
-    this.uploadImage()
-    .then(model=> this.db.add(_DB_MODEL,model))
-    .then(()=>this.done())
-  }
+ 
 
-  /** button delete model */
-  delete(){
-    this.db.delete(_DB_MODEL,this.model.id)
-    this.done('delete')
-  }
+}
 
-  /** button tool detail */
-  detail(tool:ToolData=null){
-    const isNew:boolean=tool?false:true;
-    const isEdit:boolean=tool?false:true;
-    if(!tool) tool=createToolData({model:this.model.id,userId:this.user.id})
-    this.disp.showModal(ToolPage,{model:this.model,tool,isEdit,isNew})
-  }
+export interface ModelPageOuts{
+  addImages:string[];
+  delImages:string[];
+  model:ModelData;
+}
 
+function btnDefault():ButtonData[]{
+  return [
+    {role:'save',icon:'save'},
+    {role:'delete',icon:'trash'}
+  ]
 }

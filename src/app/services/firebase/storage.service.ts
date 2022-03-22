@@ -1,3 +1,4 @@
+"use strick"
 import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import {  getStorage,uploadString,ref,
@@ -5,7 +6,7 @@ import {  getStorage,uploadString,ref,
           uploadBytesResumable,
           FirebaseStorage,
           UploadResult,          } from 'firebase/storage';
-import { ImageData } from 'src/app/models/util.model';
+import { UrlData } from 'src/app/models/util.model';
 import { Base64 } from 'src/app/utils/base64';
 import { environment } from 'src/environments/environment';
 
@@ -31,16 +32,17 @@ export class StorageService {
   }
 
   /** upload images to folder */
-  uploadImages(images:ImageData|ImageData[]|string[]|string,path:string):Promise<ImageData[]|string[]>{
+  uploadImages(images:(UrlData|string)[]|string|UrlData,path:string):Promise<(string|UrlData)[]>{
     if(!path.endsWith("/")) path=path+"/";
-    const _images:ImageData[]|string[]=[].concat(images);
+    const _images:(UrlData|string)[]=[].concat(images);
     return new Promise((resolve,reject)=>{
       if(!_images.length) return resolve([]);//
-      const all=_images.map((image:ImageData|string)=>{
-        if(typeof image=='string') return this.uploadImagebase64(image,path).then(result=>result.url)
-        return this.uploadImagebase64(image['url'],path).then(result=>{return{...image,url:result.url}})
+      const all=_images.map((image:UrlData|string,pos:number)=>{
+        if(typeof image=='string') return this.uploadImagebase64(image,path).then(result=>{return {url:result.url,caption:pos+""}})
+        return this.uploadImagebase64(image.url,path).then(result=>{return{ url:result.url,caption:image.caption}})
       })
-      Promise.all(all).then((results:ImageData[]|string[])=>resolve(results))
+      Promise.all(all).then((results:(UrlData|string)[])=>resolve(results))
+      .catch(err=>reject(err))
     })
   }
 

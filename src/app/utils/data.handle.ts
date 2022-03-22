@@ -6,7 +6,7 @@ import { getList } from "./minitools";
  * @param data 
  * @returns 
  */
-export function searchObj(keyword:string,arrs:any|any[]):any[]{
+export function searchObj<T>(keyword:string,arrs:T|T[]):T[]{
     if(!keyword||!arrs) return [];
     keyword=keyword.toUpperCase();
     return [].concat(arrs).filter(arr=>{
@@ -14,7 +14,7 @@ export function searchObj(keyword:string,arrs:any|any[]):any[]{
     })
 }
 
-export function separateObj(arrs:any[],key:string,opts:{dataName:string}={dataName:'data'}){
+export function separateObj<T>(arrs:T[],key:string,opts:{dataName:string}={dataName:'data'}){
     const groups=getList(arrs,key);
     return groups.map(group=>{
         const tmp:any={};
