@@ -34,11 +34,11 @@ export function createBasicData(opts?:BasicDataOpts){
 
 /*** for view page */
 export interface BasicView extends BasicData{
-    childrenId:string[];
+    childrenId:ChildData[];
 }
 
 export interface BasicViewOpts extends BasicDataOpts{
-    childrenId?:string;
+    childrenId?:ChildData;
 }
 
 export function createBasicView(opts?:BasicViewOpts){
@@ -47,4 +47,9 @@ export function createBasicView(opts?:BasicViewOpts){
         childrenId:[]
     }
     return createOpts(df,opts)
+}
+
+export interface ChildData{
+    id:string;
+    type:BasicDataType
 }

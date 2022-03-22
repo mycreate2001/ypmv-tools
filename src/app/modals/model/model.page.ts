@@ -10,11 +10,8 @@ import {  FirestoreService } from 'src/app/services/firebase/firestore.service';
 
 import { ImageViewOpts, ImageViewOuts, ImageViewPage } from '../image-view/image-view.page';
 import { ToolPage, ToolPageOpts, ToolPageOuts } from '../tool/tool.page';
-export interface ModelPageOpts{
-  model:ModelData|string;   // model data or id, underfind=>create new
-  tools?:ToolData[]         // default
-  isEdit?:boolean;          // Enable edit
-}
+
+
 @Component({
   selector: 'app-tool-detail',
   templateUrl: './model.page.html',
@@ -149,6 +146,23 @@ export class ModelPage implements OnInit {
 
 }
 
+//////
+/**
+ * @param model   model need to view/edit
+ * @param tools all tools this model
+ * @param isEdit  edit/view
+ */
+export interface ModelPageOpts{
+  model:ModelData|string;   // model data or id, underfind=>create new
+  tools?:ToolData[]         // default
+  isEdit?:boolean;          // Enable edit
+}
+
+/**
+ * @param addImages images will add
+ * @param delImages images will delete  
+ * @param model Model information already update/revise 
+ */
 export interface ModelPageOuts{
   addImages:string[];
   delImages:string[];

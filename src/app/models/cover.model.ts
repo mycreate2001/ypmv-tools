@@ -1,4 +1,5 @@
 import { createOpts } from "../utils/minitools";
+import { ChildData } from "./basic.model";
 import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
 
 
@@ -6,17 +7,19 @@ export interface CoverData extends SaveInfo{
     id:string;                  // Id
     name:string;                // name
     group:string;               // group
-    childrenId:string[];       // tools/covers Id
+    childrenId:ChildData[];       // tools/covers Id
     images:string[];           // images of cover
     upperId:string;            // parents ID
     stay:string;                // where keep it when stay alone
 }
 
+
+
 export interface CoverDataOpts extends SaveInfoOpts{
     id?:string;                  // Id
     name?:string;                // name
     group?:string;               // group
-    childrenId?:string[];       // tools/covers Id
+    childrenId?:ChildData[];       // tools/covers Id
     images?:string[];           // images of cover
     upperId?:string;            // parents ID
     stay?:string;                // where keep it when stay alone
@@ -38,6 +41,7 @@ export function createCoverData(opts?:CoverDataOpts):CoverData{
     }
     return createOpts(df,opts) as CoverData;
 }
+
 
 export const _DB_COVERS="covers"
 export const _STORAGE_COVERS="covers"

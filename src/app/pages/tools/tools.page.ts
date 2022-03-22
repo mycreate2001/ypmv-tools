@@ -10,10 +10,13 @@ import { BasicData } from 'src/app/models/basic.model';
 import { ModelPage, ModelPageOpts, ModelPageOuts } from '../../modals/model/model.page';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
-
+interface ModelExt extends BasicData{
+  model:ModelData;
+  cover:CoverData;
+}
 interface viewData {
   group:string;
-  models:BasicData
+  models:ModelExt
 }
 
 @Component({
@@ -34,7 +37,6 @@ export class ToolsPage implements OnInit {
   views:viewData[]=[];
   key:string="";
   /** internal control */
-  private _isData={cover:false,model:false};    //control update data
   buttons:ButtonData[]=btnDefault();
 
   constructor(
@@ -52,7 +54,6 @@ export class ToolsPage implements OnInit {
     this._modelDb=this.db.connect(_DB_MODELS);
     this._modelDb.onUpdate((models:ModelData[])=>{
       this.models=models;
-      this._isData.model=true;
       this.update();
     })
 
@@ -60,7 +61,6 @@ export class ToolsPage implements OnInit {
     this._coverDb=this.db.connect(_DB_COVERS);
     this._coverDb.onUpdate((covers:CoverData[])=>{
       this.covers=covers;
-      this._isData.cover=true;
       this.update;
     })
   }
@@ -86,76 +86,61 @@ export class ToolsPage implements OnInit {
 
   /** update view */
   update(){
-    if(!Object.keys(this._isData).every(key=>this._isData[key]+""))
-      return console.log("data is not available");
-    //available data
-    let models:BasicData[]=[];
+    let models:ModelExt[]=[];
     //model
     this.models.forEach(model=>{
       if(!model) return console.warn("\n### ERR[1]: model database is empty");
-      const out:BasicData={
-        id:model.id,
-        name:model.name,
-        group:model.group,
-        images:model.images,
-        type:'tool',
-      }
+      const out:ModelExt={...model,type:'tool',model,cover:null}
       models.push(out);
     })
     //cover
     this.covers.forEach(cover=>{
       if(!cover) return console.warn("\n### ERR[2]: Cover database is empty");
-      const out:BasicData={
-        id:cover.id,
-        name:cover.name,
-        group:cover.group,
-        images:cover.images,
-        type:'cover',
-      }
+      const out:ModelExt={...cover,type:'cover',model:null,cover}
       models.push(out);
     });
-    console.warn("models:",models);
     models=this.key.length?searchObj(this.key,models):models;
     this.views=separateObj(models,"group",{dataName:"models"});
 
-    console.log("data after build",this);
-    console.groupEnd();
+    console.log("data after build",{models,all:this});
+  }
+
+  newModel(){
+    const model=createModelData({userId:this.auth.currentUser.id})
+    this.detailModel(model);
   }
 
   /** detail model */
-  detail(model:BasicData=null){
-    const props:ModelPageOpts=model?{model:model.id}:{model:createModelData({userId:this.auth.currentUser.id})}
+  detail(model:ModelExt=null){
+    if(model.type=='tool') return this.detailModel(model.model)
+    if(model.type=='cover') return this.detailCover(model.cover);
+  }
+
+  detailCover(cover:CoverData){
+    
+  }
+  
+  /** show detail of model */
+  detailModel(model:ModelData=null){
+    const props:ModelPageOpts={model}
     this.disp.showModal(ModelPage,props)
     .then(result=>{
-      const data=result.data as ModelPageOuts;
-      const model=data.model;
-      switch(result.role.toUpperCase()){
-        case 'OK':
-        case 'SAVE':{
-          if(data.delImages) data.delImages.map(image=>this.storage.delete(image).catch(err=>console.warn("\n### ERR[1]: delete image is error",err)))
-          this.storage.uploadImages(data.addImages,_STORAGE_MODELS)
-          .then(urls=>{
-            model.images=urls.map(image=>typeof image=='string'?image:image.url);
-            return this.db.add(_DB_MODELS,model)
-          })
-          .then(()=>console.log("save model '%s' was successfully!",model.id))
-          .catch(err=>console.log("save model '%s' is failured!",model.id,err))
-        }
-        break;
-
-        case 'DELETE':{
-          //delete image
-          if(model.images.length) {
-            const a=model.images.map(image=>this.storage.delete(image));
-            Promise.all(a).then(()=>console.log("delete images [%s] to model '%s' is successfully",model.images.join(","),model.id))
-            .catch(err=>console.log("delete images [%s] to model '%s' is failured!\n",model.images.join(","),model.id,err))
-          }
-          this.db.delete(_DB_MODELS,model.id)
-          .then(()=>console.log("delete model '%s' was successfully!",model.id))
-          .catch(err=>console.log("delete model '%s' was failured!",model.id))
-        }
+      const data=result.data as ModelPageOuts
+      const role=result.role.toUpperCase();
+      if(role=='OK'||role=='SAVE'){
+        if(data.delImages.length) data.delImages.map(image=>this.storage.delete(image))
+        this.storage.uploadImages(data.addImages,_STORAGE_MODELS)
+        .then(urls=>{
+          data.model.images=data.model.images.concat(urls.map(x=>typeof x=='string'?x:x.url));
+          return data.model;
+        })
+        .then(xmodel=>this.db.add(_DB_MODELS,xmodel))
+        .then(()=>console.log("save model '%s' was successfully!",data.model.id))
+        .catch(err=>console.log("save model '%s' failured!/n",data.model.id,err))
+        
       }
     })
+
   }
 
 }
