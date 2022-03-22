@@ -30,6 +30,9 @@ export function createBasicData(opts?:BasicDataOpts){
     return createOpts(df,opts)
 }
 
+
+
+/*** for view page */
 export interface BasicView extends BasicData{
     childrenId:string[];
 }

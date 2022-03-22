@@ -34,3 +34,7 @@ export function createUserData(opts?:UserDataOpts):UserData{
     return createOpts(df,opts) as UserData
 }
 export declare type RoleType ="Administrator"|"User"
+
+
+export const _DB_USERS="users"
+export const _STORAGE_USERS="avatars"

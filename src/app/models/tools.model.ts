@@ -108,3 +108,10 @@ export function createToolStatus(opts?:ToolStatusOpts){
     }
     return createOpts(df,opts)
 }
+
+
+const _DB_TOOLS="tools"
+const _STORAGE_TOOLS="tools"
+
+const _DB_MODELS="models"
+const _STORAGE_MODELS="models"

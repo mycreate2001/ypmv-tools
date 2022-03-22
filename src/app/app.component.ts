@@ -7,7 +7,7 @@ import { MenuData, PageData } from './models/util.model';
 import { DisplayService } from './services/display/display.service';
 import { AuthService } from './services/firebase/auth.service';
 import { FirestoreService } from './services/firebase/firestore.service';
-const _DB_USER='users';
+
 
 @Component({
   selector: 'app-root',
@@ -17,7 +17,6 @@ const _DB_USER='users';
 export class AppComponent {
   /** variable */
   pages:PageData[]=[
-    {name:'Scan',url:'add',icon:'scan-circle',iconColor:'success'},
     {name:'Tools',url:'tools',icon:'hammer',iconColor:'primary'},
     {name:'Code Format',url:'formats',icon:'qr-code',iconColor:'tertiary'},
     {name:'Companies',url:'companies',icon:'briefcase'},//<ion-icon name="briefcase"></ion-icon>
