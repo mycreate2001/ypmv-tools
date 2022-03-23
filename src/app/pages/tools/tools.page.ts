@@ -1,22 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { DisplayService } from '../../services/display/display.service';
 
-import {  createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from '../../models/tools.model';
+import {  createModelData, createToolData, ModelData, ModelDataOpts, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from '../../models/tools.model';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { ButtonData } from 'src/app/models/util.model';
-import { CoverData, _DB_COVERS } from 'src/app/models/cover.model';
-import { BasicData } from 'src/app/models/basic.model';
-import { ModelPage, ModelPageOpts, ModelPageOuts } from '../../modals/model/model.page';
+import { ButtonData, UrlData } from 'src/app/models/util.model';
+import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS } from 'src/app/models/cover.model';
+import { BasicData, ChildData } from 'src/app/models/basic.model';
+import { ModelPage, ModelPageOpts, ModelPageOuts, } from '../../modals/model/model.page';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
-interface ModelExt extends BasicData{
-  model:ModelData;
-  cover:CoverData;
+import { CoverPage, CoverPageOpts, CoverPageOuts } from 'src/app/modals/cover/cover.page';
+import { ToolPage, ToolPageOpts, ToolPageOuts } from 'src/app/modals/tool/tool.page';
+
+
+export interface AddImageData{
+  path:string;
+  addImages:string[];
 }
+
+
 interface viewData {
   group:string;
-  models:ModelExt
+  models:BasicData[];
 }
 
 @Component({
@@ -31,13 +37,15 @@ export class ToolsPage implements OnInit {
   covers:CoverData[]=[];
   private _modelDb:ConnectData;
   private _coverDb:ConnectData;
-  newGroup:string="";
 
   /** internal variable */
   views:viewData[]=[];
   key:string="";
-  /** internal control */
-  buttons:ButtonData[]=btnDefault();
+
+  /** control */
+  private _isData={model:false,cover:false}
+  isAvailable:boolean=false;
+
 
   constructor(
     private disp:DisplayService,
@@ -49,11 +57,11 @@ export class ToolsPage implements OnInit {
 
   /** system OnInit */
   ngOnInit() {
-  
     //model
     this._modelDb=this.db.connect(_DB_MODELS);
     this._modelDb.onUpdate((models:ModelData[])=>{
       this.models=models;
+      this._isData.model=true;
       this.update();
     })
 
@@ -61,7 +69,8 @@ export class ToolsPage implements OnInit {
     this._coverDb=this.db.connect(_DB_COVERS);
     this._coverDb.onUpdate((covers:CoverData[])=>{
       this.covers=covers;
-      this.update;
+      this._isData.cover=true;
+      this.update();
     })
   }
 
@@ -71,84 +80,138 @@ export class ToolsPage implements OnInit {
     this._coverDb.disconnect();
   }
 
-  /** update data */
-  handlerButton(role:string){
-    role=role.toUpperCase();
-    if(role=='NEW TOOL'){
-      this.detail();
-    }
-
-    if(role=='NEW COVER'){
-      console.log("new cover")
-      return;
-    }
-  }
-
   /** update view */
   update(){
-    let models:ModelExt[]=[];
-    //model
-    this.models.forEach(model=>{
-      if(!model) return console.warn("\n### ERR[1]: model database is empty");
-      const out:ModelExt={...model,type:'tool',model,cover:null}
-      models.push(out);
-    })
-    //cover
+    let _views:BasicData[]=[];
+    //covers
     this.covers.forEach(cover=>{
-      if(!cover) return console.warn("\n### ERR[2]: Cover database is empty");
-      const out:ModelExt={...cover,type:'cover',model:null,cover}
-      models.push(out);
-    });
-    models=this.key.length?searchObj(this.key,models):models;
-    this.views=separateObj(models,"group",{dataName:"models"});
+      if(!cover) return console.log("\nERROR[1]: Cover is empty");
+      const view:BasicData={
+        id:cover.id,
+        name:cover.name,
+        group:cover.group,
+        images:cover.images,
+        type:'cover'
+      }
+      _views.push(view)
+    })
+    //model & tools
+    this.models.forEach(model=>{
+      if(!model) return console.log("\n### ERROR[2]: Model is empty");
+      const view:BasicData={
+        id:model.id,
+        name:model.name,
+        group:model.group,
+        images:model.images,
+        type:'tool'
+      }
+      _views.push(view)
+    })
 
-    console.log("data after build",{models,all:this});
+    //search data
+    _views=this.key?searchObj(this.key,_views):_views
+    //build
+    this.views=separateObj(_views,"group",{dataName:'models'})
+    this.isAvailable=true;
+    console.log("\n---- update -----\n",this);
   }
 
-  newModel(){
+  /** add model */
+  addModel(){
     const model=createModelData({userId:this.auth.currentUser.id})
     this.detailModel(model);
   }
 
-  /** detail model */
-  detail(model:ModelExt=null){
-    if(model.type=='tool') return this.detailModel(model.model)
-    if(model.type=='cover') return this.detailCover(model.cover);
+  /** add cover */
+  addCover(){
+    const cover=createCoverData({userId:this.auth.currentUser.id});
+    this.detailCover(cover);
   }
 
-  detailCover(cover:CoverData){
-    
+  /** detail cover/model */
+  detail(model:BasicData){
+    if(model.type=='cover'){
+      const cover=this.covers.find(c=>c.id==model.id)
+      if(!cover) return console.log("\n### ERROR: cannot find cover '%i' on DB",model.id)
+      this.detailCover(cover);
+    }
+    else if (model.type=='tool'){
+      const _model=this.models.find(m=>m.id==model.id);
+      if(!_model) return console.log("\n### ERROR: not found model '%s' on db",model.id)
+      this.detailModel(_model);
+    }
+    else {console.log("\n#### ERROR: out of case/data wrong",model)}
   }
-  
-  /** show detail of model */
-  detailModel(model:ModelData=null){
+
+
+  /** show detial cover */
+  detailCover(cover:CoverData){
+    const props:CoverPageOpts={cover}
+    this.disp.showModal(CoverPage,props)
+    .then(result=>{
+      const data=result.data as CoverPageOuts
+      const role=result.role.toUpperCase();
+      if(role=='OK'||role=='SAVE') 
+        return  this.handlerSave(data.cover,_DB_COVERS,data.addImages,_STORAGE_COVERS,data.delImages);
+      if(role=='DELETE') return this.handlerDelete(data.cover,_DB_COVERS)
+    })
+  }
+
+  /** detail model */
+  detailModel(model:ModelData){
     const props:ModelPageOpts={model}
     this.disp.showModal(ModelPage,props)
     .then(result=>{
       const data=result.data as ModelPageOuts
       const role=result.role.toUpperCase();
-      if(role=='OK'||role=='SAVE'){
-        if(data.delImages.length) data.delImages.map(image=>this.storage.delete(image))
-        this.storage.uploadImages(data.addImages,_STORAGE_MODELS)
-        .then(urls=>{
-          data.model.images=data.model.images.concat(urls.map(x=>typeof x=='string'?x:x.url));
-          return data.model;
-        })
-        .then(xmodel=>this.db.add(_DB_MODELS,xmodel))
-        .then(()=>console.log("save model '%s' was successfully!",data.model.id))
-        .catch(err=>console.log("save model '%s' failured!/n",data.model.id,err))
-        
-      }
+      if(role=='OK'|| role=='SAVE') 
+        return this.handlerSave(data.model,_DB_MODELS,data.addImages,_STORAGE_MODELS,data.delImages)
+      if(role=='DELETE') return this.handlerDelete(data.model,_DB_MODELS)
     })
-
   }
 
+  //////////// backgroup ////////////////
+  
+  /** handler save/revise data */
+  handlerSave(data,tbl:string,addImages:string[]=[],path:string='',delImages:string[]=[]){
+    delImages.forEach(image=>this.storage.delete(image))
+    this.storage.uploadImages(addImages,path)
+    .then((urls:string[])=>{
+      if(!urls.length) return data;
+      if(!data['images']) data['images']=urls;
+      else data['images']=data['images'].concat(urls);
+      return data;
+    })
+    .then(data=>this.db.add(tbl,data))
+    .then(()=>console.log("save data to '%s' successfull",tbl))
+    .catch(err=>console.log("### ERROR: save data to '%s' failred!\n",tbl,err))
+  }
+
+  /** handler delete data */
+  handlerDelete(data:any,tbl:string){
+    const PRG="[delete]"
+    const id=data.id;
+    const images:string[]=data.images;
+    if(!id ) return console.log("%s ### ERROR[1]: delete data from '%s' failured, cause of formatt\n",PRG,tbl,data);
+    if(images && images.length){
+      const a=images.map(image=>this.storage.delete(image));
+      const b=this.db.delete(tbl,id)
+      Promise.all([...a,b]).then(()=>console.log("delete data '%s' from '%s' successfull",id,tbl))
+      .catch(err=>console.log("\n### ERROR: delete '%s' from '%s' is failured\n",id,tbl,err))
+    }
+    else{
+      this.db.delete(tbl,id)
+      .then(()=>console.log("delete data '%s' from '%s' successfull",id,tbl))
+      .catch(err=>console.log("\n### ERROR: delete '%s' from '%s' is failured\n",id,tbl,err))
+    }
+    
+  }
+
+
+
+  
+
 }
 
 
-function btnDefault():ButtonData[]{
-  return [
-    {role:'new tool',icon:'hammer',handler:()=>{console.log("test result",this)}},
-    {role:'new cover',icon:'cube'}//<ion-icon name="cube"></ion-icon>
-  ]
-}
+

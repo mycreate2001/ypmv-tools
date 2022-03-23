@@ -5,37 +5,35 @@
     </ion-buttons>
     <ion-searchbar [(ngModel)]="key" (ionChange)="update()"></ion-searchbar>
     <ion-buttons slot="end">
-      <ion-button
-        *ngFor="let btn of buttons"
-        [title]="btn.title?btn.title:btn.name?btn.name:btn.role"
-        (click)="btn.handler&&btn.handler();handlerButton(btn.role)" 
-      >
-        <ion-icon [name]="btn.icon" [color]="btn.iconColor"></ion-icon>
-        <ion-label *ngIf="btn.label">{{btn.label}}</ion-label>
+      <ion-button (click)="addModel()" title="New Tool Infor">
+        <ion-icon name="hammer"></ion-icon>
+      </ion-button>
+      <ion-button (click)="addCover()" title="New cover">
+        <ion-icon name="clipboard"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-accordion-group>
-    <ion-accordion [value]="view.group" *ngFor="let view of views;let vpos=index">
-      <ion-item slot="header" color="light">
-        <ion-label>
-          {{view.group}}
-          <ion-badge slot="end">{{view.models.length}}</ion-badge>
-        </ion-label>
+<ion-content  color="light">
+  <ion-accordion-group >
+    <ion-accordion *ngFor="let view of views">
+      <ion-item slot="header">
+        {{view.group}}<ion-badge>{{view.models.length}}</ion-badge>
       </ion-item>
       <ion-list slot="content">
-        <ion-item *ngFor="let model of view.models" (click)="detail(model)">
+        <ion-item (click)="detail(model)" *ngFor="let model of view.models">
           <ion-thumbnail slot="start">
-            <img [src]="model.images.length?model.images[0]:'../../../assets/image/no-image.png'">
+            <img [src]="model.images.length?(model.images[0].url?model.images[0].url:model.images[0]):'../../../assets/image/no-image.png'">
           </ion-thumbnail>
-          <ion-label>
-            {{model.name}} 
+          <ion-label [color]="model.type=='cover'?'secondary':'primary'">
+            {{model.name}}
           </ion-label>
-        </ion-item>
+         </ion-item>
       </ion-list>
     </ion-accordion>
   </ion-accordion-group>
+  <div *ngIf="!views.length">
+    No data
+  </div>
 </ion-content>

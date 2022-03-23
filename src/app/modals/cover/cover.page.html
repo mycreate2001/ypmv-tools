@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="tertiary">
+  <ion-toolbar color="secondary">
     <ion-buttons slot="start">
       <ion-button (click)="done('cancel')">
         <ion-icon name="arrow-back"></ion-icon>
@@ -69,17 +69,17 @@
           <ion-item slot="header">
             <ion-label>Quantity</ion-label>
              <ion-text>{{cover.childrenId.length}}</ion-text>
-
           </ion-item>
+
           <div slot="content">
             <ion-item lines="none">
               <ion-buttons slot="end">
-                <ion-button (click)="detail()">
-                  <ion-icon color="primary" name="add-circle"></ion-icon>
+                <ion-button (click)="addChild()">
+                  <ion-icon color="secondary" name="add-circle"></ion-icon>
                 </ion-button>
               </ion-buttons>
             </ion-item>
-            <ion-item *ngFor="tool of children">
+            <ion-item *ngFor="let tool of children">
               <ion-thumbnail slot="start">
                 <img [src]="tool.images.length?tool.images[0].url?tool.images[0].url:tool.images[0]:'../../../assets/image/no-image.png'">
               </ion-thumbnail>

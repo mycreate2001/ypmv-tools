@@ -19,6 +19,7 @@ export interface MenuData{
     handler?:Function;      // handler
     image?:string;           // url of iamge
     role?:string;            //key
+    note?:string;
 }
 
 export interface ButtonData{

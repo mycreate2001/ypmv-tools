@@ -25,3 +25,7 @@ export class MenuPage implements OnInit {
   }
 
 }
+
+export interface MenuPageOpts{
+  menus:MenuData
+}

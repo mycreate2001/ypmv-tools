@@ -3,7 +3,15 @@ import { ModalController } from '@ionic/angular';
 import { MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { CameraPage, CameraPageOuts } from '../camera/camera.page';
-export interface ImageViewOpts{
+
+/**
+ * input of ImageViewPage
+ * @param images  current images
+ * @param addImages images will add (temporary on local)
+ * @param delImages images want to delete, but not yet delete
+ * @param canCaption true=image with caption
+ */
+export interface ImageViewPageOpts{
   /** main image from sourse */
   images?:(string|UrlData)[]     
   /** added Images, default=[] */
@@ -14,7 +22,13 @@ export interface ImageViewOpts{
   canCaption?:boolean;        
 }
 
-export interface ImageViewOuts{
+/**
+ * output of ImageViewPage
+ * @param images  image will update
+ * @param addImages image will add (local)
+ * @param  delImages image will delete (from cloud)
+ */
+export interface ImageViewPageOuts{
   /** images from sourse */
   images:(string|UrlData)[];
   /** added images */
@@ -49,7 +63,7 @@ export class ImageViewPage implements OnInit {
 
   /** exit page */
   done(role:string="OK"){
-    const out:ImageViewOuts={
+    const out:ImageViewPageOuts={
       addImages:this.addImages,
       images:this.images,
       delImages:this.delImages

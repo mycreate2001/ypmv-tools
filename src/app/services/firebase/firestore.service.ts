@@ -14,7 +14,7 @@ import { getFirestore,doc,getDoc,getDocs,updateDoc,
          query,
          where
                                     } from 'firebase/firestore'
-import { compareObject, makeId } from '../../utils/minitools';
+import { makeId } from '../../utils/minitools';
 import { Unsubscribe } from 'firebase/auth';
 interface HandleData{
   id:string;
@@ -67,7 +67,7 @@ export class FirestoreService {
    *                userdb.onUpdate((users)=>console.log("update users",users)) //handler update data
    *                userdb.disconnect() //disconnet
    */
-  connect(tbl:string):ConnectData{
+  connect(tbl:string,debug:boolean=false):ConnectData{
     const that=this;
     let offline=null;
     let isNeedUpdate:boolean=true;         //first time run
@@ -77,7 +77,7 @@ export class FirestoreService {
       offline=this._offline[tbl];
       // isNew=true;
       offline.ctr=this.monitor(tbl,(added:any[],modified:any[],removed:string[])=>{
-        console.log("before update",{db:offline.db,added,modified,removed})
+        if(debug) console.log("before update",{db:offline.db,added,modified,removed})
         removed.forEach(id=>del(offline.db,id));
 
         modified.forEach(m=>{
@@ -87,7 +87,7 @@ export class FirestoreService {
 
         added.forEach(data=>offline.db.push(data));
         
-        console.log("current db",offline.db);
+        if(debug) console.log("current db",offline.db);
         if(!offline || !offline.callbacks || !offline.callbacks.length) {
           console.log("callbacks error");return;
         }
@@ -111,7 +111,7 @@ export class FirestoreService {
         if(pos!=-1) offline.callbacks.splice(pos,1)
         //unsubscribe
         if(!offline.callbacks.length) offline.ctr();
-        console.log("'%s' disconnect with '%s'",id,tbl,{offline,globalOffline:that._offline})
+        if(debug) console.log("'%s' disconnect with '%s'",id,tbl,{offline,globalOffline:that._offline})
       },
 
       /**
@@ -163,7 +163,7 @@ export class FirestoreService {
           isNeedUpdate=false;
         }
         //debug
-        console.log('onUpdate',{offline,globalOffline:that._offline,callback:callback.toString()})
+        if(debug) console.log('onUpdate',{offline,globalOffline:that._offline,callback:callback.toString()})
       },
 
       /**
@@ -197,7 +197,7 @@ export class FirestoreService {
    * @returns promise
    * @example try{db.add('users',{userid:'123',name:'abc',age:21})}catch(err=>console.log(err))
    */
-  add(tbl:string,data:any,debug:boolean=false):Promise<any>{
+  add(tbl:string,data:any,debug:boolean=false):Promise<string>{
     const _data=JSON.parse(JSON.stringify(data))
     if(debug) console.log("\nfirestore.add '%s'\n---------------",tbl,data);
     return new Promise(async (resolve,reject)=>{
@@ -233,32 +233,6 @@ export class FirestoreService {
     })
   }
 
-  // /**
-  //  * search record from firestore
-  //  * @param tbl table (collection)
-  //  * @param opts search key
-  //  * @returns array of record reach target
-  //  */
-  // search(tbl:string,opts={}):Promise<any[]>{
-  //   return new Promise(async (resolve,reject)=>{
-  //     if(!opts) return reject (new Error("opts data is error")) //opts data is error
-  //     try{
-  //       const querySnap=await getDocs(collection(this.db,tbl));
-  //       let outs=[];
-  //       querySnap.forEach(doc=>{
-  //         outs.push({id:doc.id,...doc.data()})
-  //       });
-  //       //filter
-  //       const keys=Object.keys(opts);
-  //       outs=outs.filter(out=>keys.every(key=>opts[key]==out[key]))
-  //       return resolve(outs);
-  //     }
-  //     catch(err) {
-  //       console.log("** ERR ** ",err);
-  //       return reject(err);
-  //     }
-  //   })
-  // }
 
   /**
    * get record with id from firestore
@@ -286,13 +260,13 @@ export class FirestoreService {
    *          ctr();
    */
   monitor(tbl:string,callback:Function){
+
     const c=collection(this.db,tbl);
     return onSnapshot(c,snap=>{
       const modified=[];
       const removed=[];
       const added=[];
       snap.docChanges().forEach(change=>{
-        console.log("have update data");
         if(change.type==='added'){
           const data=change.doc.data()
           added.push({...data,id:change.doc.id})
@@ -305,6 +279,7 @@ export class FirestoreService {
         }
       });
       if(modified.length+removed.length+added.length){
+        console.log("update db for '%s'",tbl);
         callback(added,modified,removed)
       }
     })

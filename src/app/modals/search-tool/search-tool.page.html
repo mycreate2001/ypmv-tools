@@ -2,15 +2,23 @@
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-button (click)="done('back')">
-        <ion-icon [name]="btns.back.icon"></ion-icon>
-        <ion-label>{{btns.back.label}}</ion-label>
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <ion-label>Cancel</ion-label>
       </ion-button>
     </ion-buttons>
-    <ion-searchbar
-        [(ngModel)]="key"
-        (ionChange)="search()"
-      >
+
+    <ion-searchbar [(ngModel)]="keyword" (ionChange)="update()" >
     </ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="showCart($event)">
+        <ion-icon name="cart"></ion-icon>
+        <ion-label>{{carts.length}}</ion-label>
+      </ion-button>
+      <ion-button (click)="done()">
+        <ion-icon name="checkmark-done-circle"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
   </ion-toolbar>
 </ion-header>
 
@@ -19,19 +27,26 @@
     <ion-accordion *ngFor="let view of views">
       <ion-item slot="header">
         <ion-label>{{view.group}}</ion-label>
-        <ion-badge>{{view.searchs.length}}</ion-badge>
+        <ion-badge>{{view.models.length}}</ion-badge>
       </ion-item>
-      <ion-list slot="content" >
-        <ion-item *ngFor="let search of view.searchs" (click)="select(search)">
-          <ion-thumbnail slot="start">
-            <img [src]="search.model.images[0]">
-          </ion-thumbnail>
-          <ion-label>
-            {{search.model.name}}
-            <ion-badge>{{search.tools.length}}</ion-badge>
-          </ion-label>
-        </ion-item>
-      </ion-list>
+      <ion-accordion-group slot="content">
+        <ion-accordion *ngFor="let model of view.models">
+          <ion-item slot="header">
+            <ion-thumbnail slot="start">
+              <img [src]="model.images.length?(model.images[0].url?model.images[0].url:model.images[0]):'../../../assets/image/no-image.png'">
+            </ion-thumbnail>
+            <ion-label>
+              {{model.name}}
+              <ion-badge>{{model.childrenId.length}}</ion-badge>
+            </ion-label>
+          </ion-item>
+          <div slot="content">
+            <ion-chip color="primary" *ngFor="let child of model.childrenId" (click)="pickup(child)">
+              {{child.id}}
+            </ion-chip>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
     </ion-accordion>
   </ion-accordion-group>
 </ion-content>

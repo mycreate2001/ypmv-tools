@@ -8,7 +8,7 @@ import { AuthService } from 'src/app/services/firebase/auth.service';
 
 import {  FirestoreService } from 'src/app/services/firebase/firestore.service';
 
-import { ImageViewOpts, ImageViewOuts, ImageViewPage } from '../image-view/image-view.page';
+import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
 import { ToolPage, ToolPageOpts, ToolPageOuts } from '../tool/tool.page';
 
 
@@ -93,7 +93,7 @@ export class ModelPage implements OnInit {
   detailImage(){
     if(typeof this.model=='string') return;
     this.model.images as string[]
-    const props:ImageViewOpts={
+    const props:ImageViewPageOpts={
       images:this.model.images,
       delImages:this.delImages,
       addImages:this.addImages,
@@ -102,7 +102,7 @@ export class ModelPage implements OnInit {
     this.disp.showModal(ImageViewPage,props)
     .then(result=>{
       if(result.role.toUpperCase()!='OK') return;
-      const data=result.data as ImageViewOuts;
+      const data=result.data as ImageViewPageOuts;
       if(typeof this.model=='string') return console.log("\n### ERROR: Model data");
       this.addImages=data.addImages as string[];
       this.delImages=data.delImages;

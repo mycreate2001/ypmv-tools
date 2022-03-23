@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { ActionSheetController, ActionSheetOptions, AlertController, AlertOptions, ModalController, PopoverController, PopoverOptions } from '@ionic/angular';
 import { Mode, PopoverAttributes, PopoverSize, PositionAlign, PositionReference, PositionSide } from '@ionic/core';
 import { MenuPage } from 'src/app/modals/menu/menu.page';
+import { MenuData } from 'src/app/models/util.model';
 export interface ShowMenuOpts{
   showBackdrop?: boolean;
   backdropDismiss?: boolean;
@@ -69,7 +70,7 @@ export class DisplayService {
     return await act.onDidDismiss();
   }
 
-  async showMenu(event:any,props,opts?:ShowMenuOpts){
+  async showMenu(event:any,props:MenuPropsOpts,opts?:ShowMenuOpts){
     const popover=await this.popover.create({
       event,
       component:MenuPage,
@@ -83,4 +84,8 @@ export class DisplayService {
   goto(url:string){
     return this.router.navigateByUrl(url);
   }
+}
+
+export interface MenuPropsOpts{
+  menus:MenuData[]
 }

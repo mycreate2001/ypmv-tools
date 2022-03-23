@@ -3,6 +3,14 @@ import { UrlData } from "./util.model";
 
 /** basic infor of tool/cover when display */
 export type BasicDataType="cover"|"tool"
+/**
+ * basicView for display model/cover
+ * @param id    id of cover/model
+ * @param name  cover/model name
+ * @param group category of model/cover
+ * @param type tool or model
+ * @param images    images of cover/model
+ */
 export interface BasicData{
     id:string;                      // id
     name:string;                    // name of information ex: repair station key
@@ -11,6 +19,14 @@ export interface BasicData{
     images:UrlData[]|string[]     // image
 }
 
+/**
+ * basicView for display model/cover
+ * @param id    id of cover/model
+ * @param name  cover/model name
+ * @param group category of model/cover
+ * @param type tool or model
+ * @param images    images of cover/model
+ */
 export interface BasicDataOpts{
     id?:string;                      // id
     name?:string;                    // name of information ex: repair station key
@@ -32,11 +48,28 @@ export function createBasicData(opts?:BasicDataOpts){
 
 
 
-/*** for view page */
+/**
+ * basicView for display model/cover
+ * @param id    id of cover/model
+ * @param name  cover/model name
+ * @param group category of model/cover
+ * @param type tool or model
+ * @param images    images of cover/model
+ * @param childrenId    children of cover/model
+ */
 export interface BasicView extends BasicData{
     childrenId:ChildData[];
 }
 
+/**
+ * basicView for display model/cover
+ * @param id    id of cover/model
+ * @param name  cover/model name
+ * @param group category of model/cover
+ * @param type tool or model
+ * @param images    images of cover/model
+ * @param childrenId    children of cover/model
+ */
 export interface BasicViewOpts extends BasicDataOpts{
     childrenId?:ChildData;
 }

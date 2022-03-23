@@ -13,6 +13,7 @@ export interface ModelData extends SaveInfo{
     images:string[];            // images
     compQty:number;             // quantity of component
     maintenance:number;         // day of maintenance
+    note:string;
 }
 
 export interface ModelDataOpts extends SaveInfoOpts{
@@ -22,6 +23,7 @@ export interface ModelDataOpts extends SaveInfoOpts{
     images?:string[];            // images
     compQty?:number;
     maintenance?:number;         // day of maintenance
+    note?:string;
 }
 
 /** make new modeldata from default & option */
@@ -35,7 +37,8 @@ export function createModelData(opts?:ModelDataOpts):ModelData{
         group:'',
         maintenance:180,
         images:[],
-        compQty:1
+        compQty:1,
+        note:''
     }
     return createOpts(df,opts) 
 }
