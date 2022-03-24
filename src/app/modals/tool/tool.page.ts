@@ -6,23 +6,6 @@ import QrCreator from 'qr-creator';
 import { ButtonData } from 'src/app/models/util.model';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
-/**
- * @param tool ? tool data
- * @param model?
- * @param toolId
- */
-export interface ToolPageOpts{
-  /** tool data */
-  tool?:ToolData;
-  /** tool model */
-  model?:ModelData;
-  /** id of tool */
-  toolId?:string;
-}
-
-export interface ToolPageOuts{
-  tool:ToolData
-}
 
 @Component({
   selector: 'app-tool',
@@ -142,3 +125,23 @@ function btnDefault():ButtonData[]{
     {role:'print',icon:'print',handler:()=>{console.log("Test",this)}}
   ]
 }
+
+/////////////// INTERFACE ///////////////////
+/**
+ * @param tool ? tool data
+ * @param model?
+ * @param toolId
+ */
+ export interface ToolPageOpts{
+  /** tool data */
+  tool?:ToolData;
+  /** tool model */
+  model?:ModelData;
+  /** id of tool */
+  toolId?:string;
+}
+
+export interface ToolPageOuts{
+  tool:ToolData
+}
+

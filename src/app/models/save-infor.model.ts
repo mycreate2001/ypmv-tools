@@ -1,6 +1,11 @@
 import { createOpts } from "../utils/minitools";
 
-/** save basic infor to database */
+/** save basic infor to database 
+    @param userId   create By who;
+    @param createAt when create;
+    @param comment  comment
+    @param lastUpdate last time revise
+*/
 export interface SaveInfo{
     userId:string;
     createAt:string;

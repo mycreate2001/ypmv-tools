@@ -1,29 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { DisplayService } from '../../services/display/display.service';
 
-import {  createModelData, createToolData, ModelData, ModelDataOpts, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from '../../models/tools.model';
+import {  createModelData,  ModelData,  _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from '../../models/tools.model';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { ButtonData, UrlData } from 'src/app/models/util.model';
-import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS } from 'src/app/models/cover.model';
-import { BasicData, ChildData } from 'src/app/models/basic.model';
+import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS } from '../../models/cover.model';
+import { BasicData } from 'src/app/models/basic.model';
 import { ModelPage, ModelPageOpts, ModelPageOuts, } from '../../modals/model/model.page';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { CoverPage, CoverPageOpts, CoverPageOuts } from 'src/app/modals/cover/cover.page';
-import { ToolPage, ToolPageOpts, ToolPageOuts } from 'src/app/modals/tool/tool.page';
 
-
-export interface AddImageData{
-  path:string;
-  addImages:string[];
-}
-
-
-interface viewData {
-  group:string;
-  models:BasicData[];
-}
 
 @Component({
   selector: 'app-tools',
@@ -207,10 +194,18 @@ export class ToolsPage implements OnInit {
     
   }
 
+}
+
+/////// interface /////////////
+export interface AddImageData{
+  path:string;
+  addImages:string[];
+}
 
 
-  
-
+interface viewData {
+  group:string;
+  models:BasicData[];
 }
 
 

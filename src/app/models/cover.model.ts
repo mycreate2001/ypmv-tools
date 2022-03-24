@@ -52,20 +52,22 @@ export function createCoverData(opts?:CoverDataOpts):CoverData{
  * @param selectedCovers covers already select
  * @returns 
  */
-export function getCovers(coversId:string|string[],allCovers:CoverData[],selectedCovers:CoverData[]):CoverData[]{
-    [].concat(coversId).forEach(coverId=>{
-        if(selectedCovers.find(c=>c.id==coverId)) return;
-        const cover=allCovers.find(c=>c.id==coverId);
-        if(!cover) {console.log("### ERROR[1]: Cover '%s' not exist",coverId);return}
-        //add
+export function getCovers(coversId:ChildData[],allCovers:CoverData[],selectedCovers:CoverData[]):CoverData[]{
+    let list:ChildData[]=[];
+    coversId.forEach(child=>{
+        if(child.type!='cover') return;
+        if(selectedCovers.find(c=>c.id==child.id)) return;
+        const cover=allCovers.find(c=>c.id==child.id)
+        if(!cover) return;
         selectedCovers.push(cover);
-        //check children
-        const childrenId=cover.childrenId.filter(c=>c.type=='cover').map(x=>x.id)
-        if(childrenId.length)  selectedCovers=getCovers(childrenId,allCovers,selectedCovers)
+        list=list.concat(cover.childrenId.filter(x=>x.type=='cover'));
     })
+    if(list.length) selectedCovers=getCovers(list,allCovers,selectedCovers)
     return selectedCovers;
 }
 
 
+// export const _DB_COVERS="covers"
+// export const _STORAGE_COVERS="covers"
 export const _DB_COVERS="covers"
 export const _STORAGE_COVERS="covers"

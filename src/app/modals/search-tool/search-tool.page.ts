@@ -150,7 +150,7 @@ export class SearchToolPage implements OnInit {
     if(!this._checkAvailable()) return
     /** covers already selected */
     const exceptionList:(ChildData|BasicData)[]=[...this.search,...this.exceptionList]
-    const covers:CoverData[]=getCovers(exceptionList.filter(x=>x.type=='cover').map(x=>x.id),this.covers,[]);
+    const covers:CoverData[]=getCovers(exceptionList.filter(x=>x.type=='cover'),this.covers,[]);
     /** toolsId already selected */
     let toolsId:string[]=exceptionList.filter(x=>x.type=='tool').map(x=>x.id);
     toolsId=covers.reduce((acc,cur)=>[...acc,...cur.childrenId.filter(x=>x.type=='tool').map(x=>x.id)],toolsId);

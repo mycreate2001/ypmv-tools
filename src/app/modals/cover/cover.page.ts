@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { BasicData, BasicView, ChildData } from 'src/app/models/basic.model';
-import { CoverData, _DB_COVERS} from 'src/app/models/cover.model';
+import { BasicData, ChildData } from 'src/app/models/basic.model';
+import { CoverData, _DB_COVERS} from '../../models/cover.model';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { ButtonData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';

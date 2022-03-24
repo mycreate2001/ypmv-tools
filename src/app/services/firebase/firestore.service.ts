@@ -332,7 +332,7 @@ function del(arrs:any[],id:any){
 
 export interface QueryData{
   key:string;
-  value:string|string[];
+  value:any;
   compare:CompareType;
 
 }

@@ -8,7 +8,7 @@
     </ion-buttons>
     <ion-title>Booking Infor</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="save()" title="Book">
+      <ion-button (click)="book()" title="Book">
         <ion-label>Book</ion-label>
         <ion-icon name="arrow-forward-circle"></ion-icon>
       </ion-button>
@@ -28,26 +28,24 @@
   
     <ion-item>
       <ion-label>Create Date</ion-label>
-      <ion-text>{{infor.createDate|date:'yyyy-MMM-dd'}}</ion-text>
+      <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
     </ion-item>
 
     <ion-item>
       <ion-label>Create by</ion-label>
-      <ion-text>{{infor.createBy}}</ion-text>
+      <ion-text>
+        <ion-chip>
+          <ion-avatar >
+            <img [src]="users['userId'].image">
+          </ion-avatar>
+          <ion-label>{{users['userId'].name}}</ion-label>
+        </ion-chip>
+      </ion-text>
     </ion-item>
   
     <ion-item>
       <ion-label>Company</ion-label>
-      <ion-select [(ngModel)]="infor.companyId">
-        <ion-select-option [value]="company.id" *ngFor="let company of companies">
-          <ion-item>
-            <ion-thumbnail slot="start">
-              <img [src]="company.image">
-            </ion-thumbnail>
-            <ion-label>{{company.name}}</ion-label>
-          </ion-item>
-        </ion-select-option>
-      </ion-select>
+      <ion-text>{{infor.companyId}}</ion-text>
     </ion-item>
 
     <ion-item>
@@ -64,7 +62,7 @@
           <ion-datetime
             #popoverschedulestart
             presentation="date"
-            (ionChange)="infor.scheduleStart=getDate(popoverschedulestart.value)"
+            (ionChange)="infor.scheduleStart=popoverschedulestart.value"
             >
           </ion-datetime>
         </ng-template>
@@ -80,7 +78,7 @@
           <ion-datetime
             #popoverschedulefinish
             presentation="date"
-            (ionChange)="infor.scheduleFinish=getDate(popoverschedulefinish.value)"
+            (ionChange)="infor.scheduleFinish=popoverschedulefinish.value"
             >
           </ion-datetime>
         </ng-template>
@@ -89,14 +87,25 @@
   </ion-card>
 
   <ion-card class="infor">
-    <ion-toolbar>Tools list</ion-toolbar>
+    <ion-card-header>
+      <ion-item lines="none">
+        Tools/Jig
+        <ion-buttons slot="end">
+          <ion-button (click)="pickupTool()">
+            <ion-icon name="add-circle"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    </ion-card-header>
     <ion-list>
       <ion-item *ngFor="let tool of infor.scheduleTools">
         <ion-thumbnail slot="start">
-          <img  [src]="(tool.images.length&&tool.images[0].url)?tool.images[0].url:'../../../assets/image/no-image.png'">
+          <img  [src]="tool.images.length?(tool.images[0].url?tool.images[0].url:tool.images[0]):'../../../assets/image/no-image.png'">
         </ion-thumbnail>
-        <ion-text>{{tool.name}}</ion-text>
-        <ion-badge>{{tool.images.length}}</ion-badge>
+        <ion-label>
+          {{tool.id}}
+          <p>{{tool.name}}</p>
+        </ion-label>
       </ion-item>
     </ion-list>
   </ion-card>

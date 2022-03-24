@@ -83,13 +83,10 @@ const routes: Routes = [
   {
     path: 'histories',
     loadChildren: () => import('./pages/histories/histories.module').then( m => m.HistoriesPageModule)
-  },  {
-    path: 'cover',
-    loadChildren: () => import('./modals/cover/cover.module').then( m => m.CoverPageModule)
   },
   {
-    path: 'history',
-    loadChildren: () => import('./modals/history/history.module').then( m => m.HistoryPageModule)
+    path: 'cover',
+    loadChildren: () => import('./modals/cover/cover.module').then( m => m.CoverPageModule)
   }
 
 
