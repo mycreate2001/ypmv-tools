@@ -6,6 +6,11 @@ import QrCreator from 'qr-creator';
 import { ButtonData } from 'src/app/models/util.model';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
+/**
+ * @param tool ? tool data
+ * @param model?
+ * @param toolId
+ */
 export interface ToolPageOpts{
   /** tool data */
   tool?:ToolData;

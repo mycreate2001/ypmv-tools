@@ -12,4 +12,13 @@ export class HistoriesPage implements OnInit {
   ngOnInit() {
   }
 
+  /////// BUTTONS HANDLER ////////////
+  /** new transaction */
+  add(){
+
+  }
+
+
+  ///////// Backgroup function /////////////////
+
 }

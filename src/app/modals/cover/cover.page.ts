@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { BasicData, BasicView } from 'src/app/models/basic.model';
+import { BasicData, BasicView, ChildData } from 'src/app/models/basic.model';
 import { CoverData, _DB_COVERS} from 'src/app/models/cover.model';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { ButtonData } from 'src/app/models/util.model';
@@ -9,6 +9,7 @@ import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { getList } from 'src/app/utils/minitools';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts } from '../search-tool/search-tool.page';
+import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 
 @Component({
   selector: 'app-cover',
@@ -117,15 +118,40 @@ export class CoverPage implements OnInit {
   addChild(){
     const props:SearchToolPageOpts={
       type:'tool & cover',
-      search:this.cover.childrenId
+      exceptionList:[...this.cover.childrenId,{id:this.cover.id,type:'cover'}]
     }
     this.disp.showModal(SearchToolPage,props)
     .then(result=>{
       const role=result.role.toUpperCase();
       const data=result.data as SearchToolPageOuts
       if(role!='SAVE'&&role!='OK') return;
-      this.cover.childrenId=data.search;
+      this.children=[...this.children,...data.search]
+      this.cover.childrenId=data.search.map(x=>{return{id:x.id,type:x.type}});
     })
+  }
+
+  /** pickup cover */
+  pickupCover(){
+    const props:SearchToolPageOpts={
+      type:'cover'
+    }
+    this.disp.showModal(SearchToolPage,props)
+  }
+
+  detail(child:ChildData){
+    console.log("select child:",child)
+    if(child.type=='cover'){
+      this.db.get(_DB_COVERS,child.id)
+      .then(cover=>{
+        const props:CoverPageOpts={cover}
+        return this.disp.showModal(CoverPage,props)
+      })
+      
+    }
+    else if(child.type=='tool'){
+      const props:ToolPageOpts={toolId:child.id}
+      this.disp.showModal(ToolPage,props)
+    }
   }
 
 }

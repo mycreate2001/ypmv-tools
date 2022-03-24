@@ -31,21 +31,36 @@ export class StorageService {
     return uploadBytesResumable(ref(this.storage,path),data)
   }
 
-  /** upload images to folder */
-  uploadImages(images:(UrlData|string)[]|string|UrlData,path:string):Promise<(string|UrlData)[]>{
+  // /** upload images to folder */
+  // uploadImages(images:(UrlData|string)[]|string|UrlData,path:string):Promise<UrlData[]|string[]>{
+  //   if(!path.endsWith("/")) path=path+"/";
+  //   const _images:any[]=[].concat(images);
+  //   return new Promise((resolve,reject)=>{
+  //     if(!images||!_images.length) return resolve([]);//
+  //     const all=_images.map(image=>{
+  //       if(typeof image=='string') return this.uploadImagebase64(image,path).then(result=>result.url)
+  //       return this.uploadImagebase64(image.url,path).then(result=>{return{ url:result.url,caption:image.caption}})
+  //     })
+  //     Promise.all(all).then((results:string[]|UrlData[])=>resolve(results))
+  //     .catch(err=>reject(err))
+  //   })
+  // }
+
+   /** upload images to folder */
+   uploadImages(images:UrlData[]|string[]|UrlData|string,path:string):Promise<(string|UrlData)[]>{
     if(!path.endsWith("/")) path=path+"/";
-    const _images:(UrlData|string)[]=[].concat(images);
+    const _images=[].concat(images);
     return new Promise((resolve,reject)=>{
-      if(!_images.length) return resolve([]);//
-      const all=_images.map((image:UrlData|string,pos:number)=>{
-        if(typeof image=='string') return this.uploadImagebase64(image,path).then(result=>{return {url:result.url,caption:pos+""}})
-        return this.uploadImagebase64(image.url,path).then(result=>{return{ url:result.url,caption:image.caption}})
+      if(!images||!_images.length) return resolve([]);//
+      const all=_images.map(image=>{
+        if(typeof image=='string') return this.uploadImagebase64(image,path).then(result=>result.url)
+        const url=image['url'] as string;
+        return this.uploadImagebase64(url,path).then(result=>{return{...image,url:result.url}})
       })
-      Promise.all(all).then((results:(UrlData|string)[])=>resolve(results))
+      Promise.all(all).then((results)=>resolve(results))
       .catch(err=>reject(err))
     })
   }
-
 
   /**
    * 

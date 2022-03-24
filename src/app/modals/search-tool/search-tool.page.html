@@ -10,11 +10,11 @@
     <ion-searchbar [(ngModel)]="keyword" (ionChange)="update()" >
     </ion-searchbar>
     <ion-buttons slot="end">
-      <ion-button (click)="showCart($event)">
+      <ion-button (click)="showCart($event)" title="selected list">
         <ion-icon name="cart"></ion-icon>
-        <ion-label>{{carts.length}}</ion-label>
+        <ion-label>{{search.length}}</ion-label>
       </ion-button>
-      <ion-button (click)="done()">
+      <ion-button (click)="done()" title="OK">
         <ion-icon name="checkmark-done-circle"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -41,7 +41,7 @@
             </ion-label>
           </ion-item>
           <div slot="content">
-            <ion-chip color="primary" *ngFor="let child of model.childrenId" (click)="pickup(child)">
+            <ion-chip color="primary" *ngFor="let child of model.childrenId" (click)="pickup(child,model)">
               {{child.id}}
             </ion-chip>
           </div>
@@ -49,4 +49,5 @@
       </ion-accordion-group>
     </ion-accordion>
   </ion-accordion-group>
+  <div class="no-result" *ngIf="!views.length">No Data</div>
 </ion-content>

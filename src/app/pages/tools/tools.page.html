@@ -16,23 +16,29 @@
 </ion-header>
 
 <ion-content  color="light">
-  <ion-accordion-group >
-    <ion-accordion *ngFor="let view of views">
-      <ion-item slot="header">
-        {{view.group}}<ion-badge>{{view.models.length}}</ion-badge>
-      </ion-item>
-      <ion-list slot="content">
-        <ion-item (click)="detail(model)" *ngFor="let model of view.models">
-          <ion-thumbnail slot="start">
-            <img [src]="model.images.length?(model.images[0].url?model.images[0].url:model.images[0]):'../../../assets/image/no-image.png'">
-          </ion-thumbnail>
-          <ion-label [color]="model.type=='cover'?'secondary':'primary'">
-            {{model.name}}
-          </ion-label>
-         </ion-item>
-      </ion-list>
-    </ion-accordion>
-  </ion-accordion-group>
+  <ion-grid>
+    <ion-row class="fix">
+      <ion-col size="12">
+        <ion-accordion-group >
+          <ion-accordion *ngFor="let view of views">
+            <ion-item slot="header">
+              {{view.group}}<ion-badge>{{view.models.length}}</ion-badge>
+            </ion-item>
+            <ion-list slot="content">
+              <ion-item (click)="detail(model)" *ngFor="let model of view.models">
+                <ion-thumbnail slot="start">
+                  <img [src]="model.images.length?(model.images[0].url?model.images[0].url:model.images[0]):'../../../assets/image/no-image.png'">
+                </ion-thumbnail>
+                <ion-label [color]="model.type=='cover'?'secondary':'primary'">
+                  {{model.name}}
+                </ion-label>
+               </ion-item>
+            </ion-list>
+          </ion-accordion>
+        </ion-accordion-group>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   <div *ngIf="!views.length">
     No data
   </div>

@@ -8,3 +8,12 @@ ion-accordion.accordion-expanding,
     width: calc(100% - 32px);
     margin: 16px auto;
   }
+
+ion-row.fix{
+  display: flex;
+  justify-content: center;
+}
+
+ion-grid{
+  max-width: 720px !important;
+}

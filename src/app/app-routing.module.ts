@@ -86,6 +86,10 @@ const routes: Routes = [
   },  {
     path: 'cover',
     loadChildren: () => import('./modals/cover/cover.module').then( m => m.CoverPageModule)
+  },
+  {
+    path: 'history',
+    loadChildren: () => import('./modals/history/history.module').then( m => m.HistoryPageModule)
   }
 
 

@@ -19,6 +19,7 @@ export class AppComponent {
     {name:'Tools',url:'tools',icon:'hammer',iconColor:'primary'},
     {name:'Code Format',url:'formats',icon:'qr-code',iconColor:'tertiary'},
     {name:'Companies',url:'companies',icon:'briefcase'},//<ion-icon name="briefcase"></ion-icon>
+    {name:'History',url:'histories',icon:'refresh'},//<ion-icon name="refresh"></ion-icon>
   ]
   user:UserData=null;
   selectIndex:number=0;

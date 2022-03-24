@@ -21,7 +21,7 @@ interface ViewData{
 })
 export class SearchToolPage implements OnInit {
   /** input */
-  search:(ChildData|BasicData)[]=[];
+  exceptionList:(ChildData|BasicData)[]=[];
   type:SearchToolPageType='tool & cover'
 
   /** db */
@@ -35,7 +35,7 @@ export class SearchToolPage implements OnInit {
   covers:CoverData[]=[];
   views:ViewData[]=[];
   keyword:string=''
-  carts:BasicData[]=[];
+  search:BasicData[]=[];
   /** internal control */
   private _isData={tool:false,model:false,cover:false}
   isAvailable:boolean=false;
@@ -94,21 +94,44 @@ export class SearchToolPage implements OnInit {
   }
 
   /** pickup model/cover */
-  pickup(child:ChildData){
-    if(this.search.find(x=>x.id==child.id&&x.type==child.type)) return;
-    this.search.push(child);
-    this.update();
+  pickup(child:ChildData,model:BasicView){
+    const x:BasicData={
+      ...child,
+      name:model.name,
+      group:model.group,
+      images:model.images
+    }
+
+    this.search.push(x);
+    //remove child from model
+    const pos=model.childrenId.findIndex(x=>x.id==child.id && x.type==child.type)
+    if(pos!=-1) {
+      model.childrenId.splice(pos,1);
+      //remove model from view
+      if(!model.childrenId.length) {
+        const view=this.views.find(v=>v.group==model.group)
+        const mPos=view.models.findIndex(m=>m.id==model.id);
+        view.models.splice(mPos,1);
+        //remove view from list
+        if(!view.models.length){
+          const vPos=this.views.findIndex(v=>v.group==model.group)
+          this.views.splice(vPos,1)
+        }
+      }
+    }
   }
+
   /** show modal */
   showCart(event){
-    const menus:MenuData[]=this.carts.map(cart=>{
+    const menus:MenuData[]=this.search.map(cart=>{
       const menu:MenuData={
         name:cart.id,
         note:cart.name,
-        image:cart.images.length? typeof cart.images[0]=='string'?cart.images[0]:cart.images[0].url:''
+        image:cart.images.length? (typeof cart.images[0]=='string'?cart.images[0]:cart.images[0].url):''
       }
       return menu;
     })
+    console.log("menus:",menus)
     this.disp.showMenu(event,{menus})
   }
 
@@ -121,13 +144,15 @@ export class SearchToolPage implements OnInit {
     console.log("\ncheck status",{condition:this._isData,result})
     return result
   }
+
   /** update/refresh view */
   update(){
     if(!this._checkAvailable()) return
     /** covers already selected */
-    const covers:CoverData[]=getCovers(this.search.filter(x=>x.type=='cover').map(x=>x.id),this.covers,[]);
+    const exceptionList:(ChildData|BasicData)[]=[...this.search,...this.exceptionList]
+    const covers:CoverData[]=getCovers(exceptionList.filter(x=>x.type=='cover').map(x=>x.id),this.covers,[]);
     /** toolsId already selected */
-    let toolsId:string[]=this.search.filter(x=>x.type=='tool').map(x=>x.id);
+    let toolsId:string[]=exceptionList.filter(x=>x.type=='tool').map(x=>x.id);
     toolsId=covers.reduce((acc,cur)=>[...acc,...cur.childrenId.filter(x=>x.type=='tool').map(x=>x.id)],toolsId);
     /** it'll make view  */
     let _views:BasicView[]=[];
@@ -166,37 +191,7 @@ export class SearchToolPage implements OnInit {
     _views=this.keyword.length?searchObj(this.keyword,_views):_views;
     /** buil views */
     this.views=separateObj(_views,"group",{dataName:'models'})
-    //update cart
-    this.carts=this.search.map(search=>{
-      if(search.type=='tool'){
-        const tool=this.tools.find(t=>t.id==search.id)
-        if(!tool) {console.log("\n### ERROR[3]: not found tool '%s' on database",search.id);return}
-        const model=this.models.find(m=>m.id==tool.model);
-        if(!model){console.log("\n### ERROR[4]: not found model '%s' on DB",tool.model);return}
-        const cart:BasicData={
-          ...search,
-          name:model.name,
-          group:model.group,
-          images:model.images
-        }
-        return cart
-      }
-      if(search.type=='cover'){
-        const cover=this.covers.find(c=>c.id==search.id)
-        if(!cover){console.log("\n### ERROR[5]: Not found cover '%s' on DB",search.id);return}
-        const cart:BasicData={
-          ...search,
-          name:cover.id,
-          group:cover.group,
-          images:cover.images,
-        }
-        return cart
-      }
-      //no thing
-      console.log("\n### ERROR[6]: out of case",{search})
-      return;
-    }).filter(x=>x)
-    //finish update
+       //finish update
     this.isAvailable=true;
     console.log("\nrefresh data",{covers,toolsId,keyword:this.keyword,_views,all:this})
   }
@@ -209,13 +204,13 @@ export type SearchToolPageRole="save"|"cancel"
 
 /** input for search tool page
  * @param type?  tool/cover/tool & cover
- * @param search?  data already search before
+ * @param exceptionList?  data already search before
  */
 export interface SearchToolPageOpts{
   /** default =tool & cover */
   type?:SearchToolPageType
   /** default [] */
-  search?:ChildData[]|BasicData[];
+  exceptionList?:ChildData[]|BasicData[];
 }
 
 
@@ -224,6 +219,6 @@ export interface SearchToolPageOpts{
  * @param search result of search
  */
 export interface SearchToolPageOuts{
-  search:ChildData[];
+  search:BasicData[];
 }
 
