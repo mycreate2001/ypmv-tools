@@ -3,7 +3,7 @@ import { BasicData, BasicDataOpts, createBasicData } from "./basic.model";
 import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
 import { createToolStatus, ToolStatus, ToolStatusOpts } from "./tools.model";
 export declare type ApprovedResultType="Not yet"|"Accept"|"Reject"
-export declare type BookingInforStatusType="Created"|"Approved"|"Renting"|"Returned"
+export declare type BookingInforStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"
 export interface BookingInfor extends SaveInfo{
     /** create */
     // userId:string;
@@ -117,7 +117,7 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
 
         /** storage at YPMV */
         paringTools:[],   //
-        status:"Created"
+        status:"new"
     }
     return createOpts(df,opts) as BookingInfor
 }

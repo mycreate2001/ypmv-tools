@@ -3,9 +3,9 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Transaction</ion-title>
+    <ion-searchbar [(ngModel)]="keyword" (ionChange)="update()"></ion-searchbar>
     <ion-buttons slot="end">
-      <ion-button (click)="add()" title="New">
+      <ion-button (click)="detail()" title="New">
         <ion-icon name="add-circle"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,5 +13,18 @@
 </ion-header>
 
 <ion-content>
-
+  <ion-list>
+    <ion-item *ngFor="let infor of views" (click)="detail(infor)">
+      <ion-label>
+        [{{infor.scheduleStart|date:'yyyy-MMM-dd'}} ~ {{infor.scheduleFinish|date:'yyyy-MMM-dd'}}] {{infor.purpose}}
+        <ion-chip *ngFor="let child of scheduleTools">
+          <ion-avatar>
+            <img [src]="child.images.length?(child.images[0].url?child.images[0].url:child.images[0]):'../../../assets/image/no-image.png'">
+          </ion-avatar>
+          <ion-label>{{child.name}}[{{child.id}}]</ion-label>
+        </ion-chip>
+      </ion-label>
+      <ion-badge slot="end" [color]="infor.status=='created'?'primary':infor.status=='approved'?'secondary':infor.status=='rejected'?'medium':''">{{infor.status}}</ion-badge>
+    </ion-item>
+  </ion-list>
 </ion-content>

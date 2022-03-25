@@ -70,6 +70,7 @@ const routes: Routes = [
   },
   {
     path: 'companies',
+    canActivate:[LoginGuard],
     loadChildren: () => import('./pages/companies/companies.module').then( m => m.CompaniesPageModule)
   },
   {
@@ -78,16 +79,23 @@ const routes: Routes = [
   },
   {
     path: 'booking',
+    canActivate:[LoginGuard],
     loadChildren: () => import('./modals/booking/booking.module').then( m => m.BookingPageModule)
   },
   {
     path: 'histories',
+    canActivate:[LoginGuard],
     loadChildren: () => import('./pages/histories/histories.module').then( m => m.HistoriesPageModule)
   },
   {
     path: 'cover',
     loadChildren: () => import('./modals/cover/cover.module').then( m => m.CoverPageModule)
+  },
+  {
+    path: 'search-company',
+    loadChildren: () => import('./modals/search-company/search-company.module').then( m => m.SearchCompanyPageModule)
   }
+
 
 
 

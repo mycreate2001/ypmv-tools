@@ -1,6 +1,6 @@
 import { createOpts } from "../utils/minitools";
 
-export declare type CompanyType="Yamaha Branch"|"Agency"|"Customer" 
+export declare type CompanyType="Yamaha Branch"|"Agency"|"Customer"
 export interface CompanyData{
     id:string;
     name:string;

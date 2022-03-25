@@ -2,6 +2,14 @@ ion-card.infor{
     padding: 20px 12px;
 }
 
-ion-label{
-    font-weight: bold;
+ion-item{
+    ion-label{
+        font-weight: bold;
+    }
+}
+
+img.avatar{
+    width: 100%;
+    object-fit: contain;
+    aspect-ratio: 1;
 }

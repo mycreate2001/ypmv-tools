@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button title="Cancel" (click)="done('cancel')">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-searchbar [(ngModel)]="keyword" (ionChange)="update()"></ion-searchbar>
+    <ion-buttons slot="end" *ngIf="mutilSelect">
+      <ion-button (click)="showCart($event)">
+        <ion-icon name="cart" ></ion-icon>
+        <ion-badge>{{carts.length}}</ion-badge>
+      </ion-button>
+      <ion-button (click)="done()">
+        <ion-label>Done</ion-label>
+        <ion-icon name="chevron-forward"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- <ion-content *ngIf="isAvailable">
+  <ion-list>
+    <ion-item *ngfor="let comp of views" (click)="select(comp)">
+      <ion-thumbnail slot="start">
+        <img [src]="comp.image?comp.image:'../../../assets/image/no-image.png'">
+      </ion-thumbnail>
+      <ion-label>{{comp.name}}
+        <p>{{comp.address}}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content> -->
+
+<ion-content>
+  <ion-list *ngIf="isAvailable">
+    <ion-item *ngFor="let comp of views" (click)="select(comp)">
+      <ion-thumbnail slot="start">
+        <img class="avatar" [src]="comp.image?comp.image:'../../../assets/image/no-image.png'">
+      </ion-thumbnail>
+      <ion-label>
+        {{comp.name}}
+        <p>{{comp.address}}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<!-- <div>It's worked</div> -->

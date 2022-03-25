@@ -3,7 +3,7 @@
     <ion-item *ngFor="let menu of menus;let pos =index" (click)="close(pos)">
       <ng-container *ngIf="menu.image || menu.icon">
         <ion-thumbnail slot="start" *ngIf="menu.image">
-          <img [src]="menu.image">
+          <img class="avatar" [src]="menu.image">
         </ion-thumbnail>
         <ion-icon *ngIf="!menu.image" [name]="menu.icon" [color]="menu.iconColor" slot="start"> </ion-icon>
       </ng-container>

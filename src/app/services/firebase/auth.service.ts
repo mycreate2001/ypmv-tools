@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { initializeApp} from 'firebase/app';
-import { Auth,getAuth, connectAuthEmulator,
+import { Auth,getAuth,
          signInWithEmailAndPassword,
          createUserWithEmailAndPassword,
          sendEmailVerification,signOut,
          User,onAuthStateChanged, UserCredential, Unsubscribe                      } from 'firebase/auth'
-import { Observable, Observer, of } from 'rxjs';
 import { UserData } from 'src/app/models/user.model';
 import { environment } from 'src/environments/environment';
 import { FirestoreService } from './firestore.service';
@@ -27,8 +26,9 @@ export class AuthService {
       if(!user){ this.currentUser=null; return}
       const id=user.uid;
       this.db.get(_DB_USER,id)
-      .then(data=>{
+      .then((data:UserData)=>{
         this.currentUser=data;
+        console.log("update user");
       })
       .catch(err=>this.currentUser=null)
     })
