@@ -11,8 +11,8 @@ export interface BookingInfor extends SaveInfo{
     // comment:string;
     // lastUpdate:string;
     id:string;
-    scheduleStart:Date;           // start date in schedule
-    scheduleFinish:Date;          // finish data in schedule
+    scheduleStart:string;           // start date in schedule
+    scheduleFinish:string;          // finish data in schedule
     scheduleTools:BasicData[];         // renting tools in schedule
     companyId:string;               // renting company
     purpose:string;                 // purpose of renting tool
@@ -24,7 +24,7 @@ export interface BookingInfor extends SaveInfo{
     approvedComment:string;                 // comment
 
     /** check before renting */
-    checkingDate:Date;         // actual start date
+    checkingDate:string;         // actual start date
     checkingTools:CheckData[];       // actual tools status
     checkingManId:string;        // actual yamaha PIC
     checkingAgencyId?:string;      // Agency main
@@ -50,8 +50,8 @@ export interface BookingInforOpts extends SaveInfoOpts{
     // lastUpdate:string;
     /** create */
     id?:string;
-    scheduleStart?:Date;           // start date in schedule
-    scheduleFinish?:Date;          // finish data in schedule
+    scheduleStart?:string;           // start date in schedule
+    scheduleFinish?:string;          // finish data in schedule
     scheduleTools?:CheckData[];         // renting tools in schedule
     companyId?:string;               // renting company
     purpose?:string;                 // purpose of renting tool
@@ -63,7 +63,7 @@ export interface BookingInforOpts extends SaveInfoOpts{
     approvedComment?:string;                 // comment
 
     /** check before renting */
-    checkingDate?:Date;         // actual start date
+    checkingDate?:string;         // actual start date
     checkingTools?:CheckData[];       // actual tools status
     checkingManId?:string;        // actual yamaha PIC
     checkingAgencyId?:string;      // Agency main
@@ -88,8 +88,8 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
     const df:BookingInfor={
         id,
         ...createSaveInf({createAt:now.toISOString()}),
-        scheduleStart:null,           // start date in schedule
-        scheduleFinish:null,          // finish data in schedule
+        scheduleStart:'',           // start date in schedule
+        scheduleFinish:'',          // finish data in schedule
         scheduleTools:[],         // renting tools in schedule
         companyId:'',               // renting company
         purpose:'',                 // purpose of renting tool
@@ -101,7 +101,7 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
         approvedComment:'',                 // comment
 
         /** check before renting */
-        checkingDate:null,         // actual start date
+        checkingDate:'',         // actual start date
         checkingTools:[],       // actual tools status
         checkingManId:'',        // actual yamaha PIC
         checkingAgencyId:'',      // Agency main
