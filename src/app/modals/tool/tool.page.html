@@ -20,27 +20,27 @@
 
 <ion-content color="light" *ngIf="isAvailable">
   <ion-card class="image">
-    <ion-grid (click)="detailImage()">
+    <ion-grid >
       <ion-row *ngIf="model.images.length<=1">
         <ion-col size="12">
-          <img [src]="model.images.length?model.images[0].url?model.images[0].url:model.images[0]:'../../../assets/image/no-image.png'" class="image-43">
+          <img [src]="model.images|url" class="image-43">
         </ion-col>
       </ion-row>
       <ion-row *ngIf="model.images.length==2">
         <ion-col size="6" *ngFor="let image of model.images">
-          <img [src]="image.url?image.url:image" class="image-square">
+          <img [src]="image|url" class="image-square">
         </ion-col>
       </ion-row>
       <ion-row *ngIf="model.images.length>=3">
         <ion-col size="8">
-          <img [src]="model.images[0].url?model.images[0].url:model.images[0]" class="image-43">
+          <img [src]="model.images[0]|url" class="image-43">
         </ion-col>
         <ion-col size="4" >
           <ion-row>
-            <img [src]="model.images[1].url?model.images[1].url:model.images[1]" class="image-43">
+            <img [src]="model.images[1]|url" class="image-43">
           </ion-row>
           <ion-row class="last">
-            <img [src]="model.images[2].url?model.images[2].url:model.images[2]" class="image-43">
+            <img [src]="model.images[2]|url" class="image-43">
             <div class="more-image-text" *ngIf="model.images.length>3">+{{model.images.length-3}}</div>
           </ion-row>
         </ion-col>
@@ -56,10 +56,6 @@
       <ion-item>
         <ion-label>Start Use</ion-label>
         <ion-text>{{tool.startUse|date:'yyyy-MMM-dd'}}</ion-text>
-      </ion-item>
-      <ion-item *ngIf="tool.endUse">
-        <ion-label>End date</ion-label>
-        <ion-text>{{tool.endUse|date:'yyyy-MMM-dd'}}</ion-text>
       </ion-item>
       <ion-item>
         <ion-label>Last Maintenace date</ion-label>
@@ -81,25 +77,25 @@
             <ion-item>
               <ion-label>Visual</ion-label>
               <ion-select [(ngModel)]="tool.status.visual">
-                <ion-select-option [value]="pos" *ngFor="let stt of visualStatus">{{stt}}</ion-select-option>
+                <ion-select-option [value]="pos" *ngFor="let stt of visualStatus;let pos=index">{{stt}}</ion-select-option>
               </ion-select>
             </ion-item>
             <ion-item>
               <ion-label>operation</ion-label>
               <ion-select [(ngModel)]="tool.status.operation">
-                <ion-select-option [value]="pos" *ngFor="let stt of operationStatus">{{stt}}</ion-select-option>
+                <ion-select-option [value]="pos" *ngFor="let stt of operationStatus;let pos=index">{{stt}}</ion-select-option>
               </ion-select>
             </ion-item>
             <ion-item>
               <ion-label>function</ion-label>
               <ion-select [(ngModel)]="tool.status.function">
-                <ion-select-option [value]="pos" *ngFor="let stt of functionStatus">{{stt}}</ion-select-option>
+                <ion-select-option [value]="pos" *ngFor="let stt of functionStatus;let pos=index">{{stt}}</ion-select-option>
               </ion-select>
             </ion-item>
             <ion-item>
               <ion-label>compQty</ion-label>
               <ion-select [(ngModel)]="tool.status.compQty">
-                <ion-select-option [value]="pos" *ngFor="let stt of compQtyStatus">{{stt}}</ion-select-option>
+                <ion-select-option [value]="pos" *ngFor="let stt of compQtyStatus;let pos=index">{{stt}}</ion-select-option>
               </ion-select>
             </ion-item>
           </ion-list>

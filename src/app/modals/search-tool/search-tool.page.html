@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="done('back')">
+      <ion-button (click)="done('cancel')">
         <ion-icon name="arrow-back-outline"></ion-icon>
         <ion-label>Cancel</ion-label>
       </ion-button>
@@ -33,7 +33,7 @@
         <ion-accordion *ngFor="let model of view.models">
           <ion-item slot="header">
             <ion-thumbnail slot="start">
-              <img [src]="model.images.length?(model.images[0].url?model.images[0].url:model.images[0]):'../../../assets/image/no-image.png'">
+              <img [src]="model.images|url">
             </ion-thumbnail>
             <ion-label>
               {{model.name}}

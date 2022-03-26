@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
+import { createModelData, createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
 import { ButtonData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
@@ -23,7 +23,8 @@ export class ModelPage implements OnInit {
   groups:string[]=[];
 
   /** input */
-  model:ModelData|string;   //model data or modelId
+  modelId:string;
+  model:ModelData   //model data or modelId
   isEdit:boolean=false;
 
   /** internal */
@@ -52,7 +53,7 @@ export class ModelPage implements OnInit {
   ngOnInit() { 
     this._getModel()
     .then(model=>{
-      this.model=model;
+      this.model=model;this.modelId=this.model.id
       return this.db.search(_DB_TOOLS,{key:'model',compare:'==',value:model.id})
     })
     .then((tools:ToolData[])=>{
@@ -65,9 +66,12 @@ export class ModelPage implements OnInit {
   /** check & get model data */
   private async _getModel():Promise<ModelData>{
     return new Promise((resolve,reject)=>{
-      if(typeof this.model!='string') return resolve(this.model)
-      //id
-      this.db.get(_DB_MODELS,this.model)
+      if(!this.model && !this.modelId){//new model
+        this.tools=[];
+        return resolve(createModelData({userId:this.auth.currentUser.id}))
+      }
+      if(this.model) return resolve(this.model)
+      return this.db.get(_DB_MODELS,this.modelId)
       .then((model:ModelData)=>resolve(model))
       .catch(err=>reject(err))
     })
@@ -153,7 +157,8 @@ export class ModelPage implements OnInit {
  * @param isEdit  edit/view
  */
 export interface ModelPageOpts{
-  model:ModelData|string;   // model data or id, underfind=>create new
+  modelId?:string;
+  model?:ModelData;   // model data or id, underfind=>create new
   tools?:ToolData[]         // default
   isEdit?:boolean;          // Enable edit
 }

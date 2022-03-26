@@ -17,9 +17,9 @@
     <ion-item *ngFor="let infor of views" (click)="detail(infor)">
       <ion-label>
         [{{infor.scheduleStart|date:'yyyy-MMM-dd'}} ~ {{infor.scheduleFinish|date:'yyyy-MMM-dd'}}] {{infor.purpose}}
-        <ion-chip *ngFor="let child of scheduleTools">
+        <ion-chip *ngFor="let child of infor.scheduleTools">
           <ion-avatar>
-            <img [src]="child.images.length?(child.images[0].url?child.images[0].url:child.images[0]):'../../../assets/image/no-image.png'">
+            <img [src]="child.images|url">
           </ion-avatar>
           <ion-label>{{child.name}}[{{child.id}}]</ion-label>
         </ion-chip>

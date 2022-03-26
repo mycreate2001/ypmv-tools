@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="done('back')">
+      <ion-button (click)="done('cancel')">
         <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -18,26 +18,33 @@
 </ion-header>
 
 <ion-content color="light">
+
   <ion-card *ngFor="let image of images;let pos=index">
     <ion-toolbar lines="none">
-      <ion-input [(ngModel)]="image.caption" *ngIf="image.url"></ion-input>
+      <ion-input [(ngModel)]="image.caption" *ngIf="canCaption"></ion-input>
       <ion-buttons slot="end">
         <ion-button (click)="menu($event,pos)">
           <ion-icon name="ellipsis-vertical"></ion-icon>
         </ion-button>
       </ion-buttons>
     </ion-toolbar>
-    <img [src]="image">
+    <img [src]="image.url">
   </ion-card>
+
   <ion-card *ngFor="let image of addImages;let pos=index">
     <ion-toolbar lines="none">
-      <ion-title>title of image</ion-title>
+     <ion-input [(ngModel)]="image.caption" *ngIf="canCaption"></ion-input>
       <ion-buttons slot="end">
         <ion-button (click)="menu($event,pos,true)">
           <ion-icon name="ellipsis-vertical"></ion-icon>
         </ion-button>
       </ion-buttons>
     </ion-toolbar>
-    <img [src]="image">
+    <img [src]="image.url">
+  </ion-card>
+  <!-- No image -->
+  <ion-card *ngIf="(images.length+addImages.length)==0">
+    <ion-toolbar lines="none"> </ion-toolbar>
+    <img src="../../../assets/image/no-image.png">
   </ion-card>
 </ion-content>

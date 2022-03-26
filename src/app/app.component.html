@@ -3,7 +3,7 @@
     <div class="menu-head-bg"></div>
     <div class="header-content" *ngIf="user">
       <img [src]="user.image?user.image:'../assets/image/no avatar.png'">
-      <ion-label (click)="menu($event)">
+      <ion-label >
         <h2>{{user.name?user.name:user.email}}</h2>
         <p>{{user.name?user.email:''}}</p>
       </ion-label>

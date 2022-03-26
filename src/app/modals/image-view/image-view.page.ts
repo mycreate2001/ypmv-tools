@@ -22,6 +22,8 @@ export interface ImageViewPageOpts{
   canCaption?:boolean;        
 }
 
+export type ImageViewPageRole="ok"|"cancel"
+
 /**
  * output of ImageViewPage
  * @param images  image will update
@@ -44,8 +46,8 @@ export interface ImageViewPageOuts{
 })
 export class ImageViewPage implements OnInit {
   /** input */
-  images:(string|UrlData)[]=[];     //cloud
-  addImages:(string|UrlData)[]=[];//new image
+  images:UrlData[]=[];     //cloud
+  addImages:UrlData[]=[];//new image
   delImages:string[]=[];
   canCaption:boolean=false;
  
@@ -58,14 +60,22 @@ export class ImageViewPage implements OnInit {
 
   ngOnInit() {
     if(!this.images.length) this.add();
+    this.images=this.images.map(image=>{
+      if(typeof image=='string') return {url:image,caption:''}
+      return image;
+    })
+    this.addImages=this.addImages.map(image=>{
+      if(typeof image=='string') return {url:image,caption:''}
+      return image
+    })
   }
 
 
   /** exit page */
-  done(role:string="OK"){
+  done(role:ImageViewPageRole="ok"){
     const out:ImageViewPageOuts={
-      addImages:this.addImages,
-      images:this.images,
+      addImages:this.canCaption?this.addImages:this.addImages.map(x=>x.url),
+      images:this.canCaption?this.images:this.images.map(x=>x.url),
       delImages:this.delImages
     }
   
@@ -78,12 +88,7 @@ export class ImageViewPage implements OnInit {
     .then(camera=>{
       if(camera.role.toUpperCase()!='OK') return;
       const data=camera.data as CameraPageOuts
-      if(this.canCaption){
-        this.addImages as UrlData[]
-        this.addImages.push({url:data.image,caption:''})
-      }else{
-        this.addImages.push(data.image)
-      }
+      this.addImages.push({url:data.image,caption:''})
     })
   }
 

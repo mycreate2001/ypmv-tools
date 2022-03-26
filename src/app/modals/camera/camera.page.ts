@@ -9,9 +9,13 @@ export interface CameraPageOpts{
   fix?:boolean;        // fix aspect ratio, default=true
 }
 
+/**
+ *@param image:base64
+ */
 export interface CameraPageOuts{
   image:string;//base64
 }
+export type CameraPageRole="cancel"|"ok"|"error"
 
 @Component({
   selector: 'app-camera',
@@ -40,7 +44,7 @@ export class CameraPage implements OnInit {
     }
   }
   takeImage(){
-    const image=Camera.getPhoto({
+    Camera.getPhoto({
       quality:90,
       allowEditing:true,
       resultType:CameraResultType.Uri,
@@ -82,7 +86,7 @@ export class CameraPage implements OnInit {
 
 
   /** finish camera */
-  done(role:string="OK"){
+  done(role:CameraPageRole="ok"){
     const out:CameraPageOuts={
       image:this.croppedImage
     }
@@ -91,3 +95,4 @@ export class CameraPage implements OnInit {
 
 
 }
+

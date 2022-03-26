@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { FormatDetailPageRoutingModule } from './format-detail-routing.module';
+// import { FormatDetailPageRoutingModule } from './format-detail-routing.module';
 
 import { FormatDetailPage } from './format-detail.page';
 
@@ -13,7 +13,7 @@ import { FormatDetailPage } from './format-detail.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    FormatDetailPageRoutingModule
+    // FormatDetailPageRoutingModule
   ],
   declarations: [FormatDetailPage]
 })

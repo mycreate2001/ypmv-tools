@@ -25,24 +25,24 @@
     <ion-grid (click)="detailImage()">
       <ion-row *ngIf="viewImages.length<=1">
         <ion-col size="12">
-          <img [src]="viewImages.length?viewImages[0].url?viewImages[0].url:viewImages[0]:'../../../assets/image/no-image.png'" class="image-43">
+          <img [src]="viewImages|url" class="image-43">
         </ion-col>
       </ion-row>
       <ion-row *ngIf="viewImages.length==2">
         <ion-col size="6" *ngFor="let image of viewImages">
-          <img [src]="image.url?image.url:image" class="image-square">
+          <img [src]="image|url" class="image-square">
         </ion-col>
       </ion-row>
       <ion-row *ngIf="viewImages.length>=3">
         <ion-col size="8">
-          <img [src]="viewImages[0].url?viewImages[0].url:viewImages[0]" class="image-43">
+          <img [src]="viewImages[0] |url" class="image-43">
         </ion-col>
         <ion-col size="4" >
           <ion-row>
-            <img [src]="viewImages[1].url?viewImages[1].url:viewImages[1]" class="image-43">
+            <img [src]="viewImages[1]|url" class="image-43">
           </ion-row>
           <ion-row class="last">
-            <img [src]="viewImages[2].url?viewImages[2].url:viewImages[2]" class="image-43">
+            <img [src]="viewImages[2]|url" class="image-43">
             <div class="more-image-text" *ngIf="viewImages.length>3">+{{viewImages.length-3}}</div>
           </ion-row>
         </ion-col>
@@ -91,7 +91,7 @@
             </ion-item>
             <ion-item *ngFor="let child of children">
               <ion-thumbnail slot="start">
-                <img [src]="child.images.length?child.images[0].url?child.images[0].url:child.images[0]:'../../../assets/image/no-image.png'">
+                <img [src]="child.images|url">
               </ion-thumbnail>
               <ion-label (click)="detail(child)">
                 {{child.id}}<p>{{child.name}}</p>

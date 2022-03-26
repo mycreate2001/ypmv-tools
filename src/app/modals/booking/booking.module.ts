@@ -4,16 +4,18 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { BookingPageRoutingModule } from './booking-routing.module';
+// import { BookingPageRoutingModule } from './booking-routing.module';
 
 import { BookingPage } from './booking.page';
+import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    BookingPageRoutingModule
+    UrlPipeModule
+    // BookingPageRoutingModule
   ],
   declarations: [BookingPage]
 })

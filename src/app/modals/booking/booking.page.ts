@@ -81,7 +81,7 @@ export class BookingPage implements OnInit {
     .then(result=>{
       const role=result.role as SearchToolPageRole;
       const data=result.data as SearchToolPageOuts
-      if(role=='save'){
+      if(role=='ok'){
         this.infor.scheduleTools=[...this.infor.scheduleTools,...data.search]
         return;
       }

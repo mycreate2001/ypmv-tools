@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { CameraPageRoutingModule } from './camera-routing.module';
+// import { CameraPageRoutingModule } from './camera-routing.module';
 
 import { CameraPage } from './camera.page';
 import { ImageCropperModule } from 'ngx-image-cropper';
@@ -15,7 +15,7 @@ import { ImageCropperModule } from 'ngx-image-cropper';
     CommonModule,
     FormsModule,
     IonicModule,
-    CameraPageRoutingModule,
+    // CameraPageRoutingModule,
     ImageCropperModule
   ],
   declarations: [CameraPage]

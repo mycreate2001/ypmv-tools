@@ -8,9 +8,9 @@ const routes: Routes = [
     redirectTo:'histories',
     pathMatch:'full'
   },
+  //modal page
   {
     path: 'camera',
-    canActivate:[LoginGuard],
     loadChildren: () => import('./modals/camera/camera.module').then( m => m.CameraPageModule)
   },
   {
@@ -19,18 +19,50 @@ const routes: Routes = [
   },
   {
     path: 'tool',
-    canActivate:[LoginGuard],
     loadChildren: () => import('./modals/tool/tool.module').then( m => m.ToolPageModule)
   },
   {
     path: 'search-tool',
-    canActivate:[LoginGuard],
     loadChildren: () => import('./modals/search-tool/search-tool.module').then( m => m.SearchToolPageModule)
   },
   {
     path: 'menu',
     loadChildren: () => import('./modals/menu/menu.module').then( m => m.MenuPageModule)
   },
+  {
+    path: 'model',
+    loadChildren: () => import('./modals/model/model.module').then( m => m.ModelPageModule)
+  },
+  {
+    path: 'format-detail',
+    loadChildren: () => import('./modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
+  },
+  {
+    path: 'profile',
+    loadChildren: () => import('./modals/profile/profile.module').then( m => m.ProfilePageModule)
+  },
+  {
+    path: 'image-view',
+    loadChildren: () => import('./modals/image-view/image-view.module').then( m => m.ImageViewPageModule)
+  },
+  {
+    path: 'company',
+    loadChildren: () => import('./modals/company/company.module').then( m => m.CompanyPageModule)
+  },
+  {
+    path: 'booking',
+    loadChildren: () => import('./modals/booking/booking.module').then( m => m.BookingPageModule)
+  },
+  {
+    path: 'cover',
+    loadChildren: () => import('./modals/cover/cover.module').then( m => m.CoverPageModule)
+  },
+  {
+    path: 'search-company',
+    loadChildren: () => import('./modals/search-company/search-company.module').then( m => m.SearchCompanyPageModule)
+  },
+
+  //page
   {
     path: 'login',
     loadChildren: () => import('./pages/login/login.module').then( m => m.LoginPageModule)
@@ -40,15 +72,7 @@ const routes: Routes = [
     canActivate:[LoginGuard],
     loadChildren: () => import('./pages/tools/tools.module').then( m => m.ToolsPageModule)
   },
-  {
-    path: 'model',
-    loadChildren: () => import('./modals/model/model.module').then( m => m.ModelPageModule)
-  },
-  {
-    path: 'format-detail',
-    canActivate:[LoginGuard],
-    loadChildren: () => import('./modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
-  },
+  
   {
     path: 'setting',
     canActivate:[LoginGuard],
@@ -60,43 +84,15 @@ const routes: Routes = [
     loadChildren:()=>import('./pages/formats/formats.module').then(m=>m.FormatsPageModule)
   },
   {
-    path: 'profile',
-    canActivate:[LoginGuard],
-    loadChildren: () => import('./modals/profile/profile.module').then( m => m.ProfilePageModule)
-  },
-  {
-    path: 'image-view',
-    loadChildren: () => import('./modals/image-view/image-view.module').then( m => m.ImageViewPageModule)
-  },
-  {
     path: 'companies',
     canActivate:[LoginGuard],
     loadChildren: () => import('./pages/companies/companies.module').then( m => m.CompaniesPageModule)
-  },
-  {
-    path: 'company',
-    loadChildren: () => import('./modals/company/company.module').then( m => m.CompanyPageModule)
-  },
-  {
-    path: 'booking',
-    canActivate:[LoginGuard],
-    loadChildren: () => import('./modals/booking/booking.module').then( m => m.BookingPageModule)
   },
   {
     path: 'histories',
     canActivate:[LoginGuard],
     loadChildren: () => import('./pages/histories/histories.module').then( m => m.HistoriesPageModule)
   },
-  {
-    path: 'cover',
-    loadChildren: () => import('./modals/cover/cover.module').then( m => m.CoverPageModule)
-  },
-  {
-    path: 'search-company',
-    loadChildren: () => import('./modals/search-company/search-company.module').then( m => m.SearchCompanyPageModule)
-  }
-
-
 
 
 ];

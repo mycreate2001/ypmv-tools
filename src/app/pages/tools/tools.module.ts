@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { ToolsPageRoutingModule } from './tools-routing.module';
 
 import { ToolsPage } from './tools.page';
+import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ToolsPageRoutingModule
+    ToolsPageRoutingModule,
+    UrlPipeModule
   ],
   declarations: [ToolsPage]
 })

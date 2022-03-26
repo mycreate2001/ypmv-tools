@@ -25,10 +25,11 @@ export interface MenuData{
 export interface ButtonData{
     role:string;
     icon:string;
-    label?:string;
+    name?:string;
     image?:string;
     handler?:Function;
     title?:string;
+    iconColor?:ColorType
 }
 
 //** data */

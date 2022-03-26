@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { ImageViewPageRoutingModule } from './image-view-routing.module';
+// import { ImageViewPageRoutingModule } from './image-view-routing.module';
 
 import { ImageViewPage } from './image-view.page';
 
@@ -13,7 +13,7 @@ import { ImageViewPage } from './image-view.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    ImageViewPageRoutingModule
+    // ImageViewPageRoutingModule
   ],
   declarations: [ImageViewPage]
 })

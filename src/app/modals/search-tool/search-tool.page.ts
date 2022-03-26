@@ -86,7 +86,7 @@ export class SearchToolPage implements OnInit {
   }
 
   /** close page */
-  done(role:SearchToolPageRole='save'){
+  done(role:SearchToolPageRole='ok'){
     const out:SearchToolPageOuts={
       search:this.search
     }
@@ -200,7 +200,7 @@ export class SearchToolPage implements OnInit {
 
 //// output/input interaface
 export type SearchToolPageType="tool"|"cover"|"tool & cover"
-export type SearchToolPageRole="save"|"cancel"
+export type SearchToolPageRole="ok"|"cancel"
 
 /** input for search tool page
  * @param type?  tool/cover/tool & cover

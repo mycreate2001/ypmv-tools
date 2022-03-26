@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { MenuPageRoutingModule } from './menu-routing.module';
+// import { MenuPageRoutingModule } from './menu-routing.module';
 
 import { MenuPage } from './menu.page';
 
@@ -13,7 +13,7 @@ import { MenuPage } from './menu.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    MenuPageRoutingModule
+    // MenuPageRoutingModule
   ],
   declarations: [MenuPage]
 })
