@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingPage, BookingPageOpts, BookingPageOuts, BookingPageRoleType } from 'src/app/modals/booking/booking.page';
-import { BookingInfor, createBookingInfor, _DB_INFORS } from 'src/app/models/bookingInfor.model';
+import { BookingInfor, BookingInforStatusType, createBookingInfor, _DB_INFORS } from 'src/app/models/bookingInfor.model';
+import { MenuData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -21,6 +22,7 @@ export class HistoriesPage implements OnInit {
   keyword:string=''
   /** control */
   isAvailable:boolean=false;
+  select:BookingInforStatusType|"All"="All"
   constructor(
     private disp:DisplayService,
     private db:FirestoreService,
@@ -58,10 +60,26 @@ export class HistoriesPage implements OnInit {
     })
   }
 
+  /** option select */
+  option(event){
+    const status:(BookingInforStatusType|"All")[]=["All","created","approved","renting","returned","rejected"]
+    const menus:MenuData[]=status.map(stt=>{
+      const menu:MenuData={
+        name:stt,
+        handler:()=>{this.select=stt;this.update()}
+      }
+      return menu
+    })
+    this.disp.showMenu(event,{menus})
+  }
+
 
   ///////// Backgroup function /////////////////
   update(){
-    this.views=this.keyword?searchObj(this.keyword,this.histories):this.histories
+    //filter by option
+    const histories=this.select=='All'?this.histories:this.histories.filter(x=>x.status==this.select)
+    //search
+    this.views=this.keyword?searchObj(this.keyword,histories):histories
     this.isAvailable=true;
   }
 

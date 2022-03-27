@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="ios">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
@@ -8,23 +8,30 @@
       <ion-button (click)="detail()" title="New">
         <ion-icon name="add-circle"></ion-icon>
       </ion-button>
+      <ion-button (click)="option($event)">
+        <ion-icon name="ellipsis-vertical"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-list>
-    <ion-item *ngFor="let infor of views" (click)="detail(infor)">
-      <ion-label>
-        [{{infor.scheduleStart|date:'yyyy-MMM-dd'}} ~ {{infor.scheduleFinish|date:'yyyy-MMM-dd'}}] {{infor.purpose}}
-        <ion-chip *ngFor="let child of infor.scheduleTools">
-          <ion-avatar>
-            <img [src]="child.images|url">
-          </ion-avatar>
-          <ion-label>{{child.name}}[{{child.id}}]</ion-label>
-        </ion-chip>
-      </ion-label>
-      <ion-badge slot="end" [color]="infor.status=='created'?'primary':infor.status=='approved'?'secondary':infor.status=='rejected'?'medium':''">{{infor.status}}</ion-badge>
-    </ion-item>
-  </ion-list>
+<ion-content mode="ios" color="light">
+  <ion-grid>
+    <ion-row>
+      <ion-col size-sx="12" size-lg="6" *ngFor="let infor of views" (click)="detail(infor)">
+        <ion-item lines="none">
+          <ng-container *ngIf="infor.companyId|db:'companies'|async as company">
+            <ion-avatar slot="start" *ngIf="infor.userId|db:'users'|async as user">
+              <img [src]="user.image">
+            </ion-avatar>
+            <ion-label>
+              [{{infor.scheduleStart|date:'yyyy-MMM-dd'}}] {{company.name}} 
+              <p>purpose:{{infor.purpose}}</p>
+            </ion-label>
+          </ng-container>
+          <ion-badge slot="end" [color]="infor.status=='created'?'primary':infor.status=='approved'?'secondary':infor.status=='rejected'?'medium':''">{{infor.status}}</ion-badge>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

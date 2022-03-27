@@ -53,13 +53,14 @@
   
     <ion-item (click)="selectCompany()" button>
       <ion-label>Company</ion-label>
-      <ion-text *ngIf="!company">select company</ion-text>
-      <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company" >
+      
+      <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
         <ion-avatar>
           <img class="avatar" [src]="company.image">
         </ion-avatar>
         <ion-label>{{company.name}}</ion-label>
       </ion-chip>
+      <ng-template #nocompany>select company</ng-template>
     </ion-item>
 
     <ion-item>
