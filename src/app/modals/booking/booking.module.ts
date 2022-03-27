@@ -8,13 +8,15 @@ import { IonicModule } from '@ionic/angular';
 
 import { BookingPage } from './booking.page';
 import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
+import { DbPipeModule } from 'src/app/pipes/db/db.pipe.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    UrlPipeModule
+    UrlPipeModule,
+    DbPipeModule
     // BookingPageRoutingModule
   ],
   declarations: [BookingPage]

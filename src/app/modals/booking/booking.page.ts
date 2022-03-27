@@ -25,15 +25,12 @@ export class BookingPage implements OnInit {
   inforId:string='';
 
   /** internal variable */
-  users:Object;
   selected:ChildData[]=[];
-  company:CompanyData;
   /** control variable */
   isAvailable:boolean=false;
   isAdmin:boolean=false;
   isOwner:boolean=false;
   isEdit:boolean=false;
-  backup:string=''
   // isChange:boolean=false;
   constructor(
     private auth:AuthService,
@@ -47,19 +44,8 @@ export class BookingPage implements OnInit {
     .then(infor=>{
       this.infor=infor;
       this.inforId=infor.id;
-      return this._getUsers()
+      this._update()
     })
-    .then((users)=>{
-      this.users=users;
-      this.backup=JSON.stringify(this.infor);
-
-      if(this.infor.companyId){
-        return this.db.get(_DB_COMPANY,this.infor.companyId)
-        .then((company:CompanyData)=>this.company=company)
-      }
-      return null;
-    })
-    .then(()=>this._update())
     .catch(err=>console.log("\n#### ERROR[1]: get data error",err))
   }
 
@@ -97,10 +83,7 @@ export class BookingPage implements OnInit {
       const role=result.role as SearchCompanyPageRole
       const data=result.data as SearchCompanyPageOuts
       if(role=='ok'){
-        console.log("company ID:",data.companyIds);
         this.infor.companyId=data.companyIds[0];
-        this.db.get(_DB_COMPANY,data.companyIds[0])
-        .then((c:CompanyData)=>{this.company=c})
         return;
       }
     })
@@ -267,30 +250,6 @@ export class BookingPage implements OnInit {
       this.db.get(_DB_INFORS,this.inforId)
       .then((infor:BookingInfor)=>resolve(infor))
       .catch(err=>reject(err))
-    })
-  }
-
-  /** get users from infor */
-  private _getUsers():Promise<Object>{
-    return new Promise((resolve,reject)=>{
-      const list=["userId","approvedBy","checkingManId","returnManId"]
-      const obj=getObjectFromList(this.infor,list);
-      console.log("infor:",{infor:this.infor,list,obj})
-      const all=Object.keys(obj).filter(x=>obj[x]) //remove not id
-      .map(key=>{
-        return this.db.get(_DB_USERS,obj[key]+"")
-        .then((user:UserData)=>{return {key,user}})
-      }).filter(x=>x)
-
-      return Promise.all(all).then(results=>{
-        const outs:Object={}
-        results.forEach((result)=>{
-          outs[result.key]=result.user
-        })
-        return resolve(outs);
-      })
-      .catch(err=>reject(err))
-      
     })
   }
 

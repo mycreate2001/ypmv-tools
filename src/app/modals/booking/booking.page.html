@@ -43,24 +43,23 @@
 
     <ion-item>
       <ion-label>Create by</ion-label>
-      <ion-chip color="primary">
+      <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
         <ion-avatar >
-          <img class="avatar" [src]="users['userId'].image">
+          <img class="avatar" [src]="user.image">
         </ion-avatar>
-        <ion-label>{{users['userId'].name}}</ion-label>
+        <ion-label>{{user.name}}</ion-label>
       </ion-chip>
     </ion-item>
   
     <ion-item (click)="selectCompany()" button>
       <ion-label>Company</ion-label>
       <ion-text *ngIf="!company">select company</ion-text>
-      <ion-chip color="primary" *ngIf="company">
+      <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company" >
         <ion-avatar>
           <img class="avatar" [src]="company.image">
         </ion-avatar>
         <ion-label>{{company.name}}</ion-label>
       </ion-chip>
-      <!-- <ion-icon name="chevron-forward-outline" color="light" slot="end"></ion-icon> -->
     </ion-item>
 
     <ion-item>
