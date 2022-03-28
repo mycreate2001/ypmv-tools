@@ -152,3 +152,16 @@ export function checkCode(code:string, format:CodeFormatData){
     else  out.countData="";
     return out;
 }
+
+export const CodeFormatConfig={
+    tool:(data:string)=> 'TL$'+data,
+    model:(data:string)=> 'MD$'+data,
+    cover:(data:string)=> 'CV$'+data,
+    booking:(data:string)=> 'BK$'+data
+}
+
+export const CodeFormatList=Object.keys(CodeFormatConfig)
+export type CodeFormatType=keyof typeof CodeFormatConfig
+
+export const _DB_CONFIGS="configs"
+export const _DB_FORMATS="formats"

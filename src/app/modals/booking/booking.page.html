@@ -34,6 +34,11 @@
     <ion-item>
       <ion-label>ID</ion-label>
       <ion-text>{{infor.id}}</ion-text>
+      <ion-buttons slot="end" title="show QR code">
+        <ion-button (click)="printCode()">
+          <ion-icon name="qr-code"></ion-icon>
+        </ion-button>
+      </ion-buttons>
     </ion-item>
   
     <ion-item>

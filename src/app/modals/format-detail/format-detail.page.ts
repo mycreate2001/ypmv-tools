@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DisplayService } from 'src/app/services/display/display.service';
-import { analysisCode, checkCode, CodeFormatData, createExtractData, ExtractData } from 'src/app/models/codeformat';
-import { QrcodePage, QRResultType } from '../qrcode/qrcode.page';
+import { analysisCode, checkCode, CodeFormatData, CodeFormatList, createExtractData, createFormatData } from 'src/app/models/codeformat';
+import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
 
 @Component({
   selector: 'app-format-detail',
@@ -10,10 +10,13 @@ import { QrcodePage, QRResultType } from '../qrcode/qrcode.page';
   styleUrls: ['./format-detail.page.scss'],
 })
 export class FormatDetailPage implements OnInit {
+  /** input  */
   format:CodeFormatData;
   code:string;
+
   checks:any={};
   results:any={};
+  codeFormatList=CodeFormatList;
   LIST=[
     {n:"name",v:"name"},
     {n:"Prefix",v:"prefix"},
@@ -27,32 +30,34 @@ export class FormatDetailPage implements OnInit {
     private disp:DisplayService
   ){ }
 
+  /** system Init */
   ngOnInit() {
-    console.log("format:",this.format);
+    if(!this.format) this.format=createFormatData();
     this.update();
   }
 
-  update(){
-    this.checks=checkCode(this.code,this.format);
-    this.results=analysisCode(this.code,this.format)||{}
-    console.log("test",{code:this.code,format:this.format,checks:this.checks,results:this.results})
+  /** scan code */
+  scan(){
+    const props:QRcodePageOpts={type:'code',title:'any code'}
+    this.disp.showModal(QrcodePage,props)
+    .then(scan=>{
+      const data=scan.data as QRcodePageOuts;
+      const role=scan.role as QRcodePageRole;
+      if(role!='ok') return;
+      this.code=data.code;
+    })
+
   }
 
-  async scan(){
-    const resultType:QRResultType='data only'
-    const {data,role}=await this.disp.showModal(QrcodePage,{resultType});
-    if(role.toLowerCase()!='ok') return;
-    this.code=data;
+  /** exit page */
+  done(role:FormatDetailPageRole='ok'){
+    const out:FormatDetailPageOuts={
+      format:this.format
+    }
+    this.modal.dismiss(out,role)
   }
-
-  done(role:string='',data=null){
-    if(!role) role='ok'
-    const _data=data?data:this.format
-    this.modal.dismiss({..._data},role);
-    
-  }
-
-  async delete(){
+  /** delete part of extract */
+  async deleteExtract(){
     const buttons=this.format.extractDatas.map((e,i)=>{
       return {text:e.name,data:i,role:'OK'}
     })
@@ -61,10 +66,38 @@ export class FormatDetailPage implements OnInit {
     this.format.extractDatas.splice(data,1);
   }
 
+  /** add extract information */
   add(){
     const e=createExtractData();
     console.log("extract Data:",e);
     this.format.extractDatas.push(e);
   }
 
+  ////////////////// background ///////////
+   /** update */
+  update(){
+    this.checks=checkCode(this.code,this.format);
+    this.results=analysisCode(this.code,this.format)||{}
+  }
+
 }
+
+
+////////////// interface //////////////////
+/**
+ * @param format:CodeFormatData;
+ * @param code:string;
+ */
+export interface FormatDetailPageOpts{
+  format:CodeFormatData;
+  code:string;
+}
+
+/**
+ * @param format:CodeFormatData;
+ */
+export interface FormatDetailPageOuts{
+  format:CodeFormatData;
+}
+
+export type FormatDetailPageRole="ok"|"cancel"|"delete"

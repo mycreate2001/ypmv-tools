@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingPage, BookingPageOpts, BookingPageOuts, BookingPageRoleType } from 'src/app/modals/booking/booking.page';
+import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from 'src/app/modals/qrcode/qrcode.page';
 import { BookingInfor, BookingInforStatusType, createBookingInfor, _DB_INFORS } from 'src/app/models/bookingInfor.model';
+import { CodeFormatConfig } from 'src/app/models/codeformat';
 import { MenuData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
@@ -71,6 +73,23 @@ export class HistoriesPage implements OnInit {
       return menu
     })
     this.disp.showMenu(event,{menus})
+  }
+
+  /** scan code */
+  scan(){
+    const props:QRcodePageOpts={type:'analysis',title:'booking Id'}
+    this.disp.showModal(QrcodePage,props)
+    .then(scan=>{
+      const data=scan.data as QRcodePageOuts;
+      const role=scan.role as QRcodePageRole;
+      if(role!='ok') return;
+      console.log("Name:",CodeFormatConfig.booking.name);
+      const id:string=data.analysis[CodeFormatConfig.booking.name]
+      if(!id) return;
+      const infor=this.histories.find(h=>h.id==id);
+      if(!infor) return console.log("cannot find this infor");
+      this.detail(infor)
+    })
   }
 
 

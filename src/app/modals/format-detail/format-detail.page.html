@@ -11,11 +11,15 @@
     </ion-searchbar>
     <ion-buttons slot="end">
       <ion-button (click)="scan()">
-        <ion-icon name="qr-code"></ion-icon>
+        <ion-icon name="scan"></ion-icon>
+        <ion-label>scan</ion-label>
+      </ion-button>
+      <ion-button (click)="done('delete')">
+        <ion-icon name="trash"></ion-icon>
         <ion-label>scan</ion-label>
       </ion-button>
       <ion-button (click)="done()">
-        <ion-icon name="chevron-down-circle"></ion-icon>
+        <ion-icon name="save"></ion-icon>
         <ion-label>Save</ion-label>
       </ion-button>
     </ion-buttons>
@@ -47,7 +51,7 @@
           <b>Extract Inforation</b>
         </ion-label>
         <ion-buttons slot="end">
-          <ion-button (click)="delete()">
+          <ion-button (click)="deleteExtract()">
             <ion-icon color="danger" name="trash"></ion-icon>
            </ion-button>
           <ion-button (click)="add()">
@@ -67,7 +71,9 @@
           <ion-list slot="content">
             <ion-item>
               <ion-label color="primary">Name</ion-label>
-              <ion-input placeholder="(blank)" [(ngModel)]="item.name"></ion-input>
+              <ion-select placeholder="(blank)" [(ngModel)]="item.name">
+                <ion-select-option [value]="key" *ngFor="let key of codeFormatList">{{key}}</ion-select-option>
+              </ion-select>
             </ion-item>
             <ion-item>
               <ion-label color="primary">Data Position</ion-label>

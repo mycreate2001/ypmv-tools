@@ -9,6 +9,7 @@ import { UserData, _DB_USERS } from 'src/app/models/user.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
+import { UtilService } from 'src/app/services/util/util.service';
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 
@@ -36,7 +37,8 @@ export class BookingPage implements OnInit {
     private auth:AuthService,
     private db:FirestoreService,
     private modal:ModalController,
-    private disp:DisplayService
+    private disp:DisplayService,
+    private util:UtilService
   ){ }
 
   ngOnInit() {
@@ -52,6 +54,10 @@ export class BookingPage implements OnInit {
   
   //////////////// Hander buttons /////////////////
 
+  /** QR code */
+  printCode(){
+    this.util.generaQRcode(this.infor.id,{label:this.infor.purpose,size:42,type:'booking'})
+  }
   /** exist */
   done(role:BookingPageRoleType='save'){
     const data:BookingPageOuts={

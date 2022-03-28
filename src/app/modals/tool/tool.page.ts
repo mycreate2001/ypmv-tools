@@ -5,6 +5,7 @@ import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import QrCreator from 'qr-creator';
 import { ButtonData } from 'src/app/models/util.model';
 import { AuthService } from 'src/app/services/firebase/auth.service';
+import { UtilService } from 'src/app/services/util/util.service';
 
 
 @Component({
@@ -31,7 +32,8 @@ export class ToolPage implements OnInit {
   constructor(
     private modal:ModalController,
     private db:FirestoreService,
-    private auth:AuthService
+    private auth:AuthService,
+    private util:UtilService
   ) {
 
   }
@@ -85,35 +87,7 @@ export class ToolPage implements OnInit {
 
   /** print code */
   print(){
-    const windowp=window.open('','','left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-    windowp.document.write(`
-      <style>
-        canvas{ width: 32px;height: 32;} 
-        .cover{display: flex;flex-direction: row;}
-        .content{margin-left: 12px;}
-        .code{font-size: x-small;}
-      </style>`)
-    windowp.document.write(`
-      <div class="cover">
-        <div id="qr-code"></div>
-        <div class="content">
-          <div class="label">${this.model.name.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase())}</div>
-          <div class="code">${this.tool.id}</div>
-        </div>
-      </div>`
-    );
-    QrCreator.render({
-      text:"TL-"+this.tool.id,
-      radius:0,
-      ecLevel:'H',
-      // fill:'#536DFE',
-      background:null,
-      // size:128
-    }, windowp.document.querySelector('#qr-code'))
-    console.log("query:",windowp.document.querySelector("#qr-code"))
-    windowp.focus();
-    // windowp.print();
-    // windowp.close();
+    this.util.generaQRcode(this.tool.id);
   }
 
 }
@@ -121,8 +95,7 @@ export class ToolPage implements OnInit {
 function btnDefault():ButtonData[]{
   return [
     {role:'delete',icon:'trash'},
-    {role:'ok',icon:'save'},
-    {role:'print',icon:'print',handler:()=>{console.log("Test",this)}}
+    {role:'ok',icon:'save'}
   ]
 }
 

@@ -10,6 +10,7 @@ import { getList } from 'src/app/utils/minitools';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts } from '../search-tool/search-tool.page';
 import { ToolPage, ToolPageOpts } from '../tool/tool.page';
+import { UtilService } from 'src/app/services/util/util.service';
 
 @Component({
   selector: 'app-cover',
@@ -30,7 +31,8 @@ export class CoverPage implements OnInit {
   constructor(
     private db:FirestoreService,
     private modal:ModalController,
-    private disp:DisplayService
+    private disp:DisplayService,
+    public util:UtilService
   ) { }
 
   ngOnInit() {
@@ -112,6 +114,11 @@ export class CoverPage implements OnInit {
         break;
       }
     })
+  }
+
+  /** print */
+  print(){
+    this.util.generaQRcode(this.cover.id,{label:this.cover.name})
   }
 
   /** add child */

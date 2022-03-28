@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header mode="ios">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button [routerLink]="['/']">
@@ -10,8 +10,6 @@
     <ion-searchbar 
       color="light" 
       [(ngModel)]="code" 
-      placeholder="tesing code" 
-      searchIcon="checkmark-circle"
       (ionChange)="update()"
       ></ion-searchbar>
 
@@ -20,7 +18,7 @@
         <ion-icon name="add-outline"></ion-icon>
       </ion-button>
       <ion-button (click)="scan()">
-        <ion-icon name="qr-code-outline"></ion-icon>
+        <ion-icon name="scan"></ion-icon>
       </ion-button>
     </ion-buttons>
 

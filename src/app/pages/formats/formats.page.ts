@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormatDetailPage } from '../../modals/format-detail/format-detail.page';
-import { QrcodePage, QRResultType } from '../../modals/qrcode/qrcode.page';
+import { FormatDetailPage, FormatDetailPageOpts, FormatDetailPageOuts, FormatDetailPageRole } from '../../modals/format-detail/format-detail.page';
+import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../../modals/qrcode/qrcode.page';
 import { DisplayService } from '../../services/display/display.service';
-import { analysisCode, CodeFormatData, createFormatData } from '../../models/codeformat';
+import { analysisCode, CodeFormatData, createFormatData, _DB_FORMATS } from '../../models/codeformat';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 
 
@@ -40,14 +40,18 @@ export class FormatsPage implements OnInit {
     this.dFormat.disconnect();
   }
 
-  async scan(){
-    const resultType:QRResultType='data only';
-    const {data,role}=await this.disp.showModal(QrcodePage,{resultType},true);
-    if(role.toLowerCase()!='ok') return;
-    this.code=data;
+  scan(){
+    const props:QRcodePageOpts={title:'any code',type:'code'}
+    this.disp.showModal(QrcodePage,props,true)
+    .then(result=>{
+      const out=result.data as QRcodePageOuts;
+      const role=result.role as QRcodePageRole;
+      if(role!='ok') return;
+      this.code=out.code
+    })
   }
 
-
+  /** update keyword */
   update(){
     this.checks=[];
     this.formats.forEach(f=>{
@@ -56,14 +60,28 @@ export class FormatsPage implements OnInit {
     })
   }
 
-  async showDetail(xdata:CodeFormatData=null){
-    const format=xdata||createFormatData();
-    
-    const {role,data}=await this.disp.showModal(FormatDetailPage,{format,code:this.code});
-    if(role.toLowerCase()!='ok') return;
+  /** delete format */
+  delete(format:CodeFormatData){
+    if(!format) return;
+    this.db.delete(_DB_FORMATS,format.id)
+  }
 
-    console.log("data:",data);
-    this.dFormat.add(data);
+  /** show detail format */
+  async showDetail(format:CodeFormatData=null){
+    format=format||createFormatData();
+    const props:FormatDetailPageOpts={format,code:this.code}
+    this.disp.showModal(FormatDetailPage,props).then(result=>{
+        const data=result.data as FormatDetailPageOuts
+        const role=result.role as FormatDetailPageRole
+        if(role=='ok'){
+          this.db.add(_DB_FORMATS,data.format)
+          return ;
+        }
+        if(role=='delete'){
+          this.db.delete(_DB_FORMATS,format.id);
+          return;
+        }
+    })
   }
 
 }

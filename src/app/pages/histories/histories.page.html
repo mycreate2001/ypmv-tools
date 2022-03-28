@@ -18,7 +18,7 @@
 <ion-content mode="ios" color="light">
   <ion-grid>
     <ion-row>
-      <ion-col size-sx="12" size-lg="6" *ngFor="let infor of views" (click)="detail(infor)">
+      <ion-col size-sx="12" size-md="6" size-xl="4" *ngFor="let infor of views" (click)="detail(infor)">
         <ion-item lines="none">
           <ng-container *ngIf="infor.companyId|db:'companies'|async as company">
             <ion-avatar slot="start" *ngIf="infor.userId|db:'users'|async as user">
@@ -35,3 +35,8 @@
     </ion-row>
   </ion-grid>
 </ion-content>
+<ion-fab vertical="bottom" horizontal="start">
+  <ion-fab-button (click)="scan()">
+    <ion-icon name="scan"></ion-icon>
+  </ion-fab-button> 
+</ion-fab>
