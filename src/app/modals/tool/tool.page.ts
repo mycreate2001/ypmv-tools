@@ -87,7 +87,7 @@ export class ToolPage implements OnInit {
 
   /** print code */
   print(){
-    this.util.generaQRcode(this.tool.id);
+    this.util.generaQRcode(this.tool.id,{type:'tool',size:38});
   }
 
 }

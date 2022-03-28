@@ -2,14 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import {  ChildData } from 'src/app/models/basic.model';
 import { BookingInfor, createBookingInfor, _DB_INFORS } from 'src/app/models/bookingInfor.model';
-import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
+import { CodeFormatConfig } from 'src/app/models/codeformat';
+import {  _DB_COMPANY } from 'src/app/models/company.model';
 import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
 import { _DB_TOOLS } from 'src/app/models/tools.model';
-import { UserData, _DB_USERS } from 'src/app/models/user.model';
+import {  _DB_USERS } from 'src/app/models/user.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { UtilService } from 'src/app/services/util/util.service';
+import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 
@@ -32,6 +34,7 @@ export class BookingPage implements OnInit {
   isAdmin:boolean=false;
   isOwner:boolean=false;
   isEdit:boolean=false;
+  code:string;
   // isChange:boolean=false;
   constructor(
     private auth:AuthService,
@@ -58,6 +61,23 @@ export class BookingPage implements OnInit {
   printCode(){
     this.util.generaQRcode(this.infor.id,{label:this.infor.purpose,size:42,type:'booking'})
   }
+
+  /** verifycation by scan */
+  scan(){
+    const props:QRcodePageOpts={
+      type:'analysis',title:[CodeFormatConfig.cover.name,CodeFormatConfig.tool.name].join(",")
+    }
+    this.disp.showModal(QrcodePage,props)
+    .then(scan=>{
+      const data=scan.data as QRcodePageOuts;
+      const role=scan.role as QRcodePageRole;
+      if(role!=='ok') return;
+      let code=data.analysis[CodeFormatConfig.cover.name]
+      code=code?code:data.analysis[CodeFormatConfig.tool.name];
+      if(!code) return console.log("it not [coverId,toolId]",{analysis:data.analysis})
+    })
+  }
+
   /** exist */
   done(role:BookingPageRoleType='save'){
     const data:BookingPageOuts={
@@ -277,10 +297,12 @@ export class BookingPage implements OnInit {
 /**
  * @param infor Booking information, default=createNew
  * @param inforId booking information id, default=createNew
+ * @param isEdit  enable edit or not
  */
 export interface BookingPageOpts{
   infor?:BookingInfor
   inforId?:string;
+  isEdit?:boolean;
 }
 
 export interface BookingPageOuts{
@@ -288,19 +310,6 @@ export interface BookingPageOuts{
 }
 
 export declare type BookingPageRoleType="save"|"cancel"|'delete'
-
-
-
-/////// extend functions /////////////
-function getObjectFromList(obj:object,list:string|string[]):object{
-  const outs:object={}
-  const _list=[].concat(list);
-  _list.forEach(key=>{
-    if(obj[key]==undefined) return;
-    outs[key]=obj[key]
-  })
-  return outs;
-}
 
 /** include object */
 function checkIncludeObj<T>(arrs1:T[],arrs2:T[],keys:string[]=['id'],type:'All keys'|'One key'='All keys'):T[]{

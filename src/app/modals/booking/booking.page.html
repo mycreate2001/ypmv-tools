@@ -8,6 +8,7 @@
     </ion-buttons>
     <ion-title>Booking Infor</ion-title>
     <ion-buttons slot="end">
+      <!-- admin -->
       <ng-container *ngIf="isAdmin && infor.status=='created'">
         <ion-button (click)="approve(true)" title="Approve" color="success" >
           <ion-icon name="checkmark-circle"></ion-icon>
@@ -16,121 +17,212 @@
           <ion-icon name="close-circle"></ion-icon>
         </ion-button>
       </ng-container>
+      <!-- owner -->
       <ion-button (click)="done('delete')" title="delete" color="danger" *ngIf="isOwner&&isEdit">
         <ion-icon name="trash" color="danger"></ion-icon>
       </ion-button>
-      <ion-button (click)="book()" title="Book" *ngIf="infor.status=='new'||infor.status=='created'">
+      <ion-button (click)="book()" title="Book" *ngIf="['new','created'].includes(infor.status)">
         <ion-icon name="Save"></ion-icon>
+      </ion-button>
+      <ion-button (click)="scan()">
+        <ion-icon name="scan"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content *ngIf="isAvailable" color="light">
-  <ion-card class="infor">
-    <ion-card-header>
-      General Information
-    </ion-card-header>
-    <ion-item>
-      <ion-label>ID</ion-label>
-      <ion-text>{{infor.id}}</ion-text>
-      <ion-buttons slot="end" title="show QR code">
-        <ion-button (click)="printCode()">
-          <ion-icon name="qr-code"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-item>
-  
-    <ion-item>
-      <ion-label>Create Date</ion-label>
-      <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
-    </ion-item>
-
-    <ion-item>
-      <ion-label>Create by</ion-label>
-      <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
-        <ion-avatar >
-          <img class="avatar" [src]="user.image">
-        </ion-avatar>
-        <ion-label>{{user.name}}</ion-label>
-      </ion-chip>
-    </ion-item>
-  
-    <ion-item (click)="selectCompany()" button>
-      <ion-label>Company</ion-label>
-      
-      <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
-        <ion-avatar>
-          <img class="avatar" [src]="company.image">
-        </ion-avatar>
-        <ion-label>{{company.name}}</ion-label>
-      </ion-chip>
-      <ng-template #nocompany>select company</ng-template>
-    </ion-item>
-
-    <ion-item>
-      <ion-label>Purpose</ion-label>
-      <ion-input [(ngModel)]="infor.purpose" ></ion-input>
-    </ion-item>
-    
-    <!-- schedule start -->
-    <ion-item button="true" id="schedule-start">
-      <ion-label>Schedule Start</ion-label>
-      <ion-text slot="end">{{infor.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
-      <ion-popover trigger="schedule-start" show-backdrop="false">
-        <ng-template>
-          <ion-datetime
-            #popoverschedulestart
-            presentation="date"
-            (ionChange)="infor.scheduleStart=popoverschedulestart.value"
-            >
-          </ion-datetime>
-        </ng-template>
-      </ion-popover>
-    </ion-item>
-  
-    <!-- schedule finish -->
-    <ion-item button="true" id="schedule-finish">
-      <ion-label>Schedule Finish</ion-label>
-      <ion-text slot="end">{{infor.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
-      <ion-popover trigger="schedule-finish" show-backdrop="false">
-        <ng-template>
-          <ion-datetime
-            #popoverschedulefinish
-            presentation="date"
-            (ionChange)="infor.scheduleFinish=popoverschedulefinish.value"
-            >
-          </ion-datetime>
-        </ng-template>
-      </ion-popover>
-    </ion-item>
-  </ion-card>
-
-  <ion-card class="infor">
-    <ion-card-header>
-      <ion-item lines="none">
-        Tools/Jig
-        <ion-buttons slot="end">
-          <ion-button (click)="pickupTool()" *ngIf="!selected.length" title="add more tool">
-            <ion-icon name="add-circle" color="primary"></ion-icon>
-          </ion-button>
-          <ion-button (click)="removeTool()" *ngIf="selected.length" title="remove selected tools">
-            <ion-icon slot="icon-only" color="danger" name="trash"></ion-icon>
+  <!-- edit page -->
+  <ng-container *ngIf="isEdit">
+    <ion-card class="infor">
+      <ion-card-header>
+        General Information
+      </ion-card-header>
+      <ion-item>
+        <ion-label>ID</ion-label>
+        <ion-text>{{infor.id}}</ion-text>
+        <ion-buttons slot="end" title="show QR code">
+          <ion-button (click)="printCode()">
+            <ion-icon name="qr-code"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-item>
-    </ion-card-header>
-    <ion-list>
-      <ion-item *ngFor="let tool of infor.scheduleTools;let pos=index">
-        <ion-thumbnail slot="start">
-          <img  [src]="tool.images.length?(tool.images[0]|url):'../../../assets/image/no-image.png'">
-        </ion-thumbnail>
-        <ion-label>
-          {{tool.id}}
-          <p>{{tool.name}}</p>
-        </ion-label>
-        <ion-checkbox *ngIf="isEdit" slot="end" (ionChange)="checkbox(tool,$event)"></ion-checkbox>
+    
+      <ion-item>
+        <ion-label>Create Date</ion-label>
+        <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
       </ion-item>
-    </ion-list>
-  </ion-card>
+  
+      <ion-item>
+        <ion-label>Create by</ion-label>
+        <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
+          <ion-avatar >
+            <img class="avatar" [src]="user.image">
+          </ion-avatar>
+          <ion-label>{{user.name}}</ion-label>
+        </ion-chip>
+      </ion-item>
+    
+      <ion-item (click)="selectCompany()" button>
+        <ion-label>Company</ion-label>
+        
+        <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
+          <ion-avatar>
+            <img class="avatar" [src]="company.image">
+          </ion-avatar>
+          <ion-label>{{company.name}}</ion-label>
+        </ion-chip>
+        <ng-template #nocompany>select company</ng-template>
+      </ion-item>
+  
+      <ion-item>
+        <ion-label>Purpose</ion-label>
+        <ion-input [(ngModel)]="infor.purpose" ></ion-input>
+      </ion-item>
+      
+      <!-- schedule start -->
+      <ion-item button="true" id="schedule-start">
+        <ion-label>Schedule Start</ion-label>
+        <ion-text slot="end">{{infor.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
+        <ion-popover trigger="schedule-start" show-backdrop="false">
+          <ng-template>
+            <ion-datetime
+              #popoverschedulestart
+              presentation="date"
+              (ionChange)="infor.scheduleStart=popoverschedulestart.value"
+              >
+            </ion-datetime>
+          </ng-template>
+        </ion-popover>
+      </ion-item>
+    
+      <!-- schedule finish -->
+      <ion-item button="true" id="schedule-finish">
+        <ion-label>Schedule Finish</ion-label>
+        <ion-text slot="end">{{infor.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
+        <ion-popover trigger="schedule-finish" show-backdrop="false">
+          <ng-template>
+            <ion-datetime
+              #popoverschedulefinish
+              presentation="date"
+              (ionChange)="infor.scheduleFinish=popoverschedulefinish.value"
+              >
+            </ion-datetime>
+          </ng-template>
+        </ion-popover>
+      </ion-item>
+    </ion-card>
+    <ion-card class="infor">
+      <ion-card-header>
+        <ion-item lines="none">
+          Tools/Jig
+          <ion-buttons slot="end">
+            <ion-button (click)="pickupTool()" *ngIf="!selected.length" title="add more tool">
+              <ion-icon name="add-circle" color="primary"></ion-icon>
+            </ion-button>
+            <ion-button (click)="removeTool()" *ngIf="selected.length" title="remove selected tools">
+              <ion-icon slot="icon-only" color="danger" name="trash"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let tool of infor.scheduleTools;let pos=index">
+          <ion-thumbnail slot="start">
+            <img  [src]="tool.images.length?(tool.images[0]|url):'../../../assets/image/no-image.png'">
+          </ion-thumbnail>
+          <ion-label>
+            {{tool.id}}
+            <p>{{tool.name}}</p>
+          </ion-label>
+          <ion-checkbox *ngIf="isEdit" slot="end" (ionChange)="checkbox(tool,$event)"></ion-checkbox>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+  </ng-container>
+
+  <!-- view page -->
+  <ng-container *ngIf="!isEdit">
+    <ion-card class="infor">
+      <ion-card-header>
+        General Information
+      </ion-card-header>
+      <ion-item>
+        <ion-label>ID</ion-label>
+        <ion-text>{{infor.id}}</ion-text>
+        <ion-buttons slot="end" title="show QR code">
+          <ion-button (click)="printCode()">
+            <ion-icon name="qr-code"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-item>
+    
+      <ion-item>
+        <ion-label>Create Date</ion-label>
+        <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
+      </ion-item>
+  
+      <ion-item>
+        <ion-label>Create by</ion-label>
+        <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
+          <ion-avatar >
+            <img class="avatar" [src]="user.image">
+          </ion-avatar>
+          <ion-label>{{user.name}}</ion-label>
+        </ion-chip>
+      </ion-item>
+    
+      <ion-item button>
+        <ion-label>Company</ion-label>
+        <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
+          <ion-avatar> <img class="avatar" [src]="company.image"> </ion-avatar>
+          <ion-label>{{company.name}}</ion-label>
+        </ion-chip>
+        <ng-template #nocompany>select company</ng-template>
+      </ion-item>
+  
+      <ion-item>
+        <ion-label>Purpose</ion-label>
+        <ion-text>{{infor.purpose}}</ion-text>
+      </ion-item>
+      
+      <!-- schedule start -->
+      <ion-item>
+        <ion-label>Schedule Start</ion-label>
+        <ion-text slot="end">{{infor.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
+      </ion-item>
+      
+      <!-- schedule finish -->
+      <ion-item >
+        <ion-label>Schedule Finish</ion-label>
+        <ion-text slot="end">{{infor.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
+      </ion-item>
+    </ion-card>
+  
+    <ion-card class="infor">
+      <ion-card-header>
+        Tools/Jig
+          <ion-buttons slot="end">
+            <ion-button (click)="pickupTool()" *ngIf="!selected.length" title="add more tool">
+              <ion-icon name="add-circle" color="primary"></ion-icon>
+            </ion-button>
+            <ion-button (click)="removeTool()" *ngIf="selected.length" title="remove selected tools">
+              <ion-icon slot="icon-only" color="danger" name="trash"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+      </ion-card-header>
+      <ion-list>
+        <ion-item *ngFor="let tool of infor.scheduleTools;let pos=index">
+          <ion-thumbnail slot="start">
+            <img  [src]="tool.images.length?(tool.images[0]|url):'../../../assets/image/no-image.png'">
+          </ion-thumbnail>
+          <ion-label>
+            {{tool.id}}
+            <p>{{tool.name}}</p>
+          </ion-label>
+          <ion-checkbox *ngIf="isEdit" slot="end" (ionChange)="checkbox(tool,$event)"></ion-checkbox>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+  </ng-container>
 </ion-content>

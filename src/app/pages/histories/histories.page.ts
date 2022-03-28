@@ -44,7 +44,7 @@ export class HistoriesPage implements OnInit {
   /** detail history */
   detail(history:BookingInfor=null){
     history=history?history:createBookingInfor({userId:this.auth.currentUser.id})
-    const props:BookingPageOpts={infor:history};//new case
+    const props:BookingPageOpts={infor:history,isEdit:history.status=='created'?true:false};//new case
     this.disp.showModal(BookingPage,props)
     .then(result=>{
       const role=result.role as BookingPageRoleType
