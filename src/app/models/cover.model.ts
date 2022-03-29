@@ -12,7 +12,6 @@ export interface CoverData extends SaveInfo{
     images:UrlData[];           // images of cover
     upperId:string;            // parents ID
     stay:string;                // where keep it when stay alone
-    note:string;
 }
 
 
@@ -25,7 +24,6 @@ export interface CoverDataOpts extends SaveInfoOpts{
     images?:UrlData[];           // images of cover
     upperId?:string;            // parents ID
     stay?:string;                // where keep it when stay alone
-    note?:string;
 }
 
 export function createCoverData(opts?:CoverDataOpts):CoverData{
@@ -41,7 +39,6 @@ export function createCoverData(opts?:CoverDataOpts):CoverData{
         images:[],              // images of cover
         upperId:'',             // parents ID
         stay:'',                // where keep it when stay alone
-        note:''
     }
     return createOpts(df,opts) as CoverData;
 }

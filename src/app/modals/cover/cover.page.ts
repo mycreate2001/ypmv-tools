@@ -11,6 +11,7 @@ import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-vi
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts } from '../search-tool/search-tool.page';
 import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 import { UtilService } from 'src/app/services/util/util.service';
+import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 
 @Component({
   selector: 'app-cover',
@@ -84,6 +85,18 @@ export class CoverPage implements OnInit {
     console.log("\n---------Refresh data -------\n",this);
   }
 
+  ////////////// BUTTONS HANDLER ///////////////
+  /** select company */
+  selectCompany(){
+    const props:SearchCompanyPageOpts={}
+    this.disp.showModal(SearchCompanyPage,props)
+    .then(result=>{
+      const role=result.role as SearchCompanyPageRole
+      const data=result.data as SearchCompanyPageOuts
+      if(role!=='ok') return;
+      this.cover.stay=data.companyIds[0];
+    })
+  }
   done(role:string='OK'){
     const out:CoverPageOuts={
       cover:this.cover,

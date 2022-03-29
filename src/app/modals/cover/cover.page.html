@@ -67,14 +67,25 @@
         <ion-label>Category</ion-label>
          <ion-input [(ngModel)]="cover.group"></ion-input>
       </ion-item>
-      <ion-item>
+      <ion-item button (click)="pickupCover()">
         <ion-label>Parents</ion-label>
         <ion-text> {{cover.upperId}}</ion-text>
-        <ion-icon slot="end" name="chevron-forward" (click)="pickupCover()"></ion-icon>
+      </ion-item>
+      <ion-item button (click)="selectCompany()">
+        <ion-label>Stay</ion-label>
+        <ng-container *ngIf="cover.stay|db:'companies'|async as company;else nocompany">
+          <ion-chip>
+            <ion-avatar>
+              <img [src]="company.image|url">
+            </ion-avatar>
+            <ion-label>{{company.name}}</ion-label>
+          </ion-chip>
+        </ng-container>
+        <ng-template #nocompany>select company</ng-template>
       </ion-item>
       <ion-item>
         <ion-label>Note</ion-label>
-         <ion-textarea [(ngModel)]="cover.note"></ion-textarea>
+         <ion-textarea [(ngModel)]="cover.comment"></ion-textarea>
       </ion-item>
 
       <ion-accordion-group>
