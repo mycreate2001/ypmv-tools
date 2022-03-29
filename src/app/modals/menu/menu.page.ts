@@ -19,8 +19,8 @@ export class MenuPage implements OnInit {
   async close(pos){
     const menu=this.menus[pos];
     if(menu && menu.handler){
-      if(menu.value==undefined) await menu.handler(pos);
-      else menu.handler(menu.value)
+      if(menu.value==undefined) 
+      await menu.handler(pos);
     }
     this.popover.dismiss(pos,menu.role);
   }
