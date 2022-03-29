@@ -73,32 +73,14 @@
           <ion-item slot="header">
             <ion-label>Status</ion-label>
             <ion-text>
-              {{(tool.status.visual&&tool.status.operation&&tool.status.function&&tool.status.compQty)?"NG":"OK"}}
+              {{calcStatus()?"OK":"NG"}}
             </ion-text>
           </ion-item>
           <ion-list slot="content">
-            <ion-item>
-              <ion-label>Visual</ion-label>
-              <ion-select [(ngModel)]="tool.status.visual">
-                <ion-select-option [value]="pos" *ngFor="let stt of visualStatus;let pos=index">{{stt}}</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item>
-              <ion-label>operation</ion-label>
-              <ion-select [(ngModel)]="tool.status.operation">
-                <ion-select-option [value]="pos" *ngFor="let stt of operationStatus;let pos=index">{{stt}}</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item>
-              <ion-label>function</ion-label>
-              <ion-select [(ngModel)]="tool.status.function">
-                <ion-select-option [value]="pos" *ngFor="let stt of functionStatus;let pos=index">{{stt}}</ion-select-option>
-              </ion-select>
-            </ion-item>
-            <ion-item>
-              <ion-label>compQty</ion-label>
-              <ion-select [(ngModel)]="tool.status.compQty">
-                <ion-select-option [value]="pos" *ngFor="let stt of compQtyStatus;let pos=index">{{stt}}</ion-select-option>
+            <ion-item *ngFor="let key of statusList">
+              <ion-label>{{key|titlecase}}</ion-label>
+              <ion-select [(ngModel)]="tool.status[key]">
+                <ion-select-option [value]="pos" *ngFor="let stt of status[key];let pos=index">{{stt|titlecase}}</ion-select-option>
               </ion-select>
             </ion-item>
           </ion-list>

@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
-import QrCreator from 'qr-creator';
 import { ButtonData } from 'src/app/models/util.model';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { UtilService } from 'src/app/services/util/util.service';
+import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
 
 
 @Component({
@@ -27,6 +27,8 @@ export class ToolPage implements OnInit {
   operationStatus=['OK',"Not check",'cannot operation'];
   functionStatus=['OK',"Not check","tolerance's out of specs"];
   compQtyStatus=["OK","Not check","NG"]
+  status:object={};
+  statusList:string[]=[];
  
   /** function */
   constructor(
@@ -46,8 +48,15 @@ export class ToolPage implements OnInit {
     })
     .then(model=>{
       this.model=model;
+      const id:ConfigId='toolstatus'
+      return this.db.get(_DB_CONFIGS,id)
+    })
+    .then(config=>{
+      const {id,...status}=config;
+      this.status=status;
+      this.statusList=Object.keys(status)
       this.isAvailable=true;
-      console.log("\ninitial",{model,all:this});
+      console.log("\ninitial",this);
     })
     .catch(err=>console.log("\n### ERROR[2]: get data is error",err))
   }
@@ -88,6 +97,12 @@ export class ToolPage implements OnInit {
   /** print code */
   print(){
     this.util.generaQRcode(this.tool.id,{type:'tool',size:38});
+  }
+  //////////////// background /////////////////
+
+  /** calculate status of tool */
+  calcStatus(){
+    return Object.keys(this.tool.status).every(key=>this.tool.status[key]==0);
   }
 
 }

@@ -8,7 +8,6 @@ import { IonicModule } from '@ionic/angular';
 
 import { ToolStatusPage } from './tool-status.page';
 import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
-import { StatusPipe } from 'src/app/pipes/status/status.pipe';
 
 @NgModule({
   imports: [
@@ -18,6 +17,6 @@ import { StatusPipe } from 'src/app/pipes/status/status.pipe';
     UrlPipeModule
     // ToolStatusPageRoutingModule
   ],
-  declarations: [ToolStatusPage,StatusPipe]
+  declarations: [ToolStatusPage]
 })
 export class ToolStatusPageModule {}
