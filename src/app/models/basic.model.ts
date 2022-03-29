@@ -16,7 +16,7 @@ export interface BasicData{
     name:string;                    // name of information ex: repair station key
     group:string;                   // category, group of tool/cover
     type:BasicDataType;             // information type
-    images:UrlData[]|string[]     // image
+    images:UrlData[]     // image
 }
 
 /**
@@ -32,7 +32,7 @@ export interface BasicDataOpts{
     name?:string;                    // name of information ex: repair station key
     group?:string;                   // category, group of tool/cover
     type?:BasicDataType;             // information type
-    images?:UrlData[]|string[]     // image
+    images?:UrlData[]     // image
 }
 
 export function createBasicData(opts?:BasicDataOpts){

@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { BasicData, ChildData } from 'src/app/models/basic.model';
 import { CoverData, _DB_COVERS} from '../../models/cover.model';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
-import { ButtonData } from 'src/app/models/util.model';
+import { ButtonData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { getList } from 'src/app/utils/minitools';
@@ -23,9 +23,9 @@ export class CoverPage implements OnInit {
 
   /** internal variable */
   children:BasicData[]=[];
-  addImages:string[]=[];
+  addImages:UrlData[]=[];
   delImages:string[]=[];
-  viewImages:string[]=[];
+  viewImages:UrlData[]=[];
   isAvailble:boolean=false;
   buttons:ButtonData[]=[{role:'save',icon:'save'},{role:'delete',icon:'trash'}]
   constructor(
@@ -106,9 +106,9 @@ export class CoverPage implements OnInit {
       switch(result.role.toUpperCase()){
         case 'OK':
         case 'SAVE':{
-          this.addImages=data.addImages as string[]
+          this.addImages=data.addImages
           this.delImages=data.delImages
-          this.cover.images=data.images as string[]
+          this.cover.images=data.images
           this.viewImages=this.cover.images.concat(this.addImages)
         }
         break;
@@ -178,6 +178,6 @@ export interface CoverPageOpts{
  */
 export interface CoverPageOuts{
   cover:CoverData;
-  addImages:string[];
+  addImages:UrlData[];
   delImages:string[];
 }

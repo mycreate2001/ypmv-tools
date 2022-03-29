@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import {  ChildData } from 'src/app/models/basic.model';
+import {  BasicData, ChildData } from 'src/app/models/basic.model';
 import { BookingInfor, createBookingInfor, _DB_INFORS } from 'src/app/models/bookingInfor.model';
 import { CodeFormatConfig } from 'src/app/models/codeformat';
 import {  _DB_COMPANY } from 'src/app/models/company.model';
 import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
-import { _DB_TOOLS } from 'src/app/models/tools.model';
+import { createToolStatus, ToolStatusOpts, _DB_TOOLS } from 'src/app/models/tools.model';
 import {  _DB_USERS } from 'src/app/models/user.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
@@ -14,6 +14,7 @@ import { UtilService } from 'src/app/services/util/util.service';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
+import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
 
 
 
@@ -56,6 +57,22 @@ export class BookingPage implements OnInit {
 
   
   //////////////// Hander buttons /////////////////
+  /** check tool status */
+  toolStatus(tool:BasicData){
+    const image:string=tool.images?(typeof tool.images[0]=='string'?tool.images[0]:tool.images[0].url):""
+    const props:ToolStatusPageOpts={
+      tool:{...tool,images:[],image,status:createToolStatus()}
+    }
+    this.disp.showModal(ToolStatusPage,props)
+    .then(result=>{
+      const data=result.data as ToolStatusPageOuts
+      const role=result.role as ToolStatusPageRole;
+      console.log("data",{result})
+      if(role=='save' && data.isChange){
+        console.log("OK",{data})
+      }
+    })
+  }
 
   /** QR code */
   printCode(){

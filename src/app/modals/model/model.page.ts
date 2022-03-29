@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { createModelData, createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
-import { ButtonData } from 'src/app/models/util.model';
+import { ButtonData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
@@ -32,8 +32,8 @@ export class ModelPage implements OnInit {
   buttons:ButtonData[]=btnDefault()
   
   /** use internal only, it's for view */
-  viewImages:string[]=[];       //iamges wil add more to db
-  addImages:string[]=[];
+  viewImages:UrlData[]=[];       //iamges wil add more to db
+  addImages:UrlData[]=[];
   delImages:string[]=[];    //image will delete
   user:UserData;
 
@@ -96,21 +96,19 @@ export class ModelPage implements OnInit {
   //////// buttons //////////////
   detailImage(){
     if(typeof this.model=='string') return;
-    this.model.images as string[]
     const props:ImageViewPageOpts={
       images:this.model.images,
       delImages:this.delImages,
-      addImages:this.addImages,
-
+      addImages:this.addImages
     }
     this.disp.showModal(ImageViewPage,props)
     .then(result=>{
       if(result.role.toUpperCase()!='OK') return;
       const data=result.data as ImageViewPageOuts;
       if(typeof this.model=='string') return console.log("\n### ERROR: Model data");
-      this.addImages=data.addImages as string[];
+      this.addImages=data.addImages;
       this.delImages=data.delImages;
-      this.model.images=data.images as string[];
+      this.model.images=data.images;
       this._update();
     })
   }
@@ -169,7 +167,7 @@ export interface ModelPageOpts{
  * @param model Model information already update/revise 
  */
 export interface ModelPageOuts{
-  addImages:string[];
+  addImages:UrlData[];
   delImages:string[];
   model:ModelData;
 }

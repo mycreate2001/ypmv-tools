@@ -10,6 +10,7 @@ import { ModelPage, ModelPageOpts, ModelPageOuts, } from '../../modals/model/mod
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { CoverPage, CoverPageOpts, CoverPageOuts } from 'src/app/modals/cover/cover.page';
+import { UrlData } from 'src/app/models/util.model';
 
 
 @Component({
@@ -160,7 +161,7 @@ export class ToolsPage implements OnInit {
   //////////// backgroup ////////////////
   
   /** handler save/revise data */
-  handlerSave(data,tbl:string,addImages:string[]=[],path:string='',delImages:string[]=[]){
+  handlerSave(data,tbl:string,addImages:UrlData[]=[],path:string='',delImages:string[]=[]){
     delImages.forEach(image=>this.storage.delete(image))
     this.storage.uploadImages(addImages,path)
     .then((urls:string[])=>{

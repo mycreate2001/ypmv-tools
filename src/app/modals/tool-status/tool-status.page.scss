@@ -1,0 +1,34 @@
+ion-item{
+    ion-label{
+        font-weight: bold;
+    }
+}
+
+img{
+    width: 100%;
+    object-fit: cover;
+}
+
+img.image-43{
+    aspect-ratio: 4/3;
+}
+
+img.image-square{
+    aspect-ratio: 1;
+}
+
+ion-row.last{
+    position: relative;
+}
+
+.more-image-text{
+    position: absolute;
+    background: rgba(0,0,0,0.5);
+    font-size: 2rem;
+    color: white;
+    right: 0 !important;
+    bottom: 0 !important;
+    min-width: 40px;
+    height: 30px;
+}
+

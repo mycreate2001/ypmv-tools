@@ -124,10 +124,12 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
 
 export interface CheckData extends BasicData{
     status:ToolStatus
+    image:string;//avatar
 }
 
 export interface CheckDataOpts extends BasicDataOpts{
-    status?:ToolStatusOpts
+    status?:ToolStatusOpts;
+    image?:string;
 }
 
 export function createCheckData(opts:ToolStatusOpts):CheckData{
@@ -135,6 +137,7 @@ export function createCheckData(opts:ToolStatusOpts):CheckData{
 
     const df:CheckData={
         ...createBasicData(),
+        image:'',
         status:createToolStatus()
     }
     return createOpts(df,opts)

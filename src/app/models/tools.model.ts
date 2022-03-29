@@ -1,5 +1,6 @@
 import { createOpts } from "../utils/minitools";
 import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
+import { UrlData } from "./util.model";
 
 /**
  * Model management database
@@ -10,7 +11,7 @@ export interface ModelData extends SaveInfo{
     id:string;                  // model ID
     name:string;                // name of tool
     group:string;               // Category
-    images:string[];            // images
+    images:UrlData[];            // images
     compQty:number;             // quantity of component
     maintenance:number;         // day of maintenance
     note:string;
@@ -20,7 +21,7 @@ export interface ModelDataOpts extends SaveInfoOpts{
     id?:string;                  // model ID
     name?:string;                // name of tool
     group?:string;               // Category
-    images?:string[];            // images
+    images?:UrlData[];            // images
     compQty?:number;
     maintenance?:number;         // day of maintenance
     note?:string;
@@ -91,14 +92,14 @@ export interface ToolStatus{
     visual:number;
     operation:number;
     function:number;
-    compQty:number;
+    quantity:number;
 }
 
 export interface ToolStatusOpts{
     visual?:number;
     operation?:number;
     function?:number;
-    compQty?:number;
+    quantity?:number;
 }
 
 /** create new ToolStatus */
@@ -107,7 +108,7 @@ export function createToolStatus(opts?:ToolStatusOpts){
         visual:1,      // not yet check
         operation:1,   // not yet check
         function:1,    // not yet check
-        compQty:1      // not yet check
+        quantity:1      // not yet check
     }
     return createOpts(df,opts)
 }

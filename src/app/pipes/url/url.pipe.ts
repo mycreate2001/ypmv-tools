@@ -6,12 +6,23 @@ const _NO_IMAGE="../../../assets/image/no-image.png"
 export class UrlPipe implements PipeTransform {
 
   transform(image:any|any[],pos:number=0): string {
-    // console.log("image:",image)
-    if(!image || !image.length) return _NO_IMAGE
+    const debug=false;
+    if(debug) console.log("image:",{image,pos})
+    if(!image || [].concat(image).length==0) {
+      if(debug) console.log("#K1:NoImage")
+      return _NO_IMAGE
+    }
     const _images=[].concat(image);
     const _image=_images[pos]
-    if(!image) return _NO_IMAGE;
-    if(typeof _image=='string') return _image;
+    if(!image){
+      if(debug) console.log("#K2:NoImage")
+      return _NO_IMAGE;
+    }
+    if(typeof _image=='string') {
+      if(debug) console.log("#K3:string")
+      return _image;
+    }
+    if(debug) console.log("#K4:UrlData")
     return _image.url||_NO_IMAGE
     
   }

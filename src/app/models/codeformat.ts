@@ -162,6 +162,4 @@ export const CodeFormatConfig={
 
 export const CodeFormatList=Object.keys(CodeFormatConfig)
 export type CodeFormatType=keyof typeof CodeFormatConfig
-
-export const _DB_CONFIGS="configs"
 export const _DB_FORMATS="formats"

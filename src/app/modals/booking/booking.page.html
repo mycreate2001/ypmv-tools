@@ -200,27 +200,16 @@
     </ion-card>
   
     <ion-card class="infor">
-      <ion-card-header>
-        Tools/Jig
-          <ion-buttons slot="end">
-            <ion-button (click)="pickupTool()" *ngIf="!selected.length" title="add more tool">
-              <ion-icon name="add-circle" color="primary"></ion-icon>
-            </ion-button>
-            <ion-button (click)="removeTool()" *ngIf="selected.length" title="remove selected tools">
-              <ion-icon slot="icon-only" color="danger" name="trash"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-      </ion-card-header>
+      <ion-card-header> Tools/Jig </ion-card-header>
       <ion-list>
-        <ion-item *ngFor="let tool of infor.scheduleTools;let pos=index">
+        <ion-item *ngFor="let tool of infor.scheduleTools;let pos=index" (click)="toolStatus(tool)">
           <ion-thumbnail slot="start">
-            <img  [src]="tool.images.length?(tool.images[0]|url):'../../../assets/image/no-image.png'">
+            <img  [src]="tool.images|url">
           </ion-thumbnail>
           <ion-label>
             {{tool.id}}
             <p>{{tool.name}}</p>
           </ion-label>
-          <ion-checkbox *ngIf="isEdit" slot="end" (ionChange)="checkbox(tool,$event)"></ion-checkbox>
         </ion-item>
       </ion-list>
     </ion-card>

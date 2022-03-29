@@ -15,7 +15,7 @@ export interface ImageViewPageOpts{
   /** main image from sourse */
   images?:(string|UrlData)[]     
   /** added Images, default=[] */
-  addImages?:(string|UrlData)[]  
+  addImages?:UrlData[]  
   /** deleted url, it not save to db */
   delImages?:string[]           
   /** default=false, can add capture to image */
@@ -32,9 +32,9 @@ export type ImageViewPageRole="ok"|"cancel"
  */
 export interface ImageViewPageOuts{
   /** images from sourse */
-  images:(string|UrlData)[];
+  images:UrlData[];
   /** added images */
-  addImages:(string|UrlData)[];
+  addImages:UrlData[];
   /** url of delete image */
   delImages:string[];
 }
@@ -59,23 +59,15 @@ export class ImageViewPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    if(!this.images.length) this.add();
-    this.images=this.images.map(image=>{
-      if(typeof image=='string') return {url:image,caption:''}
-      return image;
-    })
-    this.addImages=this.addImages.map(image=>{
-      if(typeof image=='string') return {url:image,caption:''}
-      return image
-    })
+    if((this.images.length+this.addImages.length)==0) this.add();
   }
 
 
   /** exit page */
   done(role:ImageViewPageRole="ok"){
     const out:ImageViewPageOuts={
-      addImages:this.canCaption?this.addImages:this.addImages.map(x=>x.url),
-      images:this.canCaption?this.images:this.images.map(x=>x.url),
+      addImages:this.addImages,
+      images:this.images,
       delImages:this.delImages
     }
   

@@ -92,7 +92,11 @@ const routes: Routes = [
     path: 'histories',
     canActivate:[LoginGuard],
     loadChildren: () => import('./pages/histories/histories.module').then( m => m.HistoriesPageModule)
+  },  {
+    path: 'tool-status',
+    loadChildren: () => import('./modals/tool-status/tool-status.module').then( m => m.ToolStatusPageModule)
   },
+
 
 
 ];

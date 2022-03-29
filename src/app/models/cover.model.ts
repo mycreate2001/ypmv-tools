@@ -1,6 +1,7 @@
 import { createOpts } from "../utils/minitools";
 import { ChildData } from "./basic.model";
 import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
+import { UrlData } from "./util.model";
 
 
 export interface CoverData extends SaveInfo{
@@ -8,7 +9,7 @@ export interface CoverData extends SaveInfo{
     name:string;                // name
     group:string;               // group
     childrenId:ChildData[];       // tools/covers Id
-    images:string[];           // images of cover
+    images:UrlData[];           // images of cover
     upperId:string;            // parents ID
     stay:string;                // where keep it when stay alone
     note:string;
@@ -21,7 +22,7 @@ export interface CoverDataOpts extends SaveInfoOpts{
     name?:string;                // name
     group?:string;               // group
     childrenId?:ChildData[];       // tools/covers Id
-    images?:string[];           // images of cover
+    images?:UrlData[];           // images of cover
     upperId?:string;            // parents ID
     stay?:string;                // where keep it when stay alone
     note?:string;
