@@ -1,6 +1,6 @@
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let menu of menus;let pos =index" (click)="close(pos)">
+    <ion-item *ngFor="let menu of menus;let pos =index" (click)="close(pos)" [button]="menu.type=='input'?false:true">
       <ng-container *ngIf="menu.image || menu.icon">
         <ion-thumbnail slot="start" *ngIf="menu.image">
           <img class="avatar" [src]="menu.image">
@@ -11,7 +11,7 @@
         <h3>{{menu.name}}</h3>
         <p *ngIf="menu.note">{{menu.note}}</p>
       </ion-label>
-      <ion-icon *ngIf="menu.handler" slot ="end" name="chevron-forward"></ion-icon>
+      <ion-input *ngIf="menu.value!=undefined" [(ngModel)]="menu.value"></ion-input>
     </ion-item>
   </ion-list>
 

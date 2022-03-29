@@ -20,6 +20,7 @@ export interface MenuData{
     image?:string;           // url of iamge
     role?:string;            //key
     note?:string;
+    value?:string;          //for inputing data
 }
 
 export interface ButtonData{

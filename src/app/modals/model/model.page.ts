@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AlertInput, ModalController } from '@ionic/angular';
+import { ConfigId, configs, _DB_CONFIGS } from 'src/app/models/config';
 import { createModelData, createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
-import { ButtonData, UrlData } from 'src/app/models/util.model';
+import { ButtonData, MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
@@ -58,7 +59,13 @@ export class ModelPage implements OnInit {
     })
     .then((tools:ToolData[])=>{
       this.tools=tools;
-      this._update();
+      const id:ConfigId='groups'
+      return this.db.get(_DB_CONFIGS,id)
+      .then(result=>{
+        this.groups=result.list ||[];//
+        this._update();
+      })
+      
     })
 
   }
@@ -93,7 +100,31 @@ export class ModelPage implements OnInit {
     this.modal.dismiss(out,role)
   }
 
-  //////// buttons //////////////
+  ///////////////////// BUTTONS HANDLER ////////////////////////////
+  /** add select group */
+  selectGroup(){
+    if(!this.model.group){
+      this.disp.msgbox("input new group name",
+        {
+          inputs:[{type:'text'}],
+          buttons:[
+            {role:'OK',text:'OK'}
+          ]
+        }
+      ).then(result=>{
+        console.log(result);
+        if(result.role.toUpperCase()!="OK") return;
+        const newGroup=result.data.values[0];
+        this.model.group=newGroup
+        this.groups.push(newGroup)
+        const id:ConfigId='groups'
+        const data={id,list:this.groups}
+        this.db.add(_DB_CONFIGS,data)
+      })
+    }
+  }
+
+  /** view / edit images */
   detailImage(){
     if(typeof this.model=='string') return;
     const props:ImageViewPageOpts={
@@ -112,6 +143,13 @@ export class ModelPage implements OnInit {
       this._update();
     })
   }
+
+  save(){
+    const list=this._verify();
+    if(list.length) return this.disp.msgbox("Missing information<br>"+list.join("<br>"))
+    this.done()
+  }
+
 
   /** detail tool */
   detail(tool:ToolData=null){
@@ -133,6 +171,8 @@ export class ModelPage implements OnInit {
 
         case 'DELETE':{
           this.db.delete(_DB_TOOLS,xTool.id);
+          const pos=this.tools.findIndex(x=>x.id==xTool.id)
+          if(pos!=-1) this.tools.splice(pos,1);
         }
         break;
 
@@ -141,6 +181,14 @@ export class ModelPage implements OnInit {
       }
     })
     
+  }
+
+
+  //////////////////// BACKGROUND ////////////////////
+  /** verify data before saving */
+  private _verify(){
+    const list=['id','name','group','compQty','maintenance']
+    return list.filter(key=>!this.model[key])
   }
 
 

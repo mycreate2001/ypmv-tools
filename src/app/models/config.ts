@@ -5,7 +5,8 @@ export const modelconfig={
 
 export const configs={
     qrcode:['list'],
-    toolstatus:['visual','operation','function','quantity']
+    toolstatus:['visual','operation','function','quantity'],
+    groups:["list"]
 }
 
 export const configList=Object.keys(configs)

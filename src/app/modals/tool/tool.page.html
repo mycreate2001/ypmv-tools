@@ -64,9 +64,14 @@
         <ion-label>Last Maintenace date</ion-label>
         <ion-text>{{tool.lastMaintenance|date:'yyyy-MMM-dd'}}</ion-text>
       </ion-item>
-      <ion-item>
+      <ion-item *ngIf="tool.stay|db:'companies'|async as company">
         <ion-label>Current stay</ion-label>
-        <ion-text>{{tool.stay}}</ion-text>
+        <ion-chip>
+          <ion-avatar>
+            <img [src]="company.image|url">
+          </ion-avatar>
+          <ion-label>{{company.name}}</ion-label>
+        </ion-chip>
       </ion-item>
       <ion-accordion-group>
         <ion-accordion>
