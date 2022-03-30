@@ -110,8 +110,11 @@ export class FirestoreService {
         const pos=offline.callbacks.findIndex(x=>x.id==id);
         if(pos!=-1) offline.callbacks.splice(pos,1)
         //unsubscribe
-        if(!offline.callbacks.length) offline.ctr();
-        if(debug) console.log("'%s' disconnect with '%s'",id,tbl,{offline,globalOffline:that._offline})
+        if(!offline.callbacks.length){
+           offline.ctr();//disconnect
+           delete that._offline[tbl]
+        }
+        if(debug) console.log("'%s' disconnect with '%s'",id,tbl,{globalOffline:that._offline})
       },
 
       /**

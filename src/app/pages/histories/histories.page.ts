@@ -32,11 +32,15 @@ export class HistoriesPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.historyDb=this.db.connect(_DB_INFORS);
+    this.historyDb=this.db.connect(_DB_INFORS,true);
     this.historyDb.onUpdate((histories:BookingInfor[])=>{
       this.histories=histories;
       this.update();
     })
+  }
+
+  ngOnDestroy(){
+    this.historyDb.disconnect();
   }
 
   /////// BUTTONS HANDLER ////////////
