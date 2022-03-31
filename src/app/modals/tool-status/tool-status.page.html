@@ -21,7 +21,7 @@
     <ion-grid>
       <ion-row>
         <ion-col size="4">
-          <img [src]="tool.image|url" class="image-square">
+          <img [src]="tool.images|url" class="image-square">
         </ion-col>
         <ion-col size="8">
           <ion-item *ngFor="let key of ['id','name','group']">
@@ -43,8 +43,8 @@
     <ion-list>
       <ion-item *ngFor="let key of statusList">
         <ion-label>{{key|titlecase}}</ion-label>
-        <ion-select [(ngModel)]="tool.status[key]" >
-          <ion-select-option [value]="pos" *ngFor="let stt of status[key];let pos=index">{{stt|titlecase}}</ion-select-option>
+        <ion-select [(ngModel)]="status[key]" >
+          <ion-select-option [value]="pos" *ngFor="let stt of statusDb[key];let pos=index">{{stt|titlecase}}</ion-select-option>
         </ion-select>
       </ion-item>
     </ion-list>

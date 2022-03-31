@@ -2,6 +2,7 @@ import { createOpts } from "../utils/minitools";
 import { BasicData, BasicDataOpts, createBasicData } from "./basic.model";
 import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
 import { createToolStatus, ToolStatus, ToolStatusOpts } from "./tools.model";
+import { UrlData } from "./util.model";
 export declare type ApprovedResultType="Not yet"|"Accept"|"Reject"
 export declare type BookingInforStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"
 export interface BookingInfor extends SaveInfo{
@@ -13,7 +14,7 @@ export interface BookingInfor extends SaveInfo{
     id:string;
     scheduleStart:string;           // start date in schedule
     scheduleFinish:string;          // finish data in schedule
-    scheduleTools:BasicData[];         // renting tools in schedule
+    tools:CheckData[];         // renting tools in schedule
     companyId:string;               // renting company
     purpose:string;                 // purpose of renting tool
 
@@ -52,7 +53,7 @@ export interface BookingInforOpts extends SaveInfoOpts{
     id?:string;
     scheduleStart?:string;           // start date in schedule
     scheduleFinish?:string;          // finish data in schedule
-    scheduleTools?:CheckData[];         // renting tools in schedule
+    tools?:CheckData[];         // renting tools in schedule
     companyId?:string;               // renting company
     purpose?:string;                 // purpose of renting tool
 
@@ -90,7 +91,7 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
         ...createSaveInf({createAt:now.toISOString()}),
         scheduleStart:'',           // start date in schedule
         scheduleFinish:'',          // finish data in schedule
-        scheduleTools:[],         // renting tools in schedule
+        tools:[],         // renting tools in schedule
         companyId:'',               // renting company
         purpose:'',                 // purpose of renting tool
 
@@ -122,23 +123,50 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
     return createOpts(df,opts) as BookingInfor
 }
 
-export interface CheckData extends BasicData{
-    status:ToolStatus
-    image:string;//avatar
+export interface CheckData extends BasicData {
+    /** status of tool/jig before renting */
+    beforeStatus:ToolStatus;       
+    /** images of tool/jig before rentig */
+    beforeImages:UrlData[];       
+    /** person who check before renting tool/jig */
+    beforeUserId:string;            
+    /** status of tool/jig after return */
+    afterStatus:ToolStatus;         
+    /** image of tool/jig after return  */
+    afterImages:UrlData[];          
+    /** user who checking after tool come back */
+    afterUserId:string;
+    
 }
 
-export interface CheckDataOpts extends BasicDataOpts{
-    status?:ToolStatusOpts;
-    image?:string;
+
+export interface CheckDataOpts extends BasicDataOpts {
+    /** status of tool/jig before renting */
+    beforeStatus?:ToolStatus;      
+    /** images of tool/jig before rentig */
+    beforeImages?:UrlData[];        
+    /** person who check before renting tool/jig */
+    beforeUserId?:string;        
+    /** status of tool/jig after return */
+    afterStatus?:ToolStatus;       
+    /** image of tool/jig after return  */
+    afterImages?:UrlData[];        
+    /** user who checking after tool come back */
+    afterUserId?:string;
+    
 }
 
-export function createCheckData(opts:ToolStatusOpts):CheckData{
+export function createCheckData(opts:CheckDataOpts){
     const now=new Date();
 
     const df:CheckData={
         ...createBasicData(),
-        image:'',
-        status:createToolStatus()
+        beforeImages:[],
+        beforeStatus:createToolStatus(),
+        beforeUserId:'',
+        afterImages:[],
+        afterStatus:createToolStatus(),
+        afterUserId:''
     }
     return createOpts(df,opts)
 }

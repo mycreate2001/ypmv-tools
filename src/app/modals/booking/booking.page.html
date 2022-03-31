@@ -21,9 +21,13 @@
       <ion-button (click)="done('delete')" title="delete" color="danger" *ngIf="isOwner&&isEdit">
         <ion-icon name="trash" color="danger"></ion-icon>
       </ion-button>
-      <ion-button (click)="book()" title="Book" *ngIf="['new','created'].includes(infor.status)">
+      <ion-button (click)="book()" title="Book" *ngIf="isSave && ['new','created'].includes(infor.status)">
         <ion-icon name="Save"></ion-icon>
       </ion-button>
+      <ion-button (click)="save()" title="Book" *ngIf="isSave&&['renting','approved'].includes(infor.status)">
+        <ion-icon name="Save"></ion-icon>
+      </ion-button>
+
       <ion-button (click)="scan()">
         <ion-icon name="scan"></ion-icon>
       </ion-button>
@@ -127,7 +131,7 @@
         </ion-item>
       </ion-card-header>
       <ion-list>
-        <ion-item *ngFor="let tool of infor.scheduleTools;let pos=index">
+        <ion-item *ngFor="let tool of infor.tools;let pos=index">
           <ion-thumbnail slot="start">
             <img  [src]="tool.images.length?(tool.images[0]|url):'../../../assets/image/no-image.png'">
           </ion-thumbnail>
@@ -202,13 +206,13 @@
     <ion-card class="infor">
       <ion-card-header> Tools/Jig </ion-card-header>
       <ion-list>
-        <ion-item *ngFor="let tool of infor.scheduleTools;let pos=index" (click)="toolStatus(tool)">
+        <ion-item *ngFor="let tool of infor.tools;let pos=index" (click)="toolStatus(tool)">
           <ion-thumbnail slot="start">
             <img  [src]="tool.images|url">
           </ion-thumbnail>
           <ion-label>
             {{tool.id}}
-            <p>{{tool.name}}</p>
+            <p>{{tool.name}}</p> 
           </ion-label>
         </ion-item>
       </ion-list>

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import {  BasicData, ChildData } from 'src/app/models/basic.model';
-import { BookingInfor, createBookingInfor, _DB_INFORS, _STORAGE_INFORS } from 'src/app/models/bookingInfor.model';
+import {  BasicData, ChildData, createBasicData } from 'src/app/models/basic.model';
+import { BookingInfor, CheckData, createBookingInfor, createCheckData, _DB_INFORS, _STORAGE_INFORS } from 'src/app/models/bookingInfor.model';
 import { CodeFormatConfig } from 'src/app/models/codeformat';
 import {  _DB_COMPANY } from 'src/app/models/company.model';
 import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
-import { createToolStatus, ToolStatusOpts, _DB_TOOLS } from 'src/app/models/tools.model';
+import { createToolData, createToolStatus, ToolStatusOpts, _DB_TOOLS } from 'src/app/models/tools.model';
 import {  _DB_USERS } from 'src/app/models/user.model';
 import { UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
@@ -32,11 +32,13 @@ export class BookingPage implements OnInit {
 
   /** internal variable */
   selected:ChildData[]=[];
+  temImages:Object={};
   /** control variable */
   isAvailable:boolean=false;
   isAdmin:boolean=false;
   isOwner:boolean=false;
   isEdit:boolean=false;
+  isSave:boolean=false;
   code:string;
   // isChange:boolean=false;
   constructor(
@@ -61,10 +63,20 @@ export class BookingPage implements OnInit {
   
   //////////////// Hander buttons /////////////////
   /** check tool status */
-  toolStatus(tool:BasicData){
-    const image:string=tool.images?(typeof tool.images[0]=='string'?tool.images[0]:tool.images[0].url):""
+  toolStatus(iTool:CheckData){
+    const tool=createBasicData({...iTool})
+    const _stt=this.infor.status
+    const tmp=this.temImages[iTool.id]
+    const addImages=(!tmp||!tmp.addImages)?[]:tmp.addImages;
+    const delImages=(!tmp || tmp.delImages)?[]:tmp.delImages;
+    const images=_stt=='approved'?iTool.beforeImages:_stt=='renting'?iTool.afterImages:[]
+    const status=_stt=='approved'?iTool.beforeStatus:_stt=='renting'?iTool.afterStatus:createToolStatus()
     const props:ToolStatusPageOpts={
-      tool:{...tool,images:[],image,status:createToolStatus()}
+      tool,
+      addImages,
+      delImages,
+      images,
+      status
     }
     this.disp.showModal(ToolStatusPage,props)
     .then(result=>{
@@ -72,10 +84,10 @@ export class BookingPage implements OnInit {
       const role=result.role as ToolStatusPageRole;
       console.log("data",{result})
       if(role=='save' && data.isChange){
-        const tool=this.infor.checkingTools.find(x=>x.id==data.tool.id);
-        if(!tool){//new one
-          
-        }
+        ///
+        this.temImages[iTool.id]={addImages:data.addImages,delImages:data.delImages}
+        if(this.infor.status=='approved') iTool.beforeStatus=data.status;
+        this.isSave=true;
       }
     })
   }
@@ -111,13 +123,15 @@ export class BookingPage implements OnInit {
 
   /** add more tool */
   pickupTool(){
-    const props:SearchToolPageOpts={exceptionList:this.infor.scheduleTools}
+    const props:SearchToolPageOpts={exceptionList:this.infor.tools.map(x=>{return{id:x.id,type:x.type}})}
     this.disp.showModal(SearchToolPage,props)
     .then(result=>{
       const role=result.role as SearchToolPageRole;
       const data=result.data as SearchToolPageOuts
       if(role=='ok'){
-        this.infor.scheduleTools=[...this.infor.scheduleTools,...data.search]
+        const tools=data.search.map(tool=>createCheckData({...tool}))
+        this.infor.tools=[...this.infor.tools,...tools]
+        console.log("TEST after picking up tool,",{tools,inforTools:this.infor.tools})
         return;
       }
     })
@@ -141,6 +155,7 @@ export class BookingPage implements OnInit {
   /** book */
   async book(){
     if(!this._verify()) return;
+    console.log("check[0]: verify is ok")
     this._checkConflict()
     .then(async conflicts=>{
       console.log("\ncheck[4]: conflict tools\n",conflicts)
@@ -149,6 +164,40 @@ export class BookingPage implements OnInit {
       this.done('save');
     })
     // this.done('save');//test
+  }
+
+
+  save(){
+    const stt=this.infor.status
+    const all=this.infor.tools.map(tool=>{
+      this.uploadEachImage(tool.id).then(images=>{
+        if(stt=='approved') tool.beforeImages=tool.beforeImages.concat(images)
+        else if (stt=='renting') tool.afterImages=tool.afterImages.concat(images)
+        return;
+      })
+    })
+    Promise.all(all).then(()=>{
+      console.log('[save] test-001:infor',this.infor);
+      return this.done('save')
+    })
+    .catch(err=>this.disp.msgbox("Save data error<br>"+err.message))
+  }
+
+  uploadEachImage(id:string):Promise<UrlData[]>{
+    return new Promise((resolve,reject)=>{
+      const data:any=this.temImages[id];
+      if(!data) return resolve([]);
+      const delImages:string[]=data.delImages||[];
+      const addImages:UrlData[]=data.addImages||[];
+      //delete
+      delImages.forEach(image=>this.storage.delete(image))
+      this.storage.uploadImages(addImages,_STORAGE_INFORS)
+      .then(urls=>{
+        const a=urls.map(url=>typeof url=='string'?{url:url,caption:''}:url)
+        return resolve(a);
+      })
+      .catch(err=>reject(err))
+    })
   }
 
   /** approved */
@@ -190,9 +239,9 @@ export class BookingPage implements OnInit {
    */
   removeTool(){
     this.selected.forEach(select=>{
-      const i=this.infor.scheduleTools.findIndex(s=>s.id==select.id&&s.type==select.type)
+      const i=this.infor.tools.findIndex(s=>s.id==select.id&&s.type==select.type)
       if(i==-1) return console.log("\n### ERROR: not exist %s '%s'",select.type,select.id)
-      this.infor.scheduleTools.splice(i,1)
+      this.infor.tools.splice(i,1)
     })
     this.selected=[];
   }
@@ -201,25 +250,17 @@ export class BookingPage implements OnInit {
 
   /** verify input true=OK */
   private _verify():boolean{
-    if(!this.infor.companyId) {
-      this.disp.msgbox("pls select company");
-      return false;
-    }
-    if(!this.infor.purpose){
-      this.disp.msgbox("pls input purpose");
-      return false;
-    }
-    if(!this.infor.scheduleStart){
-      this.disp.msgbox("pls select schedule start");
-      return false;
-    }
-    if(!this.infor.scheduleFinish){
-      this.disp.msgbox("pls select schedule finish");
-      return false;
-    }
-    if(!this.infor.scheduleTools.length){
-      this.disp.msgbox("missing pickup tools/jigs");
-      return false;
+    let list=[
+      {key:"companyId",name:'Company'},
+      {key:"purpose",name:'Purpose'},
+      {key:"scheduleStart",name:'Schedule Start'},
+      {key:"scheduleFinish",name:'Schedule Finish'},
+      {key:'tools',name:'Tools'}
+    ]
+    list=list.filter(item=>Array.isArray(this.infor[item.key])?!this.infor[item.key].length:!this.infor[item.key])
+    if(list.length) {
+      this.disp.msgbox("missing input<br>"+list.map(x=>x.name).join(","));
+      return false
     }
     return true;
   }
@@ -240,10 +281,8 @@ export class BookingPage implements OnInit {
           const _finish = new Date(this.infor.scheduleFinish);
           //filter -- 
           return infors.filter(infor => {
-            // console.log("check to ", infor);
             if (!infor) { console.log("\n###ERROR[1]: data is empty"); return false; }
-            //remove current infor
-            if(infor.id==this.infor.id) return false;
+            if(infor.id==this.infor.id) return false;//current booking
             let startDate: Date;
             let finishDate: Date;
             if (infor.status == 'created' || infor.status == 'approved') {
@@ -263,15 +302,15 @@ export class BookingPage implements OnInit {
         //check tool
         .then(async infors=>{
           console.log("\ncheck[3]: infors after filting date\n",{infors})
-          if(!infors.length) return []
+          if(!infors.length) return []  //completed
           const allCovers=await this.db.search(_DB_COVERS,[]);
           //calculete current tool
-          let _children:ChildData[]=this.infor.scheduleTools.map(x=>{return{id:x.id,type:x.type}})
+          let _children:ChildData[]=this.infor.tools.map(x=>{return{id:x.id,type:x.type}})
           const _covers:CoverData[]=getCovers(_children,allCovers,[])
           _children=getChildren(_covers,_children)
           let _duplicateChildren:ConflictToolData[]=[];
           infors.forEach(infor=>{
-            let children:ChildData[]=(infor.status=='created'||infor.status=='approved')?infor.scheduleTools:infor.checkingTools
+            let children:ChildData[]=infor.tools;
             const covers:CoverData[]=getCovers(children,allCovers,[])
             children=getChildren(covers,children)
             const list=checkIncludeObj(_children,children,['id','type'],"All keys")
@@ -308,7 +347,7 @@ export class BookingPage implements OnInit {
          //check some condition
     if(this.auth.currentUser.id==this.infor.userId) this.isOwner=true;
     if(this.auth.currentUser.role=='admin') this.isAdmin=true;
-    if(this.infor.status=='new'||this.infor.status=='created') this.isEdit=true;
+    if(this.infor.status=='new'||this.infor.status=='created') {this.isEdit=true;this.isSave=true}
     this.isAvailable=true;
   }
 
@@ -347,7 +386,7 @@ function checkIncludeObj<T>(arrs1:T[],arrs2:T[],keys:string[]=['id'],type:'All k
   return []
 }
 
-function getChildren(covers:CoverData[],children:ChildData[]):ChildData[]{
+function  getChildren(covers:CoverData[],children:ChildData[]):ChildData[]{
   children=covers.reduce((acc,curr)=>[...acc,...curr.childrenId],children)
   //add more cover
   children=[...children,...covers.map(x=>{const child:ChildData={id:x.id,type:'cover'}; return child})]

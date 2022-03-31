@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { BasicData } from 'src/app/models/basic.model';
 import { CheckData } from 'src/app/models/bookingInfor.model';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
+import { createToolData, createToolStatus, ToolData, ToolStatus } from 'src/app/models/tools.model';
 import { UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -14,14 +16,16 @@ import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts, ImageViewPageRole 
 })
 export class ToolStatusPage implements OnInit {
   /** input */
-  tool:CheckData;
+  tool:BasicData;
+  images:UrlData[]=[];
+  addImages:UrlData[]=[];
+  delImages:string[]=[];
 
   /** internal */
   backup:string;
-  status:object={}
+  status:ToolStatus=createToolStatus();
+  statusDb:object={}
   statusList:string[]=[];
-  addImages:UrlData[]=[];
-  delImages:string[]=[];
   viewImages:UrlData[]=[];
 
   /** control */
@@ -33,13 +37,14 @@ export class ToolStatusPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.backup=JSON.stringify(this.tool);
+    this.backup=JSON.stringify(this.status)+JSON.stringify(this.addImages)+JSON.stringify(this.images);
     const id:ConfigId='toolstatus'
     this.db.get(_DB_CONFIGS,id)
     .then(result=>{
       const {id,...status}=result
-      this.status=status;
+      this.statusDb=status;
       this.statusList=Object.keys(status);
+      
       this._refresh();
       this.isAvailable=true;
       console.log("init",this);
@@ -50,7 +55,7 @@ export class ToolStatusPage implements OnInit {
   /** show/edit images */
   showImage(){
     const props:ImageViewPageOpts={
-      images:this.tool.images,
+      images:this.images,
       addImages:this.addImages,
       delImages:this.delImages,
       canCaption:true
@@ -62,19 +67,22 @@ export class ToolStatusPage implements OnInit {
       const data=result.data as ImageViewPageOuts;
       this.addImages=data.addImages;
       this.delImages=data.delImages;
-      this.tool.images=data.images;
+      this.images=data.images;
       this._refresh();
     })
   }
 
   /** edit page */
   done(role:ToolStatusPageRole='save'){
-    const isChange=this.backup==JSON.stringify(this.tool)?false:true
+    const json=JSON.stringify(this.status)+JSON.stringify(this.addImages)+JSON.stringify(this.images);
+    const isChange=this.backup==json?false:true
     const out:ToolStatusPageOuts={
       tool:this.tool,
+      status:this.status,
       isChange,
       addImages:this.addImages,
-      delImages:this.delImages
+      delImages:this.delImages,
+      images:this.images
     }
     this.modal.dismiss(out,role)
   }
@@ -83,13 +91,13 @@ export class ToolStatusPage implements OnInit {
 
   //////////////// background ///////////
   private _refresh(){
-    this.viewImages=[...this.tool.images,...this.addImages];
+    this.viewImages=[...this.images,...this.addImages];
     console.log("viewImages:",this);
   }
 
   /** calculae status */
   calcStatus():boolean{
-    return Object.keys(this.tool.status).every(key=>this.tool.status[key]==0)
+    return Object.keys(this.status).every(key=>this.status[key]==0)
   }
 
 }
@@ -103,23 +111,37 @@ export type ToolStatusPageRole="cancel"|"save"
 /**
  * input prarameters
  * @param tool CheckData
+ * @param status current status
  * @param addImages images will add to status
  * @param delImages iamges will delete
+ * @param images  current images
  */
 export interface ToolStatusPageOpts{
-  tool:CheckData;
+  tool:BasicData;
+  status?:ToolStatus;
   addImages?:UrlData[];
   delImages?:string[];
+  images?:UrlData[];
 }
 
 /**
- * output for ToolStatusPage
- * @param tool CheckData
- * @param isChange true= already edit data
+  @param tool BasicData;
+  @param status ToolStatus
+  @param addImages UrlData[];
+  @param delImages string[];
+  @param isChange boolean;
  */
 export interface ToolStatusPageOuts{
-  tool:CheckData;
+  /** tool id */
+  tool:BasicData;
+  /** status of tool */
+  status:ToolStatus;
+  /** new images */   
   addImages:UrlData[];
+  /** image will delete */
   delImages:string[];
+  /** already change or not */
   isChange:boolean;
+  /** current images */
+  images:UrlData[];
 }
