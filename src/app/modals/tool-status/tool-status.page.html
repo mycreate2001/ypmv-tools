@@ -17,7 +17,7 @@
 
 <ion-content color="light" mode="ios" *ngIf="tool&&isAvailable">
   <!-- information -->
-  <ion-card>
+  <ion-card >
     <ion-grid>
       <ion-row>
         <ion-col size="4">
@@ -30,7 +30,8 @@
           </ion-item>
           <ion-item>
             <ion-label>Status</ion-label>
-            <ion-text [color]="calcStatus()?'':'danger'">{{calcStatus()?"OK":"NG"}}</ion-text>
+            <!-- <ion-text [color]="calcStatus()?'':'danger'">{{calcStatus()?"OK":"NG"}}</ion-text> -->
+            <ion-text>{{status|status:tool.type}}</ion-text>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -38,10 +39,10 @@
   </ion-card>
 
   <!-- status information -->
-  <ion-card>
+  <ion-card class="infor">
     <ion-card-header>Status information</ion-card-header>
-    <ion-list>
-      <ion-item *ngFor="let key of statusList">
+    <ion-list class="infor">
+      <ion-item *ngFor="let key of statusList[tool.type]">
         <ion-label>{{key|titlecase}}</ion-label>
         <ion-select [(ngModel)]="status[key]" >
           <ion-select-option [value]="pos" *ngFor="let stt of statusDb[key];let pos=index">{{stt|titlecase}}</ion-select-option>

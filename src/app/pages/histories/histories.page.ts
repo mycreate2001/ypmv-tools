@@ -47,23 +47,8 @@ export class HistoriesPage implements OnInit {
 
   /** detail history */
   detail(history:BookingInfor=null){
-    history=history?history:createBookingInfor({userId:this.auth.currentUser.id})
-    const props:BookingPageOpts={infor:history,isEdit:history.status=='created'?true:false};//new case
+    const props:BookingPageOpts={infor:history};//new case
     this.disp.showModal(BookingPage,props)
-    .then(result=>{
-      const role=result.role as BookingPageRoleType
-      const data=result.data as BookingPageOuts
-      if(role=='save'){
-        console.log("result/data:",data);
-        this.db.add(_DB_INFORS,data.infor)
-        return;
-      }
-      if(role=='delete'){
-        //delete all images @@@
-        //delete data
-        this.db.delete(_DB_INFORS,data.infor.id)
-      }
-    })
   }
 
   /** option select */

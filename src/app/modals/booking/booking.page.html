@@ -1,41 +1,58 @@
-<ion-header>
+<ion-header mode="ios">
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button (click)="done('cancel')" title="Cancel">
+      <ion-button (click)="done('back')" title="back">
         <ion-icon name="arrow-back"></ion-icon>
-        <ion-label>Cancel</ion-label>
+        <ion-label>Back</ion-label>
       </ion-button>
     </ion-buttons>
     <ion-title>Booking Infor</ion-title>
-    <ion-buttons slot="end">
-      <!-- admin -->
-      <ng-container *ngIf="isAdmin && infor.status=='created'">
-        <ion-button (click)="approve(true)" title="Approve" color="success" >
-          <ion-icon name="checkmark-circle"></ion-icon>
-        </ion-button>
-        <ion-button (click)="approve(false)" title="Reject" color="danger">
+    <ion-buttons slot="end" *ngIf="isAvailable">
+      <!-- scan -->
+      <ion-button (click)="scan()" *ngIf="scanList.includes(infor.status)">
+        <ion-icon name="scan"></ion-icon>
+      </ion-button>
+      <!-- owner -->
+      <ng-container *ngIf="isOwner">
+        <!-- cancel -->
+        <ion-button (click)="cancel()" title="cancel"  *ngIf="cancelList.includes(infor.status)">
           <ion-icon name="close-circle"></ion-icon>
         </ion-button>
+        <!-- booking button -->
+        <ion-button (click)="book()" title="Book" *ngIf="infor.status=='new'">
+          <ion-label>Book</ion-label>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </ion-button>
+        <!-- save -->
+        <ion-button (click)="book()" title="Save" *ngIf="infor.status=='created'">
+          <ion-icon name="save"></ion-icon>
+        </ion-button>
       </ng-container>
-      <!-- owner -->
-      <ion-button (click)="done('delete')" title="delete" color="danger" *ngIf="isOwner&&isEdit">
-        <ion-icon name="trash" color="danger"></ion-icon>
+      <!-- renting -->
+      <ion-button title="Renting" *ngIf="infor.status=='approved'" (click)="rent()">
+        <ion-label>Rent</ion-label>
+        <ion-icon name="chevron-forward"></ion-icon>
       </ion-button>
-      <ion-button (click)="book()" title="Book" *ngIf="isSave && ['new','created'].includes(infor.status)">
-        <ion-icon name="Save"></ion-icon>
-      </ion-button>
-      <ion-button (click)="save()" title="Book" *ngIf="isSave&&['renting','approved'].includes(infor.status)">
-        <ion-icon name="Save"></ion-icon>
-      </ion-button>
-
-      <ion-button (click)="scan()">
-        <ion-icon name="scan"></ion-icon>
+      <!-- admin -->
+      <ng-container *ngIf="isAdmin">
+        <ion-button title="delete" (click)="delete()" *ngIf="['created','rejected','returned','cancel'].includes(infor.status)">
+          <ion-icon name="trash"></ion-icon>
+        </ion-button>
+        <ion-button title="Approve/Reject" *ngIf="infor.status=='created'" (click)="approve()">
+          <ion-label>Approve</ion-label>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </ion-button>
+      </ng-container>
+      <!-- return tools -->
+      <ion-button title="return" (click)="returning()" *ngIf="returnList.includes(infor.status)">
+        <ion-label>Get back tools</ion-label>
+        <ion-icon name="chevron-forward"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="isAvailable" color="light">
+<ion-content *ngIf="isAvailable" color="light" mode="ios">
   <!-- edit page -->
   <ng-container *ngIf="isEdit">
     <ion-card class="infor">
@@ -135,9 +152,9 @@
           <ion-thumbnail slot="start">
             <img  [src]="tool.images.length?(tool.images[0]|url):'../../../assets/image/no-image.png'">
           </ion-thumbnail>
-          <ion-label>
-            {{tool.id}}
-            <p>{{tool.name}}</p>
+          <ion-label [color]="conflictList.includes(tool.type+tool.id)?'danger':''">
+            {{tool.name}}
+            <p>{{tool.id}}</p>
           </ion-label>
           <ion-checkbox *ngIf="isEdit" slot="end" (ionChange)="checkbox(tool,$event)"></ion-checkbox>
         </ion-item>
@@ -151,56 +168,140 @@
       <ion-card-header>
         General Information
       </ion-card-header>
-      <ion-item>
-        <ion-label>ID</ion-label>
-        <ion-text>{{infor.id}}</ion-text>
-        <ion-buttons slot="end" title="show QR code">
-          <ion-button (click)="printCode()">
-            <ion-icon name="qr-code"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-item>
-    
-      <ion-item>
-        <ion-label>Create Date</ion-label>
-        <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
-      </ion-item>
-  
-      <ion-item>
-        <ion-label>Create by</ion-label>
-        <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
-          <ion-avatar >
-            <img class="avatar" [src]="user.image">
-          </ion-avatar>
-          <ion-label>{{user.name}}</ion-label>
-        </ion-chip>
-      </ion-item>
-    
-      <ion-item button>
-        <ion-label>Company</ion-label>
-        <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
-          <ion-avatar> <img class="avatar" [src]="company.image"> </ion-avatar>
-          <ion-label>{{company.name}}</ion-label>
-        </ion-chip>
-        <ng-template #nocompany>select company</ng-template>
-      </ion-item>
-  
-      <ion-item>
-        <ion-label>Purpose</ion-label>
-        <ion-text>{{infor.purpose}}</ion-text>
-      </ion-item>
+      <ion-list insert="true">
+        <ion-item>
+          <ion-label>ID</ion-label>
+          <ion-text>{{infor.id}}</ion-text>
+          <ion-buttons slot="end" title="show QR code">
+            <ion-button (click)="printCode()">
+              <ion-icon name="qr-code"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
       
-      <!-- schedule start -->
-      <ion-item>
-        <ion-label>Schedule Start</ion-label>
-        <ion-text slot="end">{{infor.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
-      </ion-item>
+        <ion-item>
+          <ion-label>Create Date</ion-label>
+          <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
+        </ion-item>
+    
+        <ion-item>
+          <ion-label>Create by</ion-label>
+          <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
+            <ion-avatar >
+              <img class="avatar" [src]="user.image">
+            </ion-avatar>
+            <ion-label>{{user.name}}</ion-label>
+          </ion-chip>
+        </ion-item>
       
-      <!-- schedule finish -->
-      <ion-item >
-        <ion-label>Schedule Finish</ion-label>
-        <ion-text slot="end">{{infor.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
-      </ion-item>
+        <ion-item >
+          <ion-label>Company</ion-label>
+          <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
+            <ion-avatar> <img class="avatar" [src]="company.image"> </ion-avatar>
+            <ion-label>{{company.name}}</ion-label>
+          </ion-chip>
+          <ng-template #nocompany>select company</ng-template>
+        </ion-item>
+    
+        <ion-item>
+          <ion-label>Purpose</ion-label>
+          <ion-text>{{infor.purpose}}</ion-text>
+        </ion-item>
+        
+        <!-- schedule start -->
+        <ion-item>
+          <ion-label>Schedule Start</ion-label>
+          <ion-text slot="end">{{infor.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
+        </ion-item>
+        
+        <!-- schedule finish -->
+        <ion-item >
+          <ion-label>Schedule Finish</ion-label>
+          <ion-text slot="end">{{infor.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
+        </ion-item>
+      </ion-list>
+    </ion-card>
+
+    <!-- other infor -->
+    <ion-card *ngIf="approveList.includes(infor.status)" class="infor">
+      <ion-card-header>Others Infor</ion-card-header>
+    
+      <ion-accordion-group>
+        <!-- approved infor -->
+        <ion-accordion>
+          <ion-item slot="header">
+            <ion-label>Approved Result</ion-label>
+            <ion-badge>{{infor.approvedResult}}</ion-badge>
+          </ion-item>
+          <ion-list slot="content" lines="none">
+            <ion-item>
+              <ion-label>Approved by</ion-label>
+              <ion-chip *ngIf="infor.approvedBy|db:'users'|async as auth"  color="success">
+                <ion-avatar>
+                  <img [src]="auth.image|url">
+                </ion-avatar>
+                <ion-label>{{auth.name}}</ion-label>
+              </ion-chip>
+            </ion-item>
+            <ion-item>
+              <ion-label>Decided</ion-label>
+              <ion-text>{{infor.approvedResult}}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>Comment</ion-label>
+              <ion-text>{{infor.approvedComment}}</ion-text>
+            </ion-item>
+            <ion-item>
+              <ion-label>Approved Date</ion-label>
+              <ion-text>{{infor.approvedDate|date:'yyyy-MMM-dd'}}</ion-text>
+            </ion-item>
+          </ion-list>
+        </ion-accordion>
+
+        <!-- checking infor -->
+        <ion-accordion >
+          <ion-item slot="header">
+            <ion-label>Before Renting</ion-label>
+            <ion-badge>{{(!infor.checkingDate&&!infor.checkingManId)?'Not yet':'Checked'}}</ion-badge>
+          </ion-item>
+          <ion-list slot="content" lines="none">
+            <ion-item >
+              <ion-label>Checking by</ion-label>
+              <ion-chip *ngIf="infor.checkingManId|db:'users'|async as auth;else noAuth">
+                <ion-avatar><img [src]="auth.image"></ion-avatar>
+                <ion-label>{{auth.name}}</ion-label>
+              </ion-chip>
+              <ng-template #noAuth></ng-template>
+            </ion-item>
+            <ion-item>
+              <ion-label>Checking date</ion-label>
+              <ion-text>{{infor.checkingDate|date:'yyyy-MMM-dd'}}</ion-text>
+            </ion-item>
+          </ion-list>
+        </ion-accordion>
+
+        <!-- getting tool -->
+        <ion-accordion >
+          <ion-item slot="header">
+            <ion-label>After Renting</ion-label>
+            <ion-badge>{{(!infor.returnDate&&!infor.returnManId)?'Not yet':'Checked'}}</ion-badge>
+          </ion-item>
+          <ion-list slot="content" lines="none">
+            <ion-item >
+              <ion-label>Checking by</ion-label>
+              <ion-chip *ngIf="infor.returnManId|db:'users'|async as auth;else noAuth">
+                <ion-avatar><img [src]="auth.image"></ion-avatar>
+                <ion-label>{{auth.name}}</ion-label>
+              </ion-chip>
+              <ng-template #noAuth></ng-template>
+            </ion-item>
+            <ion-item>
+              <ion-label>Checking date</ion-label>
+              <ion-text>{{infor.returnDate|date:'yyyy-MMM-dd'}}</ion-text>
+            </ion-item>
+          </ion-list>
+        </ion-accordion>
+      </ion-accordion-group>
     </ion-card>
   
     <ion-card class="infor">
@@ -211,9 +312,23 @@
             <img  [src]="tool.images|url">
           </ion-thumbnail>
           <ion-label>
-            {{tool.id}}
-            <p>{{tool.name}}</p> 
+            {{tool.name}}
+            <p>{{tool.id}}</p> 
           </ion-label>
+          <!-- before -->
+          <ng-container [ngSwitch]="tool.beforeStatus|status:tool.type" *ngIf="showStatusList.includes(infor.status)">
+            <ion-icon title="Not check" slot="end" *ngSwitchCase="'Not Check'" name="radio-button-on"></ion-icon>
+            <ion-icon slot="end" color="success" *ngSwitchCase="'OK'" name="checkmark-circle"></ion-icon>
+            <ion-icon slot="end" color="danger" *ngSwitchCase="'NG'" name="close-circle"></ion-icon>
+            <ion-icon slot="end" *ngSwitchDefault name="radio-button-off"></ion-icon>
+          </ng-container>
+          <!-- after -->
+          <ng-container [ngSwitch]="tool.afterStatus|status:tool.type" *ngIf="showStatusList.includes(infor.status)">
+            <ion-icon title="Not check" slot="end" *ngSwitchCase="'Not Check'" name="radio-button-on"></ion-icon>
+            <ion-icon slot="end" color="success" *ngSwitchCase="'OK'" name="checkmark-circle"></ion-icon>
+            <ion-icon slot="end" color="danger" *ngSwitchCase="'NG'" name="close-circle"></ion-icon>
+            <ion-icon slot="end" *ngSwitchDefault name="radio-button-off"></ion-icon>
+          </ng-container>
         </ion-item>
       </ion-list>
     </ion-card>

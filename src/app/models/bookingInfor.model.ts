@@ -1,10 +1,10 @@
 import { createOpts } from "../utils/minitools";
-import { BasicData, BasicDataOpts, createBasicData } from "./basic.model";
+import { BasicData, BasicDataOpts, BasicView, BasicViewOpts, createBasicData } from "./basic.model";
 import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
 import { createToolStatus, ToolStatus, ToolStatusOpts } from "./tools.model";
 import { UrlData } from "./util.model";
 export declare type ApprovedResultType="Not yet"|"Accept"|"Reject"
-export declare type BookingInforStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"
+export declare type BookingInforStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"|"cancel"
 export interface BookingInfor extends SaveInfo{
     /** create */
     // userId:string;
@@ -123,7 +123,7 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
     return createOpts(df,opts) as BookingInfor
 }
 
-export interface CheckData extends BasicData {
+export interface CheckData extends BasicView {
     /** status of tool/jig before renting */
     beforeStatus:ToolStatus;       
     /** images of tool/jig before rentig */
@@ -140,7 +140,7 @@ export interface CheckData extends BasicData {
 }
 
 
-export interface CheckDataOpts extends BasicDataOpts {
+export interface CheckDataOpts extends BasicViewOpts {
     /** status of tool/jig before renting */
     beforeStatus?:ToolStatus;      
     /** images of tool/jig before rentig */
@@ -166,7 +166,8 @@ export function createCheckData(opts:CheckDataOpts){
         beforeUserId:'',
         afterImages:[],
         afterStatus:createToolStatus(),
-        afterUserId:''
+        afterUserId:'',
+        childrenId:[]
     }
     return createOpts(df,opts)
 }

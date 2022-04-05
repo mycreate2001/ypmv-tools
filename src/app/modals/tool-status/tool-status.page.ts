@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { BasicData } from 'src/app/models/basic.model';
 import { CheckData } from 'src/app/models/bookingInfor.model';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
-import { createToolData, createToolStatus, ToolData, ToolStatus } from 'src/app/models/tools.model';
+import { createToolData, createToolStatus, statusList, ToolData, ToolStatus } from 'src/app/models/tools.model';
 import { UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -25,7 +25,7 @@ export class ToolStatusPage implements OnInit {
   backup:string;
   status:ToolStatus=createToolStatus();
   statusDb:object={}
-  statusList:string[]=[];
+  statusList=statusList;
   viewImages:UrlData[]=[];
 
   /** control */
@@ -43,8 +43,6 @@ export class ToolStatusPage implements OnInit {
     .then(result=>{
       const {id,...status}=result
       this.statusDb=status;
-      this.statusList=Object.keys(status);
-      
       this._refresh();
       this.isAvailable=true;
       console.log("init",this);

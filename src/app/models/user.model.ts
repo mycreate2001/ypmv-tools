@@ -8,6 +8,7 @@ export interface UserData{
     image:string;
     createAt:string;
     lastLogin:string;
+    companyId:string;
 }
 
 export interface UserDataOpts{
@@ -18,6 +19,7 @@ export interface UserDataOpts{
     image?:string;
     createAt?:string;
     lastLogin?:string;
+    companyId?:string;
 }
 
 export function createUserData(opts?:UserDataOpts):UserData{
@@ -28,6 +30,7 @@ export function createUserData(opts?:UserDataOpts):UserData{
         name:'',
         role:'standard',
         image:'',
+        companyId:'',
         createAt:now.toISOString(),
         lastLogin:now.toISOString()
     }

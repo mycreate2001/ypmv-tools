@@ -8,11 +8,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { StatusPipe } from './pipes/status/status.pipe';
 
 
 @NgModule({
-  declarations: [AppComponent, StatusPipe],
+  declarations: [AppComponent],
   entryComponents: [],
   imports: [
     BrowserModule, 

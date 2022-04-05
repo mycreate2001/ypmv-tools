@@ -13,3 +13,9 @@ img.avatar{
     object-fit: contain;
     aspect-ratio: 1;
 }
+
+ion-accordion.accordion-expanding,
+  ion-accordion.accordion-expanded {
+    width: calc(100% - 32px);
+    margin: 16px auto;
+  }

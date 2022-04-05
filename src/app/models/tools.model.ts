@@ -113,6 +113,12 @@ export function createToolStatus(opts?:ToolStatusOpts){
     return createOpts(df,opts)
 }
 
+/** status list */
+export const statusList={
+    cover:['visual'],
+    tool:Object.keys(createToolStatus())
+}
+
 
 export const _DB_TOOLS="tools"
 export const _STORAGE_TOOLS="tools"
