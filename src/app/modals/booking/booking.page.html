@@ -150,7 +150,7 @@
       <ion-list>
         <ion-item *ngFor="let tool of infor.tools;let pos=index">
           <ion-thumbnail slot="start">
-            <img  [src]="tool.images.length?(tool.images[0]|url):'../../../assets/image/no-image.png'">
+            <img  [src]="tool.images|url">
           </ion-thumbnail>
           <ion-label [color]="conflictList.includes(tool.type+tool.id)?'danger':''">
             {{tool.name}}

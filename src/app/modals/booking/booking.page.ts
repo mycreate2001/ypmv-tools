@@ -369,7 +369,7 @@ export class BookingPage implements OnInit {
 
     //cover
     covers.forEach(cover=>{
-      outs.push(createBasicData({...cover}))
+      outs.push(createBasicData({...cover,type:'cover'}))
     })
     console.log('check[4] finish',{outs}) 
     return outs;
