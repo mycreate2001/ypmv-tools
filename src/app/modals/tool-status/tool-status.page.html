@@ -15,7 +15,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content color="light" mode="ios" *ngIf="tool&&isAvailable">
+<ion-content color="light" mode="ios" *ngIf="isAvailable">
   <!-- information -->
   <ion-card >
     <ion-grid>
@@ -31,27 +31,155 @@
           <ion-item>
             <ion-label>Status</ion-label>
             <!-- <ion-text [color]="calcStatus()?'':'danger'">{{calcStatus()?"OK":"NG"}}</ion-text> -->
-            <ion-text>{{status|status:tool.type}}</ion-text>
+            <!-- <ion-text>{{status|status:tool.type}}</ion-text> -->
           </ion-item>
         </ion-col>
       </ion-row>
     </ion-grid>
   </ion-card>
 
-  <!-- status information -->
+  <!-- before status information -->
   <ion-card class="infor">
-    <ion-card-header>Status information</ion-card-header>
-    <ion-list class="infor">
-      <ion-item *ngFor="let key of statusList[tool.type]">
-        <ion-label>{{key|titlecase}}</ion-label>
-        <ion-select [(ngModel)]="status[key]" >
-          <ion-select-option [value]="pos" *ngFor="let stt of statusDb[key];let pos=index">{{stt|titlecase}}</ion-select-option>
-        </ion-select>
-      </ion-item>
-    </ion-list>
+    <ion-card-header>before Status</ion-card-header>
+    <ion-accordion-group>
+      <!-- status -->
+      <ion-accordion>
+        <!-- status.header -->
+        <ion-item slot="header">
+          <ion-label>Status</ion-label>
+          <ion-badge>{{tool.beforeStatus|status:tool.type}}</ion-badge>
+        </ion-item>
+        <!-- status.content -->
+        <ion-list slot="content" *ngIf="status=='approved'">
+          <ion-item *ngFor="let key of statusList[tool.type]">
+            <ion-label>{{key|titlecase}}</ion-label>
+            <ion-select [(ngModel)]="tool.beforeStatus[key]" >
+              <ion-select-option [value]="pos" *ngFor="let stt of statusDb[key]||[];let pos=index">{{stt}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
+
+      <!-- images -->
+      <ion-accordion>
+        <!-- image.header -->
+        <ion-item slot="header">
+          <ion-label>Images</ion-label>
+          <ion-badge slot="end" *ngIf="status=='approved'">{{addImages.length+tool.beforeImages.length}}</ion-badge>
+          <ion-badge slot="end" *ngIf="status!='approved'">{{tool.beforeImages.length}}</ion-badge>
+        </ion-item>
+        <!-- view & edit images -->
+        <div slot="content" *ngIf="status=='approved'">
+          <ion-item lines="none"  >
+            <ion-buttons slot="end" title="Take image">
+              <ion-button title="add more image" (click)="takeImage()">
+                <ion-icon slot="icon-only" name="camera"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+          <!-- current images -->
+          <div *ngFor="let image of tool.beforeImages;let pos=index" class="image-wrap">
+            <ion-item class="image-caption" lines="none">
+              <ion-input [(ngModel)]="image.caption" placeholder="type your caption here"></ion-input>
+              <ion-icon name="ellipsis-vertical" (click)="showImageOption($event,pos,'beforeImages')"></ion-icon>
+            </ion-item>
+            <img [src]="image|url" class="image-43">
+          </div>
+          <!-- new images -->
+          <div *ngFor="let image of addImages;let pos=index" class="image-wrap">
+            <ion-item class="image-caption" lines="none">
+              <ion-input [(ngModel)]="image.caption" placeholder="type your caption here"></ion-input>
+              <ion-icon name="ellipsis-vertical" (click)="showImageOption($event,pos,'beforeImages','local')"></ion-icon>
+            </ion-item>
+            <img [src]="image|url" class="image-43">
+          </div>
+        </div>
+        
+        <!-- view beforeImages -->
+        <div slot="content" *ngIf="status!='approved'">
+          <ion-card *ngFor="let image of tool.beforeImages">
+            <ion-icon lines="none">
+              <ion-text >{{image.caption}}</ion-text>
+            </ion-icon>
+            <img [src]="image|url" class="image-43">
+          </ion-card>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
   </ion-card>
 
-  <!-- images -->
+  <!-- after status information -->
+  <ion-card class="infor" >
+    <ion-card-header>After Status</ion-card-header>
+    <ion-accordion-group>
+      <!-- status -->
+      <ion-accordion>
+        <!-- status.header -->
+        <ion-item slot="header">
+          <ion-label>Status</ion-label>
+          <ion-badge>{{tool.beforeStatus|status:tool.type}}</ion-badge>
+        </ion-item>
+        <!-- status.content -->
+        <ion-list slot="content" *ngIf="status=='approved'">
+          <ion-item *ngFor="let key of statusList[tool.type]">
+            <ion-label>{{key|titlecase}}</ion-label>
+            <ion-select [(ngModel)]="tool.beforeStatus[key]" >
+              <ion-select-option [value]="pos" *ngFor="let stt of statusDb[key]||[];let pos=index">{{stt}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-list>
+      </ion-accordion>
+
+      <!-- images -->
+      <ion-accordion>
+        <!-- image.header -->
+        <ion-item slot="header">
+          <ion-label>Images</ion-label>
+          <ion-badge slot="end" *ngIf="status=='approved'">{{addImages.length+tool.beforeImages.length}}</ion-badge>
+          <ion-badge slot="end" *ngIf="status!='approved'">{{tool.beforeImages.length}}</ion-badge>
+        </ion-item>
+        <!-- view & edit images -->
+        <div slot="content" *ngIf="status=='approved'">
+          <ion-item lines="none"  >
+            <ion-buttons slot="end" title="Take image">
+              <ion-button title="add more image" (click)="takeImage()">
+                <ion-icon slot="icon-only" name="camera"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-item>
+          <!-- current images -->
+          <div *ngFor="let image of tool.beforeImages;let pos=index" class="image-wrap">
+            <ion-item class="image-caption" lines="none">
+              <ion-input [(ngModel)]="image.caption" placeholder="type your caption here"></ion-input>
+              <ion-icon name="ellipsis-vertical" (click)="showImageOption($event,pos,'beforeImages')"></ion-icon>
+            </ion-item>
+            <img [src]="image|url" class="image-43">
+          </div>
+          <!-- new images -->
+          <div *ngFor="let image of addImages;let pos=index" class="image-wrap">
+            <ion-item class="image-caption" lines="none">
+              <ion-input [(ngModel)]="image.caption" placeholder="type your caption here"></ion-input>
+              <ion-icon name="ellipsis-vertical" (click)="showImageOption($event,pos,'beforeImages','local')"></ion-icon>
+            </ion-item>
+            <img [src]="image|url" class="image-43">
+          </div>
+        </div>
+        
+        <!-- view beforeImages -->
+        <div slot="content" *ngIf="status!='approved'">
+          <ion-card *ngFor="let image of tool.beforeImages">
+            <ion-icon lines="none">
+              <ion-text >{{image.caption}}</ion-text>
+            </ion-icon>
+            <img [src]="image|url" class="image-43">
+          </ion-card>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </ion-card>
+
+
+  <!-- images
   <ion-card (click)="showImage()" class="image">
     <ion-card-header>Images</ion-card-header>
     <ion-grid>
@@ -80,5 +208,5 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </ion-card>
+  </ion-card> -->
 </ion-content>

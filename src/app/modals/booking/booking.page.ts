@@ -71,33 +71,27 @@ export class BookingPage implements OnInit {
   
   //////////////// Hander buttons /////////////////
   /** check tool status */
-  toolStatus(iTool:CheckData){
-    const tool=createBasicData({...iTool})
-    const _stt=this.infor.status
-    const tmp=this.temImages[iTool.id]
-    const addImages=(!tmp||!tmp.addImages)?[]:tmp.addImages;
-    const delImages=(!tmp || tmp.delImages)?[]:tmp.delImages;
-    const beforeList:BookingInforStatusType[]=['approved'];
-    const afterList:BookingInforStatusType[]=['renting','returned']
-    const images=beforeList.includes(_stt)?iTool.beforeImages:afterList.includes(_stt)?iTool.afterImages:[]
-    const status=beforeList.includes(_stt)?iTool.beforeStatus:afterList.includes(_stt)?iTool.afterStatus:createToolStatus()
+  toolStatus(tool:CheckData){
+    const data=this.temImages[tool.id]||{}
+    const addImages:UrlData[]=data.addImages||[]
+    const delImages:string[]=data.delImages||[]
     const props:ToolStatusPageOpts={
       tool,
       addImages,
       delImages,
-      images,
-      status
+      status:this.infor.status
     }
     this.disp.showModal(ToolStatusPage,props)
     .then(result=>{
       const data=result.data as ToolStatusPageOuts
       const role=result.role as ToolStatusPageRole;
       console.log("data",{result})
-      if(role=='save' && data.isChange){
+      if(role=='save'){
         ///
-        this.temImages[iTool.id]={addImages:data.addImages,delImages:data.delImages}
-        if(this.infor.status=='approved') iTool.beforeStatus=data.status;
-        else if(this.infor.status=='renting') iTool.afterStatus=data.status
+        this.temImages[tool.id]={addImages:data.addImages,delImages:data.delImages}
+        const pos=this.infor.tools.findIndex(x=>x.id==tool.id&&x.type==tool.type)
+        if(pos==-1) return console.warn("\n#### ERRROR ####\ndata wrong",{result})
+        this.infor.tools[pos]=data.tool
       }
     })
   }

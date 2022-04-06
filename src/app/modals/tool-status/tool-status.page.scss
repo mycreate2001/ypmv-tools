@@ -36,3 +36,21 @@ ion-card.infor{
     padding: 12px 24px 40px 12px;
 }
 
+ion-accordion.accordion-expanding,
+  ion-accordion.accordion-expanded {
+    width: calc(100% - 32px);
+    margin: 16px auto;
+  }
+
+.image-wrap{
+    position: relative;
+}  
+
+
+ion-item.image-caption{
+    --ion-item-background:transparent;
+    position: absolute;
+    background: rgba(0,0,0,0.3);
+    color: white;
+    width: 100%;
+}

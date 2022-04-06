@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { BasicData } from 'src/app/models/basic.model';
-import { CheckData } from 'src/app/models/bookingInfor.model';
+import { BookingInforStatusType, CheckData } from 'src/app/models/bookingInfor.model';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
 import { createToolData, createToolStatus, statusList, ToolData, ToolStatus } from 'src/app/models/tools.model';
-import { UrlData } from 'src/app/models/util.model';
+import { MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
+import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts, ImageViewPageRole } from '../image-view/image-view.page';
-
+const _BACKUP_LIST=['tool','addimage']
 @Component({
   selector: 'app-tool-status',
   templateUrl: './tool-status.page.html',
@@ -16,17 +17,17 @@ import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts, ImageViewPageRole 
 })
 export class ToolStatusPage implements OnInit {
   /** input */
-  tool:BasicData;
-  images:UrlData[]=[];
+  tool:CheckData;
   addImages:UrlData[]=[];
   delImages:string[]=[];
+  status:BookingInforStatusType='created'
 
   /** internal */
-  backup:string;
-  status:ToolStatus=createToolStatus();
-  statusDb:object={}
+  backup:string[]=[];
+  statusDb:object={}  //get status list from DB
   statusList=statusList;
   viewImages:UrlData[]=[];
+  isChange:boolean=false;
 
   /** control */
   isAvailable:boolean=false;
@@ -37,7 +38,8 @@ export class ToolStatusPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.backup=JSON.stringify(this.status)+JSON.stringify(this.addImages)+JSON.stringify(this.images);
+    //backup
+    this.backup=_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
     const id:ConfigId='toolstatus'
     this.db.get(_DB_CONFIGS,id)
     .then(result=>{
@@ -50,10 +52,39 @@ export class ToolStatusPage implements OnInit {
   }
 
   /////////////// BUTTONS HANDLER /////////////////////
+  showImageOption(event:any,pos:number,process:'beforeImages'|'afterImages', type:'local'|'db'='db'){
+    const menus:MenuData[]=[
+      {
+        name:'Delete',icon:'trash',iconColor:'danger',
+        handler:()=>{
+          if(type=='db'){
+            this.delImages.push(this.tool[process][pos].url)
+            this.tool[process].splice(pos,1)
+          }else{
+            this.addImages.splice(pos,1)
+          }
+        }
+      }
+    ]
+    this.disp.showMenu(event,{menus})
+  }
+
+  /** take image */
+  takeImage(){
+    const props:CameraPageOpts={fix:true,aspectRatio:4/3}
+    this.disp.showModal(CameraPage,props)
+    .then(result=>{
+      const role=result.role as CameraPageRole;
+      if(role!='ok') return;
+      const data=result.data as CameraPageOuts
+      this.addImages.push({caption:'',url:data.image})
+      this._refresh();
+    })
+  }
+
   /** show/edit images */
   showImage(){
     const props:ImageViewPageOpts={
-      images:this.images,
       addImages:this.addImages,
       delImages:this.delImages,
       canCaption:true
@@ -65,22 +96,16 @@ export class ToolStatusPage implements OnInit {
       const data=result.data as ImageViewPageOuts;
       this.addImages=data.addImages;
       this.delImages=data.delImages;
-      this.images=data.images;
       this._refresh();
     })
   }
 
   /** edit page */
   done(role:ToolStatusPageRole='save'){
-    const json=JSON.stringify(this.status)+JSON.stringify(this.addImages)+JSON.stringify(this.images);
-    const isChange=this.backup==json?false:true
     const out:ToolStatusPageOuts={
       tool:this.tool,
-      status:this.status,
-      isChange,
       addImages:this.addImages,
       delImages:this.delImages,
-      images:this.images
     }
     this.modal.dismiss(out,role)
   }
@@ -89,14 +114,14 @@ export class ToolStatusPage implements OnInit {
 
   //////////////// background ///////////
   private _refresh(){
-    this.viewImages=[...this.images,...this.addImages];
-    console.log("viewImages:",this);
+    //check change data
+    this.isChange=_BACKUP_LIST.every((key,pos)=>this.backup[pos]==JSON.stringify(this[key]))?false:true
+    //onsole.log("viewImages:",this);
+    const images=this.status=='approved'?this.tool.beforeImages:
+        this.status=='renting'?this.tool.afterImages:[]
+    this.viewImages=[...images,...this.addImages]
   }
 
-  /** calculae status */
-  calcStatus():boolean{
-    return Object.keys(this.status).every(key=>this.status[key]==0)
-  }
 
 }
 
@@ -115,11 +140,10 @@ export type ToolStatusPageRole="cancel"|"save"
  * @param images  current images
  */
 export interface ToolStatusPageOpts{
-  tool:BasicData;
-  status?:ToolStatus;
+  tool:CheckData;
+  status:BookingInforStatusType;
   addImages?:UrlData[];
   delImages?:string[];
-  images?:UrlData[];
 }
 
 /**
@@ -131,15 +155,9 @@ export interface ToolStatusPageOpts{
  */
 export interface ToolStatusPageOuts{
   /** tool id */
-  tool:BasicData;
-  /** status of tool */
-  status:ToolStatus;
-  /** new images */   
+  tool:CheckData;
+  /** status of tool */ 
   addImages:UrlData[];
   /** image will delete */
   delImages:string[];
-  /** already change or not */
-  isChange:boolean;
-  /** current images */
-  images:UrlData[];
 }
