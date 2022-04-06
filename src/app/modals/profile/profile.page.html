@@ -8,41 +8,50 @@
     </ion-buttons>
     <ion-title>Profile</ion-title>
     <ion-buttons slot="end">
-      <ng-container *ngIf="isEdit">
+      <ng-container *ngIf="isOwner">
         <ion-button (click)="save()" *ngIf="isChange">
-          <ion-icon name="save-outline"></ion-icon>
+          <ion-icon name="save"></ion-icon>
         </ion-button>
       </ng-container>
-      <ion-button (click)="isEdit=!isEdit">
-        <ion-icon [name]="isEdit?'book':'create'"></ion-icon>
-      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content *ngIf="user">
-  <div class="img-cover" >
-    <!-- <img [src]="user.photoURL?user.photoURL:'../assets/image/no avatar.png'" *ngIf="!isEdit" > -->
-    <img [src]="image?image:user.image?user.image:'../assets/image/no avatar.png'" >
-    <div class="add-image" *ngIf="isEdit" (click)="addImage()">add image</div>
+  <div class="image-cover">
+    <img [src]="view.image|url">
   </div>
-  <ion-list>
-    <ion-item  *ngIf="isEdit">
-      <ion-label color="primary">Name</ion-label>
-      <ion-input [(ngModel)]="user.name" (ionChange)="isChange=true"></ion-input>
+  <ion-list class="infor">
+    <!-- email -->
+    <ion-item>
+      <ion-label>Email</ion-label>
+      <ion-text>{{user.email}}</ion-text>
     </ion-item>
-    <ion-item *ngIf="!isEdit">
+    <!-- name \edit -->
+    <ion-item *ngIf="isOwner">
+      <ion-label color="primary">Name</ion-label>
+      <ion-input [(ngModel)]="user.name"></ion-input>
+    </ion-item>
+    <!-- name \view -->
+    <ion-item>
       <ion-label>Name</ion-label>
       <ion-text>{{user.name}}</ion-text>
     </ion-item>
-
+    <!-- company -->
     <ion-item>
-      <ion-label>e-mail</ion-label>
-      <ion-text>{{user.email}}</ion-text>
+      <ion-label>Company</ion-label>
+      <ion-chip *ngIf="user.companyId|db:'companies'|async as company">
+        <ion-avatar>
+          <img [src]="company.image|url" class="image-square">
+        </ion-avatar>
+        <ion-label>{{company.name}}</ion-label>
+      </ion-chip>
     </ion-item>
+
+    <!-- role -->
     <ion-item>
       <ion-label>Role</ion-label>
-      <ion-text>{{user.role?user.role:'user'}}</ion-text>
+      <ion-text>{{user.role}}</ion-text>
     </ion-item>
   </ion-list>
 </ion-content>
