@@ -19,3 +19,7 @@ ion-accordion.accordion-expanding,
     width: calc(100% - 32px);
     margin: 16px auto;
   }
+
+  ion-accordion.accordion-expanding{
+      --color:#ccc
+  }

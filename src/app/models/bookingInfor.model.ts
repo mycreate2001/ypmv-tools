@@ -1,7 +1,7 @@
 import { createOpts } from "../utils/minitools";
-import { BasicData, BasicDataOpts, BasicView, BasicViewOpts, createBasicData } from "./basic.model";
+import {  BasicView, BasicViewOpts, createBasicData } from "./basic.model";
 import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
-import { createToolStatus, ToolStatus, ToolStatusOpts } from "./tools.model";
+import { createToolStatus, ToolStatus } from "./tools.model";
 import { UrlData } from "./util.model";
 export declare type ApprovedResultType="Not yet"|"Accept"|"Reject"
 export declare type BookingInforStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"|"cancel"
@@ -85,7 +85,7 @@ export interface BookingInforOpts extends SaveInfoOpts{
 
 export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
     const now=new Date();
-    const id:string=now.getTime().toString(36);
+    const id:string=now.getTime().toString(26);
     const df:BookingInfor={
         id,
         ...createSaveInf({createAt:now.toISOString()}),

@@ -190,12 +190,7 @@ export class BookingPage implements OnInit {
     if(this.infor.approvedResult!='Accept') return this.disp.msgbox("these tools not accept to rent")
     const notCheck:boolean=this.infor.tools.some(tool=>status(tool.beforeStatus,tool.type)=='Not Check')
     if(notCheck) return this.disp.msgbox("Tool not yet complete check status<br> pls check status of all tools")
-    //---- renting infor ---------------//
-    this.infor.checkingDate=new Date().toISOString();   // checking date
-    this.infor.checkingManId=this.auth.currentUser.id;  // ypmv checking main
-    this.infor.checkingAgencyName=''    // @@@
-    this.infor.checkingAgencyId=''      // @@@
-    this.infor.status='renting';        //status
+   
     //------ updatetool stay ----------------//
     let list:string[]=this.infor.tools.filter(x=>x.type=='cover').map(x=>x.id)
 
@@ -211,9 +206,13 @@ export class BookingPage implements OnInit {
       this.db.add(_DB_TOOLS,tool)
     })
     //----------- save data -------------//
-    const infor=await this._updateImage()
-    console.log("renting",this.infor)
-    this.db.add(_DB_INFORS,infor)
+    const infor=await this._updateImage()           // update images
+    infor.checkingDate=new Date().toISOString();    // checking date
+    infor.checkingManId=this.auth.currentUser.id;   // ypmv checking main
+    infor.checkingAgencyName=''                     // @@@
+    infor.checkingAgencyId=''                       // @@@
+    infor.status='renting';                         // status
+    this.db.add(_DB_INFORS,infor)                   // upload
     this.done();
   }
   
@@ -266,7 +265,7 @@ export class BookingPage implements OnInit {
   }
 
   /** returning tools/jigs to YPMV */
-  returning(){
+  async returning(){
     //check condition
     console.log("returning tools/jigs")
     if(this.infor.status!='renting') return console.warn("wrong status/process")
@@ -291,12 +290,13 @@ export class BookingPage implements OnInit {
     })
 
     //------------- save information --------//
-    this.infor.returnAgencyName=''//@@@
-    this.infor.returnAgencyId=''  //@@@
-    this.infor.returnDate=new Date().toISOString();
-    this.infor.returnManId=this.auth.currentUser.id;
-    this.infor.status='returned';
-    this.db.add(_DB_INFORS,this.infor)
+    const infor=await this._updateImage();
+    infor.returnAgencyName=''//@@@
+    infor.returnAgencyId=''  //@@@
+    infor.returnDate=new Date().toISOString();
+    infor.returnManId=this.auth.currentUser.id;
+    infor.status='returned';
+    this.db.add(_DB_INFORS,infor)
     this.done();
   }
 

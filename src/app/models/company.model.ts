@@ -25,7 +25,7 @@ export interface CompanyDataOpts{
 
 export function createCompanyData(opts?:CompanyDataOpts):CompanyData{
     const now=new Date();
-    const id="CPN$"+now.getTime().toString(36).toUpperCase();
+    const id="CPN$"+now.getTime().toString(26);
     const df:CompanyData={
         id,
         name:'',

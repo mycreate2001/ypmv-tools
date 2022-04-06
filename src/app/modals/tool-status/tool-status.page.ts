@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { BasicData } from 'src/app/models/basic.model';
 import { BookingInforStatusType, CheckData } from 'src/app/models/bookingInfor.model';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
-import { createToolData, createToolStatus, statusList, ToolData, ToolStatus } from 'src/app/models/tools.model';
+import { statusList } from 'src/app/models/tools.model';
 import { MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts, ImageViewPageRole } from '../image-view/image-view.page';
-const _BACKUP_LIST=['tool','addimage']
+const _BACKUP_LIST=['tool','addImages']
 @Component({
   selector: 'app-tool-status',
   templateUrl: './tool-status.page.html',
@@ -23,8 +22,10 @@ export class ToolStatusPage implements OnInit {
   status:BookingInforStatusType='created'
 
   /** internal */
+  afterList:BookingInforStatusType[]=['renting','returned'];
+  beforeList:BookingInforStatusType[]=['approved']
   backup:string[]=[];
-  statusDb:object={}  //get status list from DB
+  statusDb:object={}        //get status list from DB
   statusList=statusList;
   viewImages:UrlData[]=[];
   isChange:boolean=false;
@@ -45,13 +46,15 @@ export class ToolStatusPage implements OnInit {
     .then(result=>{
       const {id,...status}=result
       this.statusDb=status;
-      this._refresh();
+      this.refresh();
       this.isAvailable=true;
       console.log("init",this);
     })
   }
 
   /////////////// BUTTONS HANDLER /////////////////////
+
+  /** show option for images */
   showImageOption(event:any,pos:number,process:'beforeImages'|'afterImages', type:'local'|'db'='db'){
     const menus:MenuData[]=[
       {
@@ -67,6 +70,9 @@ export class ToolStatusPage implements OnInit {
       }
     ]
     this.disp.showMenu(event,{menus})
+    .then(result=>{
+      this.refresh()
+    })
   }
 
   /** take image */
@@ -78,7 +84,7 @@ export class ToolStatusPage implements OnInit {
       if(role!='ok') return;
       const data=result.data as CameraPageOuts
       this.addImages.push({caption:'',url:data.image})
-      this._refresh();
+      this.refresh();
     })
   }
 
@@ -96,7 +102,7 @@ export class ToolStatusPage implements OnInit {
       const data=result.data as ImageViewPageOuts;
       this.addImages=data.addImages;
       this.delImages=data.delImages;
-      this._refresh();
+      this.refresh();
     })
   }
 
@@ -113,7 +119,7 @@ export class ToolStatusPage implements OnInit {
 
 
   //////////////// background ///////////
-  private _refresh(){
+  refresh(){
     //check change data
     this.isChange=_BACKUP_LIST.every((key,pos)=>this.backup[pos]==JSON.stringify(this[key]))?false:true
     //onsole.log("viewImages:",this);

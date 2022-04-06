@@ -28,7 +28,7 @@ export interface CoverDataOpts extends SaveInfoOpts{
 
 export function createCoverData(opts?:CoverDataOpts):CoverData{
     const now=new Date();
-    const id:string=now.getTime().toString(36);
+    const id:string=now.getTime().toString(26);
     const createAt:string=now.toISOString();
     const df:CoverData={
         ...createSaveInf({createAt}),

@@ -30,7 +30,7 @@ export interface ModelDataOpts extends SaveInfoOpts{
 /** make new modeldata from default & option */
 export function createModelData(opts?:ModelDataOpts):ModelData{
     const now=new Date();
-    const id=now.getTime().toString(36);
+    const id=now.getTime().toString(26);
     const df:ModelData={
         ...createSaveInf({createAt:now.toISOString()}),
         id,
@@ -72,7 +72,7 @@ export interface ToolDataOpts extends SaveInfoOpts{
 
 export function createToolData(opts?:ToolDataOpts):ToolData{
     const now=new Date();
-    const id=now.getTime().toString(36);
+    const id=now.getTime().toString(26);
     const df:ToolData={
         ...createSaveInf({createAt:now.toISOString()}),
         id,
