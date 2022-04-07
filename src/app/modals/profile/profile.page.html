@@ -9,17 +9,21 @@
     <ion-title>Profile</ion-title>
     <ion-buttons slot="end">
       <ng-container *ngIf="isOwner">
-        <ion-button (click)="save()" *ngIf="isChange">
-          <ion-icon name="save"></ion-icon>
+        <ion-button title="take photo" (click)="takePhoto()">
+          <ion-icon name="camera"></ion-icon>
+        </ion-button>
+        <ion-button title="Save" (click)="save()" *ngIf="isChange">
+          <ion-icon name="save" ></ion-icon>
         </ion-button>
       </ng-container>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="user">
+<ion-content *ngIf="isAvailable">
+  <!-- image -->
   <div class="image-cover">
-    <img [src]="view.image|url">
+    <img [src]="viewImage|url">
   </div>
   <ion-list class="infor">
     <!-- email -->
@@ -30,10 +34,10 @@
     <!-- name \edit -->
     <ion-item *ngIf="isOwner">
       <ion-label color="primary">Name</ion-label>
-      <ion-input [(ngModel)]="user.name"></ion-input>
+      <ion-input [(ngModel)]="user.name" (ionChange)="updateView()"></ion-input>
     </ion-item>
     <!-- name \view -->
-    <ion-item>
+    <ion-item *ngIf="!isOwner">
       <ion-label>Name</ion-label>
       <ion-text>{{user.name}}</ion-text>
     </ion-item>

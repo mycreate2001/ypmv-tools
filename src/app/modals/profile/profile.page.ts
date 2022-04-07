@@ -3,9 +3,12 @@ import { ModalController } from '@ionic/angular';
 import { UserData, _DB_USERS, _STORAGE_USERS } from 'src/app/models/user.model';
 import { UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
+import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
-import { CameraPage } from '../camera/camera.page';
+import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
+const BACKUP_LIST=["user",'addImage']
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -22,19 +25,35 @@ export class ProfilePage implements OnInit {
   isAvailable:boolean=false;    // enable display data
   viewImage:string;                 // new image
   addImage:string;
+  backup:string[]=[]
 
   constructor(
     private modal:ModalController,
-    private disp:DisplayService,
     private storage:StorageService,
-    private db:FirestoreService
+    private db:FirestoreService,
+    private auth:AuthService,
+    private disp:DisplayService
   ) {
 
   }
 
   ////////////// SYSTEM FUNCTIONS /////////////////
   ngOnInit() {
+    this._getUser().then(user=>{
+      this.user=user;
+      this.userId=user.id;
+      this.backup=BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+      this.updateView();
+      this.isAvailable=true;
+    })
   }
+
+  // ionViewDidEnter(){
+  //   console.log("here")
+  //   const inputs=document.querySelectorAll("app-profile input")
+  //   console.log(inputs)
+  //   inputs.forEach(input=>input.addEventListener(''))
+  // }
 
 
   ////////////// BUTTONS & EVENTS HANDLER ////////
@@ -57,10 +76,46 @@ export class ProfilePage implements OnInit {
     })
     .then(()=>this.done())
   }
+ 
+  /** take photo */
+  takePhoto(){
+    const props:CameraPageOpts={
+      aspectRatio:1,
+      fix:true
+    }
+    this.disp.showModal(CameraPage,props)
+    .then(result=>{
+      const role=result.role as CameraPageRole;
+      if(role!='ok') return;
+      const data=result.data as CameraPageOuts;
+      this.addImage=data.image;
+      this.updateView();
+    })
+  }
 
   ///////////// BACKGROUND FUNCTIONS //////////////
-  update(){
+
+  /** update view */
+  updateView(){
     this.viewImage=this.addImage||this.user.image
+    if(this.userId==this.auth.currentUser.id) this.isOwner=true;
+    this.isChange=BACKUP_LIST.every((key,pos)=>JSON.stringify(this[key])==this.backup[pos])?false:true
+  }
+  
+  /** get user */
+  private _getUser():Promise<UserData>{
+    return new Promise((resolve,reject)=>{
+      if(!this.userId&&!this.user){//current user
+        const user=this.auth.currentUser;
+        return resolve(user)
+      }
+      if(this.user) return resolve(this.user)
+      //userId
+      this.db.get(_DB_USERS,this.userId)
+      .then((user:UserData)=>resolve(user))
+      .catch(err=>reject(err))
+
+    })
   }
 
 }

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Unsubscribe } from 'firebase/auth';
+import { ProfilePage, ProfilePageOpts } from './modals/profile/profile.page';
 import { UserData, _DB_USERS } from './models/user.model';
 import { PageData } from './models/util.model';
 import { DisplayService } from './services/display/display.service';
@@ -38,6 +39,14 @@ export class AppComponent {
         this.user=data as UserData
       })
     })
+  }
+
+  /** show profile */
+  showProfile(){
+    const props:ProfilePageOpts={
+      user:this.user
+    }
+    this.disp.showModal(ProfilePage,props)
   }
 
 }
