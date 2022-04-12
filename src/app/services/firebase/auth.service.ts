@@ -7,6 +7,7 @@ import { Auth,getAuth,
          User,onAuthStateChanged, UserCredential, Unsubscribe                      } from 'firebase/auth'
 import { UserData } from 'src/app/models/user.model';
 import { environment } from 'src/environments/environment';
+import { DisplayService } from '../display/display.service';
 import { FirestoreService } from './firestore.service';
 const _DB_USER="users"
 @Injectable({
@@ -17,7 +18,8 @@ export class AuthService {
   auth:Auth;
   currentUser:UserData=null;
   constructor(
-    private db:FirestoreService
+    private db:FirestoreService,
+    private disp:DisplayService
   ) {
     const app=initializeApp(environment.firebaseConfig);
     this.auth=getAuth(app);
@@ -25,6 +27,7 @@ export class AuthService {
     this.unsubcribe=this.onAuthStatusChange(user=>{
       if(!user){ this.currentUser=null; return}
       const id=user.uid;
+      console.log("get user '%s'",id);
       this.db.get(_DB_USER,id)
       .then((data:UserData)=>{
         this.currentUser=data;
@@ -43,14 +46,34 @@ export class AuthService {
   login(email:string,pass:string):Promise<UserCredential>{
     return new Promise((resolve,reject)=>{
       //check password
-      if(!pass || pass.length<8) return reject(new Error('password invalid'))
+      if(!pass || pass.length<6) return reject(new Error('password invalid'))
       //check email
       if(!email || !email.includes('@') || !email.includes('.')) return reject(new Error("email invalid"))
       signInWithEmailAndPassword(this.auth,email,pass)
       .then(data=>{
-        if(!data.user.emailVerified) return reject(new Error("Your account is not yet verify by email"));
+        if(!data.user.emailVerified) {
+          const err=new Error("Your account is not yet verify by email")
+          this.disp.msgbox(`${err.message}<br>Do you want to re-send verification email?`,
+            {
+              buttons:[
+                'cancel',
+                {
+                  text:'Send',handler:()=>{
+                    console.log("send verification email");
+                    sendEmailVerification(data.user).then(result=>{
+                      console.log("send verification email successfully\n",result)
+                    })
+                    .catch(err=>console.log("send verification email failured\n",err))
+                  }
+                }
+              ]
+            }
+          )
+          return reject(err);
+        }
         return resolve(data);
       })
+      .catch(err=>reject(err))
     })
   }
 

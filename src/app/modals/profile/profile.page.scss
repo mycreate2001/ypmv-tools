@@ -1,4 +1,4 @@
-.img-cover{
+.image-cover{
     display: flex;
     justify-content: center;
     position: relative;
@@ -6,11 +6,21 @@
 
 img{
     width: 100%;
-    object-fit: contain;
+    object-fit:cover;
 }
 img.image-square{
     aspect-ratio: 1;
 }
+img.avatar{
+    width: 50%;
+    margin: 24px auto;
+}
+img.logo {
+    height: 30px;
+    max-width: 100px;
+    object-fit: contain;
+}
+
 
 ion-input{
     text-align: right;
@@ -20,11 +30,4 @@ ion-item{
     ion-label{
         font-weight: bold;
     }
-}
-
-.image-cover {
-    display: flex;
-    justify-content: center;
-    padding: 24px;
-    position: relative;
 }

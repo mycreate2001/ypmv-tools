@@ -243,13 +243,13 @@ export class FirestoreService {
    * @param id record id
    * @returns record
    */
-  get(tbl:string,id:string):Promise<any>{
+  get(tbl:string,id:string):Promise<any>{   
     return new Promise(async (resolve,reject)=>{
       if(!id) return reject(new Error("not exist id"));//nothing
       const docRef=doc(this.db,tbl,id);
       const docSnap=await getDoc(docRef);
       if(docSnap.exists()) return resolve({id,...docSnap.data()})
-      return reject(new Error(`not exist doc '${id}'`));//nothing
+      return reject(new Error(`not exist doc '${id}' in '${tbl}'`));//nothing
     })
   }
 
@@ -298,7 +298,7 @@ export class FirestoreService {
     // console.log("[search2] test-002",{tbl,queries})
     const ref=collection(this.db,tbl);
     const _queries:QueryData[]=[].concat(queries);
-    const q=query(ref,..._queries.map(qr=>where(qr.key,qr.compare,qr.value)));
+    const q=query(ref,..._queries.map(qr=>where(qr.key,qr.type,qr.value)))
     // console.log("[search2] test-003",{q})
     return getDocs(q).then(docs=>{
       const outs=[];
@@ -336,7 +336,7 @@ function del(arrs:any[],id:any){
 export interface QueryData{
   key:string;
   value:any;
-  compare:CompareType;
+  type:CompareType;
 
 }
 

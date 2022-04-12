@@ -394,7 +394,7 @@ export class BookingPage implements OnInit {
     // console.log('\ncheck[1]: start to check', { infor: this.infor });
     const cList:BookingInforStatusType[]=['returned','rejected','cancel']
     return new Promise((resolve, reject) => {
-      const a= this.db.search(_DB_INFORS, { key: 'status', compare: 'not-in', value: cList })
+      const a= this.db.search(_DB_INFORS, { key: 'status', type: 'not-in', value: cList })
         //check time
         .then((infors:BookingInfor[]) => {
           // console.log("\ncheck[2]: get booking Infor from DB, status<>'returned'\n", { infors })

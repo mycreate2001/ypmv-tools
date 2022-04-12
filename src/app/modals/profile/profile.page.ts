@@ -67,14 +67,19 @@ export class ProfilePage implements OnInit {
 
   /** save profile */
   save(){
-    const image:UrlData={url:this.addImage,caption:''}
-    this.storage.uploadImages([image],_STORAGE_USERS)
-    .then((images:UrlData[])=>{
-      const image=images[0].url
-      this.user.image=image;
+    this.storage.uploadImages(this.addImage||[],`${_STORAGE_USERS}/${this.user.id}`)
+    .then((images:string[])=>{
+      if(images.length){
+        this.user.image=images[0]
+      }
       return this.db.add(_DB_USERS,this.user)
     })
     .then(()=>this.done())
+  }
+
+  /** signout */
+  signOut(){
+    this.auth.logout().then(()=>this.done('back'))
   }
  
   /** take photo */
@@ -107,6 +112,7 @@ export class ProfilePage implements OnInit {
     return new Promise((resolve,reject)=>{
       if(!this.userId&&!this.user){//current user
         const user=this.auth.currentUser;
+        if(!user) return reject(new Error('Not yet login'))
         return resolve(user)
       }
       if(this.user) return resolve(this.user)

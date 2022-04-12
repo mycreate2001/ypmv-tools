@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProfilePage } from 'src/app/modals/profile/profile.page';
+import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
 import { createUserData, UserData } from 'src/app/models/user.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 // import { DisplayService } from 'src/app/services/display/display.service';
@@ -18,17 +19,27 @@ export class LoginPage implements OnInit {
   /** variable */
   email:string='';
   pass:string='';
+  name:string='';
+  companyId:string=''
+
   msg:string='';
   isRegister:boolean=false;
+  companies:CompanyData[]=[];
   constructor(
       private auth:AuthService,
       private router:Router,
       private db:FirestoreService,
       private disp:DisplayService,
-      private storage:StorageService
+      // private storage:StorageService
   ) { }
 
   ngOnInit() {
+    //@@@ test
+    console.log("test user",{currentUser:this.auth.currentUser})
+    this.db.search(_DB_COMPANY,[])
+    .then((companies:CompanyData[])=>{
+      this.companies=companies;
+    })
   }
 
   /** login  */
@@ -40,28 +51,36 @@ export class LoginPage implements OnInit {
       this.router.navigateByUrl("/");
     })
     .catch(err=>{
-      console.log("login failured!\n",err);
-      this.msg=err.message;
+      const msg:string=err.message;
+      this.msg=msg.replace("Firebase:","")
     })
   }
 
   /** register a new user */
   register(){
+    console.log("test",this);
     this.msg='';
-    if(!this.email.toUpperCase().includes("@YAMAHA.")) 
+    //all infor
+    const list=['name','companyId','email','pass']
+    if(!list.every(key=>this[key])) return this.disp.msgbox("missing infor")
+    //check email
+    if(!this.email.includes('@')) return this.disp.msgbox("invalid email, pls input again");
+    const company=this.companies.find(c=>c.id==this.companyId);
+    if(!company) return this.disp.msgbox("internal error");
+    const emailExt=company.email.split('@')[1];
+    if(emailExt.toUpperCase()!=this.email.split('@')[1].toUpperCase())
+      return this.disp.msgbox(`wrong company<br>pls fill email as '${company.email}'`)
     this.auth.register(this.email,this.pass)
     .then(data=>{
       const id=data.user.uid;
       const email=data.user.email
-      const user=createUserData({id,email});
+      const user=createUserData({id,email,companyId:this.companyId,name:this.name});
       //add user default
-      return this.db.add(_DB_USER,user)
-      .then(()=>user)
-    })
-    //edit profile
-    .then((user)=>{
-      this.disp.showModal(ProfilePage,{isEdit:true,user})
-      this.router.navigateByUrl("/");
+      this.db.add(_DB_USER,user)
+      .then(()=>{
+        this.auth.logout();
+        this.isRegister=false;
+      })
     })
     .catch(err=>{
       this.msg=err.message;

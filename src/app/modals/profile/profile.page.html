@@ -2,13 +2,16 @@
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-button (click)="done('back')">
-        <ion-icon name="arrow-back-outline"></ion-icon>
+        <ion-icon name="arrow-back"></ion-icon>
         Back
       </ion-button>
     </ion-buttons>
     <ion-title>Profile</ion-title>
     <ion-buttons slot="end">
       <ng-container *ngIf="isOwner">
+        <ion-button title="sign out" (click)="signOut()">
+          <ion-icon name="log-out"></ion-icon>
+        </ion-button>
         <ion-button title="take photo" (click)="takePhoto()">
           <ion-icon name="camera"></ion-icon>
         </ion-button>
@@ -23,7 +26,7 @@
 <ion-content *ngIf="isAvailable">
   <!-- image -->
   <div class="image-cover">
-    <img [src]="viewImage|url">
+    <img [src]="viewImage|url" class=" avatar image-square">
   </div>
   <ion-list class="infor">
     <!-- email -->
@@ -44,12 +47,10 @@
     <!-- company -->
     <ion-item>
       <ion-label>Company</ion-label>
-      <ion-chip *ngIf="user.companyId|db:'companies'|async as company">
-        <ion-avatar>
-          <img [src]="company.image|url" class="image-square">
-        </ion-avatar>
-        <ion-label>{{company.name}}</ion-label>
-      </ion-chip>
+      <ng-container *ngIf="user.companyId|db:'companies'|async as company">
+        <img [src]="company.image|url" class="logo">
+        <div>{{company.name}}</div>
+      </ng-container>
     </ion-item>
 
     <!-- role -->
@@ -57,5 +58,11 @@
       <ion-label>Role</ion-label>
       <ion-text>{{user.role}}</ion-text>
     </ion-item>
+
+    <ion-item>
+      <ion-label>Registed at</ion-label>
+      <ion-text>{{user.createAt|date:'yyyy-MMM-dd'}}</ion-text>
+    </ion-item>
   </ion-list>
+
 </ion-content>

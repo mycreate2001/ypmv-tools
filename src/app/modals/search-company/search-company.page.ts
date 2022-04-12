@@ -30,7 +30,7 @@ export class SearchCompanyPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    const queries:QueryData[]=this.type=='any'?[]:[{key:'type',compare:'==',value:this.type}]
+    const queries:QueryData[]=this.type=='any'?[]:[{key:'type',type:'==',value:this.type}]
     this.db.search(_DB_COMPANY,queries)
     .then((companies:CompanyData[])=>{
       this.companies=companies;

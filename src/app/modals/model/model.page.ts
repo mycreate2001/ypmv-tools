@@ -55,7 +55,7 @@ export class ModelPage implements OnInit {
     this._getModel()
     .then(model=>{
       this.model=model;this.modelId=this.model.id
-      return this.db.search(_DB_TOOLS,{key:'model',compare:'==',value:model.id})
+      return this.db.search(_DB_TOOLS,{key:'model',type:'==',value:model.id})
     })
     .then((tools:ToolData[])=>{
       this.tools=tools;

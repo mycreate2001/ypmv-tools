@@ -34,6 +34,16 @@
               <ion-label>Password</ion-label>
               <ion-input [(ngModel)]="pass" type="password" (keyup.enter)="register()"></ion-input>
             </ion-item>
+            <ion-item>
+              <ion-label>Name</ion-label>
+              <ion-input [(ngModel)]="name" ></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label>Company</ion-label>
+              <ion-select [(ngModel)]="companyId" >
+                <ion-select-option [value]="comp.id" *ngFor="let comp of companies">{{comp.name}}</ion-select-option>
+              </ion-select>
+            </ion-item>
            <ion-row>
              <ion-col></ion-col>
              <ion-col>
