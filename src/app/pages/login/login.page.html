@@ -8,7 +8,7 @@
           <ion-list lines="none" *ngIf="!isRegister">
             <ion-item>
               <ion-label>E-mail</ion-label>
-              <ion-input [(ngModel)]="email"></ion-input>
+              <ion-input role="isRequire" [(ngModel)]="email"></ion-input>
             </ion-item>
             <ion-item>
               <ion-label>Password</ion-label>
@@ -28,7 +28,7 @@
           <ion-list lines="none" *ngIf="isRegister">
             <ion-item>
               <ion-label>E-mail</ion-label>
-              <ion-input [(ngModel)]="email"></ion-input>
+              <ion-input role="isRequire" [(ngModel)]="email"></ion-input>
             </ion-item>
             <ion-item>
               <ion-label>Password</ion-label>

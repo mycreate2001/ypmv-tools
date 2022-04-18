@@ -21,7 +21,7 @@ export class LoginPage implements OnInit {
   pass:string='';
   name:string='';
   companyId:string=''
-
+  list:any;
   msg:string='';
   isRegister:boolean=false;
   companies:CompanyData[]=[];
@@ -34,12 +34,25 @@ export class LoginPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    //@@@ test
-    console.log("test user",{currentUser:this.auth.currentUser})
     this.db.search(_DB_COMPANY,[])
     .then((companies:CompanyData[])=>{
       this.companies=companies;
     })
+  }
+
+  ionViewDidEnter	(){
+    this.list=document.querySelectorAll("app-login ion-input[role] input");
+    this.list.forEach(l=>{
+      l.addEventListener("blur",this.update)
+    })
+  }
+
+  ionViewDidLeave(){
+    this.list.forEach(l=>l.removeEventListener("blur",this.update))
+  }
+
+  update(){
+    console.log("update");
   }
 
   /** login  */
