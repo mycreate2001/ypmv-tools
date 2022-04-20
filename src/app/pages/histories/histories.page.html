@@ -22,7 +22,7 @@
         <ion-item lines="none">
           <ng-container *ngIf="infor.companyId|db:'companies'|async as company">
             <ion-avatar slot="start" *ngIf="infor.userId|db:'users'|async as user">
-              <img [src]="user.image">
+              <img [src]="user.image|url">
             </ion-avatar>
             <ion-label>
               [{{infor.scheduleStart|date:'yyyy-MMM-dd'}}] {{company.name}} 

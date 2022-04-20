@@ -28,7 +28,6 @@ export class CoverPage implements OnInit {
   delImages:string[]=[];
   viewImages:UrlData[]=[];
   isAvailble:boolean=false;
-  buttons:ButtonData[]=[{role:'save',icon:'save'},{role:'delete',icon:'trash'}]
   constructor(
     private db:FirestoreService,
     private modal:ModalController,
@@ -97,13 +96,30 @@ export class CoverPage implements OnInit {
       this.cover.stay=data.companyIds[0];
     })
   }
-  done(role:string='OK'){
+
+  /** exit page */
+  done(role:CoverPageRole='save'){
     const out:CoverPageOuts={
       cover:this.cover,
       addImages:this.addImages,
       delImages:this.delImages
     }
     this.modal.dismiss(out,role)
+  }
+
+  /** hander save button */
+  save(){
+    this.done();
+  }
+
+  /** handler delete button */
+  delete(){
+    this.disp.msgbox("Are you sure delete this cover?",
+      {buttons:[{text:'Cancel',role:'cancel'},{text:'Delete',role:'delete'}]}
+    ).then(result=>{
+      if(result.role!='delete') return;
+      this.done('delete')
+    })
   }
 
   /** add/edit images */
@@ -194,3 +210,5 @@ export interface CoverPageOuts{
   addImages:UrlData[];
   delImages:string[];
 }
+
+export type CoverPageRole="back"|"save"|"delete"

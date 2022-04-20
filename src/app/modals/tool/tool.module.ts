@@ -9,6 +9,7 @@ import { IonicModule } from '@ionic/angular';
 import { ToolPage } from './tool.page';
 import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
 import { DbPipeModule } from 'src/app/pipes/db/db.pipe.module';
+import { StatusPipeModule } from 'src/app/pipes/status/status.pipe.module';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { DbPipeModule } from 'src/app/pipes/db/db.pipe.module';
     FormsModule,
     IonicModule,
     UrlPipeModule,
-    DbPipeModule
+    DbPipeModule,
+    StatusPipeModule
     // ToolPageRoutingModule
   ],
   declarations: [ToolPage]

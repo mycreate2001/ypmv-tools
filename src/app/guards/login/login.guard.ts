@@ -17,10 +17,19 @@ export class LoginGuard implements CanActivate {
     console.log("check login");
     return this.auth.getUser()
     .then(user=>{
-      if(!user) this.router.navigateByUrl("login");
-      return user?true:false
+      console.log("001. full fill user",{user})
+      if(!user) {
+        this.router.navigateByUrl("/login");
+        // console.log("login falure",{user})
+        return false;
+      }
+      return true
     })
-    .catch(()=>false)
+    .catch(err=>{
+      console.log("error ",{err})
+      this.router.navigateByUrl("/login");
+      return false
+    })
   }
   
 }

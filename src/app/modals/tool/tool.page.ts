@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { ButtonData } from 'src/app/models/util.model';
+import { ButtonData, MenuData } from 'src/app/models/util.model';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { UtilService } from 'src/app/services/util/util.service';
 import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
+import { DisplayService } from 'src/app/services/display/display.service';
 
 
 @Component({
@@ -21,8 +22,9 @@ export class ToolPage implements OnInit {
   model:ModelData;
 
   /** internal variable */
+  isEdit:boolean=false;//can edit
+  isNew:boolean=false;  //new code
   isAvailable:boolean=false;
-  buttons:ButtonData[]=btnDefault()
   visualStatus=['OK',"Not check",'Scratch','broken'];
   operationStatus=['OK',"Not check",'cannot operation'];
   functionStatus=['OK',"Not check","tolerance's out of specs"];
@@ -35,11 +37,13 @@ export class ToolPage implements OnInit {
     private modal:ModalController,
     private db:FirestoreService,
     private auth:AuthService,
-    private util:UtilService
+    private util:UtilService,
+    private disp:DisplayService
   ) {
 
   }
 
+  ///////////////// SYSTEM FUNCTIONS //////////////////////
   ngOnInit() {
     this._getTool()
     .then(tool=>{
@@ -60,6 +64,52 @@ export class ToolPage implements OnInit {
     })
     .catch(err=>console.log("\n### ERROR[2]: get data is error",err))
   }
+
+  //////////////// HANDLE FUNCTIONS ///////////////////////////
+
+  /** save */
+  save(){
+    // validate data
+    this.db.add(_DB_TOOLS,this.tool)
+    .then(()=>this.done('ok'))
+  }
+
+  /** delete */
+  delete(){
+    // confirm infor
+    this.disp.msgbox(
+      "Are you sure want to delete this tool ?",
+      {
+        buttons:[
+          {text:'Cancel',role:'cancel',},
+          {text:'Delete',role:'delete'}
+        ]
+      }
+    ).then(result=>{
+      if(result.role!=='delete') return;
+      this.done('delete');
+    })
+  }
+
+  /** exit page */
+  done(role:ToolPageRole="ok"){
+    const out:ToolPageOuts={
+      tool:this.tool
+    }
+    return this.modal.dismiss(out,role);
+  }
+
+  /** print code */
+  print(){
+    this.disp.msgbox(
+      "Which do you want to print<br>",
+      { buttons:[ {text:'Code Only',role:'code'},{text:'With Label',role:'label'}]}
+    ).then(result=>{
+      this.util.generaQRcode(this.tool.id,{label:result.role=='label'?this.model.name:''})
+    })
+  }
+
+  ////////////////// BACKGROUND FUNCTIONS /////////////////////
 
   /** get Tool data */
   private _getTool():Promise<ToolData>{
@@ -86,35 +136,10 @@ export class ToolPage implements OnInit {
     })
   }
 
-  /** exit page */
-  done(role:string="OK"){
-    const out:ToolPageOuts={
-      tool:this.tool
-    }
-    return this.modal.dismiss(out,role);
-  }
-
-  /** print code */
-  print(){
-    this.util.generaQRcode(this.tool.id,{type:'tool',size:38});
-  }
-  //////////////// background /////////////////
-
-  /** calculate status of tool */
-  calcStatus(){
-    return Object.keys(this.tool.status).every(key=>this.tool.status[key]==0);
-  }
-
-}
-
-function btnDefault():ButtonData[]{
-  return [
-    {role:'delete',icon:'trash'},
-    {role:'ok',icon:'save'}
-  ]
 }
 
 /////////////// INTERFACE ///////////////////
+export type ToolPageRole="cancel"|"ok"|"delete"|"back"
 /**
  * @param tool ? tool data
  * @param model?

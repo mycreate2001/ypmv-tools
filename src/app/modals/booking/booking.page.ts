@@ -176,7 +176,7 @@ export class BookingPage implements OnInit {
       console.log("\ncheck[4]: conflict tools\n",conflicts)
       this.conflictList=conflicts.reduce((acc,cur)=>[...acc,...cur.children],[]).map(x=>x.type+x.id)
       console.log("configlist:",this.conflictList)
-      if(conflicts.length) return this.disp.msgbox("conflict data, pls check")
+      if(conflicts.length) return this.disp.msgbox("Some tools/jigs are not available")
       this.infor.status='created';
       this.db.add(_DB_INFORS,this.infor)
       this.done();
@@ -256,12 +256,20 @@ export class BookingPage implements OnInit {
 
   /** delete booking (admin only) */
   delete(){
-    //delete images
-    const images:string[]=this.infor.tools.reduce((acc,curr)=>[...acc,...curr.beforeImages.map(x=>x.url),...curr.afterImages.map(x=>x.url)],[])
-    console.log("\n---test---",{images})
-    images.forEach(image=>this.storage.delete(image))
-    this.db.delete(_DB_INFORS,this.infor.id);
-    this.done();
+    //configmation
+    this.disp.msgbox("Are you sure want to delete this booking?",
+    {buttons:[{text:'Cancel',role:'cance'},{text:'Delete',role:'delete'}]})
+    .then(result=>{
+      console.log("role:",result)
+      if(result.role!='delete') return;
+      //delete images
+      const images:string[]=this.infor.tools.reduce((acc,curr)=>[...acc,...curr.beforeImages.map(x=>x.url),...curr.afterImages.map(x=>x.url)],[])
+      console.log("\n---test---",{images})
+      images.forEach(image=>this.storage.delete(image))
+      this.db.delete(_DB_INFORS,this.infor.id);
+      this.done();
+    })
+    
   }
 
   /** returning tools/jigs to YPMV */

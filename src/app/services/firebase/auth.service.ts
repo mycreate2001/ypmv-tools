@@ -24,17 +24,7 @@ export class AuthService {
     const app=initializeApp(environment.firebaseConfig);
     this.auth=getAuth(app);
     // connectAuthEmulator(this.auth,'http://localhost:9099');//emulator
-    this.unsubcribe=this.onAuthStatusChange(user=>{
-      if(!user){ this.currentUser=null; return}
-      const id=user.uid;
-      console.log("get user '%s'",id);
-      this.db.get(_DB_USER,id)
-      .then((data:UserData)=>{
-        this.currentUser=data;
-        console.log("update user");
-      })
-      .catch(err=>this.currentUser=null)
-    })
+    this.unsubcribe=this.onAuthStatusChange((user)=>this.currentUser=user)
   }
 
   /**
@@ -88,11 +78,19 @@ export class AuthService {
    * @param errHandler handler when error
    * @returns monitor
    */
-  onAuthStatusChange(cb:{(user:User):any},errHandler?:{(err:Error):any}):Unsubscribe{
+  onAuthStatusChange(cb:{(user:UserData):any},errHandler?:{(err:Error):any}):Unsubscribe{
     return onAuthStateChanged(this.auth,
-      user=>cb(user),
+      auth=>{
+        if(!auth) return cb(null);
+        const id=auth.uid;
+        this.db.get(_DB_USER,id)
+        .then((user:UserData)=>{
+          cb(user)
+        })
+        .catch(err=>{errHandler&&errHandler(err)})
+      },
       err=>{if(errHandler) errHandler(err)}
-      )
+    )
   }
 
   /** get user */

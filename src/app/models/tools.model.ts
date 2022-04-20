@@ -15,6 +15,7 @@ export interface ModelData extends SaveInfo{
     compQty:number;             // quantity of component
     maintenance:number;         // day of maintenance
     note:string;
+    companyId:string;
 }
 
 export interface ModelDataOpts extends SaveInfoOpts{
@@ -25,6 +26,7 @@ export interface ModelDataOpts extends SaveInfoOpts{
     compQty?:number;
     maintenance?:number;         // day of maintenance
     note?:string;
+    companyId?:string;
 }
 
 /** make new modeldata from default & option */
@@ -39,21 +41,23 @@ export function createModelData(opts?:ModelDataOpts):ModelData{
         maintenance:180,
         images:[],
         compQty:1,
-        note:''
+        note:'',
+        companyId:''
     }
     return createOpts(df,opts) 
 }
 
 /////////////// TOOLS ///////////////////////
 export interface ToolData extends SaveInfo{
-    id:string;                  // tool id
+    id:string;                    // tool id
     startUse:string;              // start use this tool
     endUse:String;                // destroy date
     lastMaintenance:string;       // last maintenance
-    status:ToolStatus;
+    status:ToolStatus;          // status
     model:string;               // model id
     stay:string;                // where keep tool (stay alone)
-    upperId:string;           // cover/box keep this tool
+    upperId:string;             // cover/box keep this tool
+    companyId:string;           // owner
 }
 
 
@@ -65,7 +69,8 @@ export interface ToolDataOpts extends SaveInfoOpts{
     status?:ToolStatus;
     model?:string; 
     stay?:string;               // where keep this tool
-    upperId?:string;         // parents id (like book, cover)         
+    upperId?:string;            // parents id (like book, cover)  
+    companyId?:string;       
 }
 
 
@@ -82,7 +87,8 @@ export function createToolData(opts?:ToolDataOpts):ToolData{
         status:createToolStatus(),
         model:'',
         stay:'',
-        upperId:''
+        upperId:'',
+        companyId:''
     }
     return createOpts(df,opts) as ToolData;
 }

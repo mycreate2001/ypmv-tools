@@ -30,7 +30,6 @@ export class ModelPage implements OnInit {
 
   /** internal */
   isAvailble:boolean=false;
-  buttons:ButtonData[]=btnDefault()
   
   /** use internal only, it's for view */
   viewImages:UrlData[]=[];       //iamges wil add more to db
@@ -91,7 +90,7 @@ export class ModelPage implements OnInit {
   }
 
   ///////// exist ////////
-  done(role:string="OK"){
+  done(role:ModelPageRole="save"){
     const out:ModelPageOuts={
       addImages:this.addImages,
       delImages:this.delImages,
@@ -148,6 +147,16 @@ export class ModelPage implements OnInit {
     const list=this._verify();
     if(list.length) return this.disp.msgbox("Missing information<br>"+list.join("<br>"))
     this.done()
+  }
+
+  /** delete model */
+  delete(){
+    this.disp.msgbox("Are you sure delete model?",
+    {buttons:[{text:'Cancel',role:'cancel'},{text:'Delete',role:'delete'}]})
+    .then(result=>{
+      if(result.role!=='delete') return;
+      this.done('delete')
+    })
   }
 
 
@@ -220,9 +229,4 @@ export interface ModelPageOuts{
   model:ModelData;
 }
 
-function btnDefault():ButtonData[]{
-  return [
-    {role:'save',icon:'save'},
-    {role:'delete',icon:'trash'}
-  ]
-}
+export type ModelPageRole="back"|"delete"|"save"

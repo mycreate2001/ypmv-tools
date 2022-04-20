@@ -5,17 +5,12 @@
       <ion-label>Back</ion-label>
     </ion-buttons>
     <ion-title>Tool Detail</ion-title>
-    <ion-buttons slot="end">
-     <ion-button
-      *ngFor="let btn of buttons"
-      [title]="btn.title?btn.title:btn.name?btn.name:btn.role"
-      (click)="btn.handler&&btn.handler();done(btn.role)"
-      >
-      <ion-icon [name]="btn.icon" [color]="btn.iconColor"></ion-icon>
-      <ion-label *ngIf="btn.name">{{btn.name}}</ion-label>
+    <ion-buttons slot="end" *ngIf="isEdit">
+     <ion-button title="delete" (click)="delete()" >
+      <ion-icon name="trash"></ion-icon>
      </ion-button>
-     <ion-button (click)="print()">
-       <ion-icon name="print"></ion-icon>
+     <ion-button title="save" (click)="save()" >
+      <ion-icon name="save"></ion-icon>
      </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -52,9 +47,14 @@
   </ion-card>
   <ion-card class="infor">
     <ion-list>
-      <ion-item>
+      <ion-item *ngIf="isNew && isEdit">
         <ion-label>Series Number</ion-label>
         <ion-input [(ngModel)]="tool.id"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="!isNew ||!isEdit">
+        <ion-label>Series Number</ion-label>
+        <ion-text >{{tool.id}}</ion-text>
+        <ion-icon name="qr-code" slot="end" (click)="print()"></ion-icon>
       </ion-item>
       <ion-item>
         <ion-label>Start Use</ion-label>
@@ -78,15 +78,26 @@
           <ion-item slot="header">
             <ion-label>Status</ion-label>
             <ion-text>
-              {{calcStatus()?"OK":"NG"}}
+              {{tool.status|status}}
             </ion-text>
           </ion-item>
           <ion-list slot="content">
             <ion-item *ngFor="let key of statusList">
-              <ion-label>{{key|titlecase}}</ion-label>
+              <ion-label>{{key}}</ion-label>
               <ion-select [(ngModel)]="tool.status[key]">
                 <ion-select-option [value]="pos" *ngFor="let stt of status[key];let pos=index">{{stt|titlecase}}</ion-select-option>
               </ion-select>
+            </ion-item>
+          </ion-list>
+        </ion-accordion>
+        <ion-accordion>
+          <ion-item slot="header">
+            <ion-label>Others Infor</ion-label>
+          </ion-item>
+          <ion-list slot="content">
+            <ion-item *ngFor="let item of ['name','group','maintenance','note']">
+              <ion-label>{{item|titlecase}}</ion-label>
+              <ion-text>{{model[item]}}</ion-text>
             </ion-item>
           </ion-list>
         </ion-accordion>

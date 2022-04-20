@@ -1,45 +1,55 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Unsubscribe } from 'firebase/auth';
 import { ProfilePage, ProfilePageOpts } from './modals/profile/profile.page';
+import { CompanyData, CompanyType, _DB_COMPANY } from './models/company.model';
 import { UserData, _DB_USERS } from './models/user.model';
 import { PageData } from './models/util.model';
 import { DisplayService } from './services/display/display.service';
 import { AuthService } from './services/firebase/auth.service';
 import { FirestoreService } from './services/firebase/firestore.service';
 
-
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent  {
   /** variable */
   pages:PageData[]=[
-    {name:'Tools',url:'tools',icon:'hammer',iconColor:'primary'},
-    {name:'Code Format',url:'formats',icon:'qr-code',iconColor:'tertiary'},
-    {name:'Companies',url:'companies',icon:'briefcase'},//<ion-icon name="briefcase"></ion-icon>
+    {name:'Tools',url:'tools',icon:'hammer',iconColor:'primary',type:'Yamaha Branch'},
+    {name:'Code Format',url:'formats',icon:'qr-code',iconColor:'tertiary',type:'Yamaha Branch'},
+    {name:'Companies',url:'companies',icon:'briefcase',type:'Yamaha Branch'},//<ion-icon name="briefcase"></ion-icon>
     {name:'History',url:'histories',icon:'refresh'},//<ion-icon name="refresh"></ion-icon>
   ]
   user:UserData=null;
   selectIndex:number=0;
   userUnsubcribe:Unsubscribe;
+  isAvailable:boolean=false;
   /** function */
   constructor(
     private auth:AuthService,
-    private router:Router,
     private disp:DisplayService,
     private db:FirestoreService
   ) {
-    this.userUnsubcribe=this.auth.onAuthStatusChange(user=>{
-      if(!user) return this.router.navigateByUrl('login');
-      this.db.get(_DB_USERS,user.uid)
-      .then(data=>{
-        this.user=data as UserData
-      })
-    })
+    this.userUnsubcribe=this.auth.onAuthStatusChange(
+      user=>{
+        this.user=user;
+        if(this.user){
+          this.db.get(_DB_COMPANY,this.user.companyId)
+          
+          .then((company:CompanyData)=>{
+            console.log("company",{company})
+            this.pages=this.pages.filter(page=>!page.type||page.type=='All'||page.type==company.type)
+          })
+        }
+      }
+    )
   }
+
+  ngOnInit(){ }
+
+
 
   /** show profile */
   showProfile(){

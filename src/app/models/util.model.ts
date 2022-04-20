@@ -1,13 +1,15 @@
 import { createOpts } from "../utils/minitools";
+import { CompanyType } from "./company.model";
 
 export type ColorType="primary"|"secondary"|"danger"|"light"|"tertiary"|"success"|"warning"|"medium"|"dark"
-
+export type PageType=CompanyType|"All"
 /** Page data */
 export interface PageData{
     name:string;
     url:string;
     icon:string;
     iconColor?:ColorType;
+    type?:PageType;
 }
 
 
