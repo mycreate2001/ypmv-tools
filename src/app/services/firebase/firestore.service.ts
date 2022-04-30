@@ -308,16 +308,23 @@ export class FirestoreService {
     })
   }
 
-  gets(tbl:string,IDs:string[],type:"Include"|"Exclude"="Include"){
-    const ref=collection(this.db,tbl);
-    return getDocs(ref).then(docs=>{
-      const outs=[];
-      docs.forEach(doc=>{
-        const id=doc.id;
-        if(type=="Include" && IDs.includes(id)) outs.push({id,...doc.data()})
-        else if(type=='Exclude' && !IDs.includes(id)) outs.push({id,...doc.data()})
+  gets(tbl:string,IDs:string[],type:"Include"|"Exclude"|"Reject"="Include"):Promise<any[]>{
+    return new Promise((resolve,reject)=>{
+      console.log("GETS\n",{tbl,IDs,type})
+      if(type=='Reject') return resolve([])
+      const ref=collection(this.db,tbl);
+      getDocs(ref).then(docs=>{
+        const outs=[];
+        docs.forEach(doc=>{
+          const id=doc.id;
+          if(type=="Include" && IDs.includes(id)) outs.push({id,...doc.data()})
+          else if(type=='Exclude' && !IDs.includes(id)) outs.push({id,...doc.data()})
+        })
+        return outs;
       })
-      return outs;
+      .then(result=>resolve(result))
+      .catch(err=>reject(err))
+     
     })
   }
 
@@ -336,8 +343,8 @@ function del(arrs:any[],id:any){
 export interface QueryData{
   key:string;
   value:any;
-  type:CompareType;
+  type:QueryDataType;
 
 }
 
-export declare type CompareType="<"|"<="|"=="|">"|">="|"!="|"in"|"not-in"|"array-contains"|"array-contains-any"
+export declare type QueryDataType="<"|"<="|"=="|">"|">="|"!="|"in"|"not-in"|"array-contains"|"array-contains-any"

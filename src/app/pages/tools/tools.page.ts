@@ -11,6 +11,8 @@ import { StorageService } from 'src/app/services/firebase/storage.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { CoverPage, CoverPageOpts, CoverPageOuts } from 'src/app/modals/cover/cover.page';
 import { UrlData } from 'src/app/models/util.model';
+import { ResolverService, Schema } from 'src/app/services/firebase/resolver.service';
+import { _DB_USERS } from 'src/app/models/user.model';
 
 
 @Component({
@@ -39,8 +41,41 @@ export class ToolsPage implements OnInit {
     private disp:DisplayService,
     private db:FirestoreService,
     private storage:StorageService,
-    private auth:AuthService
+    private auth:AuthService,
+    private rs:ResolverService
   ) {
+    const config:Schema={
+      table:'bookInfors',
+      name:'test',
+      queries:[],
+      items:["id","companyId",
+        { 
+          table:'users',
+          name:'createBy',
+          queries:{key:'id',type:'==',value:'%userId%'},
+          items:['id','name','email','companyId']
+        },
+        {
+          table:_DB_USERS,
+          name:'approvedBy',
+          queries:{key:'id',type:'==',value:'%approvedBy%'},
+          items:['id','name','email','companyId']
+        },
+        {
+          table:_DB_USERS,
+          name:'checkingBy',
+          queries:{key:'id',type:'==',value:'%checkingManId%'},
+          items:['id','name','email','companyId']
+        },
+        {
+          table:_DB_USERS,
+          name:'returnBy',
+          queries:{key:'id',type:'==',value:'%returnManId%'},
+          items:['id','name','email','companyId']
+        }
+      ]
+    }
+    this.rs.gets(config).then(results=>console.log("\n\nTEST\n",results))
   }
 
   /** system OnInit */
