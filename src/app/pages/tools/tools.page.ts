@@ -48,7 +48,7 @@ export class ToolsPage implements OnInit {
       table:'bookInfors',
       name:'test',
       queries:[],
-      items:["id","companyId",
+      items:["id","companyId","userId","approvedBy","checkingManId",
         { 
           table:'users',
           name:'createBy',
@@ -74,8 +74,9 @@ export class ToolsPage implements OnInit {
           items:['id','name','email','companyId']
         }
       ]
-    }
-    this.rs.gets(config).then(results=>console.log("\n\nTEST\n",results))
+    };
+    this.rs.query(config)
+    .then(result=>console.log("TEST",{result}))
   }
 
   /** system OnInit */
