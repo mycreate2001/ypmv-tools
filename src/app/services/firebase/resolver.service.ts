@@ -7,159 +7,142 @@ import { FirestoreService,QueryData, QueryDataType } from './firestore.service';
 export class ResolverService {
 
   constructor(private db:FirestoreService) { }
-  private getData(config:Schema,_buffers:BufferData[]=[]):Promise<Object[]>{
+  handlerCallback(data:object|object[],buffer:BufferData){
+    buffer.data=data;
+    buffer.isAvailable=true;
+    buffer.callbacks.forEach(cb=>cb&&cb(data))
+  }
+
+  /**
+   * get data from db
+   * @param config table,queries
+   * @param _buffers 
+   * @returns 
+   */
+  private getEnhanceData(config:Schema,_buffers:BufferData[]):Promise<object|object[]>{
     return new Promise((resolve,reject)=>{
-      const id:string=config.table+"*"+JSON.stringify(config.queries)
+      const id=config.table+"*"+JSON.stringify(config.queries);
+      // 1. handler buffer
       let buffer:BufferData=_buffers.find(b=>b.id==id);
-      //new request
+      // 1.1 new case
       if(!buffer){
-        //new buffer
-        buffer={data:null,isAvailable:false,id,callbacks:[]};
-        _buffers.push(buffer);
-        const queries:QueryData[]=[].concat(config.queries);
-        const queryWithID=queries.find(q=>q.key=='id')
-        if(queryWithID){
-          const values=queryWithID.value
-          this.db.gets(config.table,values)
-          .then(arrs=>{
-            buffer.data=arrs;
-            buffer.isAvailable=true;
-            buffer.callbacks.forEach(cb=>cb(buffer.data))
-          })
-          .catch(err=>reject(err))
+        // 1.1.1 new buffer
+        buffer={id,data:null,callbacks:[],isAvailable:false}
+        _buffers.push(buffer)
+        const idQuery:QueryData=[].concat(config.queries).find((q:QueryData)=>q.key=='id')
+        // 1.1.2 get/gets with ID/IDs
+        if(idQuery){
+          // 1.1.2.1 get ID
+          if(idQuery.type=='=='){
+            this.db.get(config.table,idQuery.value,"TEST")
+            .catch(err=>this.handlerCallback({},buffer))
+            .then(data=>this.handlerCallback(data,buffer))
+          }
+          // 1.1.2.2 gets IDs
+          else{
+            const type=idQuery.type=='in'?"Include":idQuery.type=='not-in'?"Exclude":"Reject"
+            this.db.gets(config.table,[].concat(idQuery.value),type)
+            .then(data=>this.handlerCallback(data,buffer))
+            .catch(err=>reject(err))
+          }
         }
+        // 1.1.2 search
         else{
-          //get data
-          this.db.search(config.table,config.queries)
-          .then(arrs=>{
-            buffer.data=arrs;
-            buffer.isAvailable=true;
-            buffer.callbacks.forEach(cb=>cb(buffer.data))
-          })
-          .catch(err=>reject(err))
+          this.db.search(config.table,config.queries).then(datas=>this.handlerCallback(datas,buffer))
         }
       }
-      // //available data
+      // 1.2 common
       if(buffer.isAvailable) return resolve(buffer.data)
       buffer.callbacks.push((data)=>resolve(data))
     })
   }
 
-  private updateQuery(arr:object,queries:QueryData[]|QueryData):QueryData[]{
-    let _queries:QueryData[]=[].concat(queries);
-    Object.keys(arr).forEach(key=>{
-      _queries.forEach(query=>{
-        query.value=(query.value+"").replace(`%${key}%`,arr[key])
+  /**
+   * update query for %key%
+   * @param data 
+   * @param queries 
+   * @returns 
+   */
+  private updateQuery(data:object,queries:QueryData|QueryData[]):QueryData[]{
+    const _queries:QueryData[]=JSON.parse(JSON.stringify([].concat(queries)))
+    _queries.forEach(query=>{
+      if(typeof query.value!=='string') return;
+      Object.keys(data).forEach(key=>{
+        query.value=query.value.replace(`%${key}%`,data[key])
       })
     })
     return _queries;
   }
 
-  query(config:Schema,_buffers:BufferData[]=[]):Promise<object[]>{
-    return new Promise((resolve,reject)=>{
-      this.getData(config,_buffers).then(datas=>{
-        const all=datas.map(data=>{
-          const _all=config.items.map(async item=>{
-            if(typeof item=='string') return {item,value:data[item]}
-            const _queries=this.updateQuery(data,item.queries)
-            return this.query({...item,queries:_queries},_buffers).then(value=>{
-              return {item:item.name,value}
-            })
-          })
-          //return result
-          return Promise.all(_all).then(results=>{
-            const out={};
-            results.forEach(result=>{
-              out[result.item]=result.value
-            })
-            return out;
-          })
-        })
-        Promise.all(all)
-        .then(data=>resolve(data))
-        .catch(err=>reject(err))
+  /**
+   * handler data when available
+   * @param data 
+   * @param config 
+   * @returns 
+   */
+  private handlerEachData(data:object,config:Schema,_buffers:BufferData[]){
+    const _all=config.items.map(async item=>{
+      if(typeof item=='string') return {item,value:data[item]}
+      let queries=JSON.parse(JSON.stringify(item.queries))
+      queries=this.updateQuery(data,queries);
+      return {item:item.name,value:await this.query({...item,queries},_buffers)}
       })
+
+    return Promise.all(_all)
+    .then(results=>{
+      const out:object={};
+      results.forEach(result=>{
+        out[result.item]=result.value
+      })
+      return out;
     })
   }
 
+  /**
+   * query data as config condition
+   * @param config 
+   * @param _buffers 
+   * @returns Database
+   * @example
+    const config:Schema={
+      table:'bookInfors',
+      name:'test',
+      queries:[],
+      items:["id","companyId","userId","approvedBy","checkingManId",
+        { 
+          table:'users',
+          name:'createBy',
+          queries:{key:'id',type:'==',value:'%userId%'},
+          items:['id','name','email','companyId']
+        }
+      ]
+    };
+    this.rs.query(config)
+    .then(result=>console.log("\n\nTEST\n---------TESTT ---------\n",{result}))
+    // home.page.ts
+    // contructor(private rs:ReserverService)
+   */
+  query(config:Schema,_buffers:BufferData[]=[]):Promise<object|object[]>{
+    return new Promise((resolve,reject)=>{
+      this.getEnhanceData(config,_buffers)
+      .then(datas=>{
+        if(!datas||!Object.keys(datas).length) return resolve({})
+        if(Array.isArray(datas)){
+          const all=datas.map(data=>this.handlerEachData(data,config,_buffers))
+          Promise.all(all)
+          .then(data=>resolve(data))
+          .catch(err=>reject(err))
+        }
+        else{
+          this.handlerEachData(datas,config,_buffers)
+          .then(data=>resolve(data))
+          .catch(err=>reject(err))
+        }
 
-  // gets(config:Schema,_buffers:BufferData[]=[]){
-  //   return new Promise( async (resolve,reject)=>{
-  //     if(!config) return reject(new Error("config is empty"))
-  //     const table=config.table;
-  //     const queries:QueryData[]=[].concat(config.queries||[])
-  //     let arrs:object[]=[]
-  //     const _buffer=_buffers.find(b=>b.table==table&&b.queries==JSON.stringify(queries))
-  //     //get data inside buffer
-  //     if(_buffer) {arrs=_buffer.arrs;}
-  //     //get data from database
-  //     else {
-  //       //check by gets
-  //       const queryWithID=queries.find(q=>q.key=='id');
-  //       if(queryWithID){
-  //         const iLst:QueryDataType[]=["==",'in'];
-  //         const eLst:QueryDataType[]=["!=","not-in"]
-  //         let condition:"Include"|"Exclude"|"Reject"=
-  //           iLst.includes(queryWithID.type)?"Include":
-  //           eLst.includes(queryWithID.type)?"Exclude":"Reject";
-          
-  //         arrs=await this.db.gets(config.table,[].concat(queryWithID.value), condition )
-  //       }
-  //       //check by search queries
-  //       else{
-  //         arrs=await this.db.search(config.table,config.queries)
-  //       }
-  //       _buffers.push({table,queries:JSON.stringify(queries),arrs})//save to buffers
-        
-  //     }
-
-  //     this.filters(arrs,config.items,_buffers)
-  //     .then(results=>resolve(results))
-  //     .catch(err=>reject(err))
-  //   })
-  // }
-
-  // _filter(arr: object, items: (string | Schema)[], _buffers): Promise<object> {
-  //   return new Promise((resolve, reject) => {
-  //     const all = items.map(async item => {
-  //       //basic case
-  //       if (typeof item == 'string') return { key: item, value: arr[item] }
-  //       let queries: QueryData[] = JSON.parse(JSON.stringify([].concat(item.queries || [])))
-  //       //handler queries
-  //       queries.forEach(query => {
-  //         if (!(query.value + "").includes("%")) return
-  //         Object.keys(arr).forEach(key => {
-  //           query.value = (query.value + "").replace("%" + key + "%", arr[key])
-  //         })
-  //       });
-  //       // return for object type
-  //       return {
-  //         key: item.name,
-  //         value: await this.gets({ ...item, queries }, _buffers)
-  //       }
-  //     })
-  //     Promise.all(all).then(results => {
-  //       const out = {}
-  //       results.forEach(result => {
-  //         out[result.key] = result.value
-  //       })
-  //       return resolve(out)
-  //     })
-  //     .catch(err=>reject(err))
-  //   })
-  // }
-
-  // /** */
-  // filters(arrs: object[], items: (string | Schema)[], _buffers): Promise<object[]> {
-  //  return new Promise((resolve,reject)=>{
-  //   const all=arrs.map(arr=>this._filter(arr,items,_buffers))
-  //   Promise.all(all).then(results=>resolve(results))
-  //   .catch(err=>reject(err))
-  //  })
-  // }
-
+      })
+    })
+  }
 }
-
 
 export interface Schema{
   name:string;
@@ -169,7 +152,7 @@ export interface Schema{
 }
 interface BufferData{
   id:string;
-  data:object[];
+  data:object[]|object;
   isAvailable:boolean;
   callbacks:Function[];
 }

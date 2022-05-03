@@ -243,8 +243,9 @@ export class FirestoreService {
    * @param id record id
    * @returns record
    */
-  get(tbl:string,id:string):Promise<any>{   
+  get(tbl:string,id:string,debug=null):Promise<any>{   
     return new Promise(async (resolve,reject)=>{
+      if(debug) console.log("GET('%s','%s') debug:'%s'",tbl,id,debug)
       if(!id) return reject(new Error("not exist id"));//nothing
       const docRef=doc(this.db,tbl,id);
       const docSnap=await getDoc(docRef);

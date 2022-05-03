@@ -76,7 +76,7 @@ export class ToolsPage implements OnInit {
       ]
     };
     this.rs.query(config)
-    .then(result=>console.log("TEST",{result}))
+    .then(result=>console.log("\n\nTEST\n---------TESTT ---------\n",{result}))
   }
 
   /** system OnInit */
