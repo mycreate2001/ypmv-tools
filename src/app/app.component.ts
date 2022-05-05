@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component } from '@angular/core';
 import { Unsubscribe } from 'firebase/auth';
 import { ProfilePage, ProfilePageOpts } from './modals/profile/profile.page';
-import { CompanyData, CompanyType, _DB_COMPANY } from './models/company.model';
+import { CompanyData, _DB_COMPANY } from './models/company.model';
 import { UserData, _DB_USERS } from './models/user.model';
 import { PageData } from './models/util.model';
 import { DisplayService } from './services/display/display.service';

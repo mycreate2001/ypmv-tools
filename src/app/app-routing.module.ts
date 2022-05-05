@@ -5,7 +5,7 @@ import { LoginGuard } from './guards/login/login.guard';
 const routes: Routes = [
   {
     path:'',
-    redirectTo:'histories',
+    redirectTo:'orders',
     pathMatch:'full'
   },
   //modal page
