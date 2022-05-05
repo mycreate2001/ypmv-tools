@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { BookingInforStatusType, CheckData } from 'src/app/models/bookingInfor.model';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
+import { CheckData, OrderDataStatusType } from 'src/app/models/order.model';
 import { statusList } from 'src/app/models/tools.model';
 import { MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
@@ -19,11 +19,11 @@ export class ToolStatusPage implements OnInit {
   tool:CheckData;
   addImages:UrlData[]=[];
   delImages:string[]=[];
-  status:BookingInforStatusType='created'
+  status:OrderDataStatusType='created'
 
   /** internal */
-  afterList:BookingInforStatusType[]=['renting','returned'];
-  beforeList:BookingInforStatusType[]=['approved']
+  ARTER_LIST:OrderDataStatusType[]=['renting','returned'];
+  BEFORE_LIST:OrderDataStatusType[]=['approved']
   backup:string[]=[];
   statusDb:object={}        //get status list from DB
   statusList=statusList;
@@ -147,7 +147,7 @@ export type ToolStatusPageRole="cancel"|"save"
  */
 export interface ToolStatusPageOpts{
   tool:CheckData;
-  status:BookingInforStatusType;
+  status:OrderDataStatusType;
   addImages?:UrlData[];
   delImages?:string[];
 }

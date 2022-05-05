@@ -1,11 +1,11 @@
 import { createOpts } from "../utils/minitools";
 import {  BasicView, BasicViewOpts, createBasicData } from "./basic.model";
-import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
+import { createSaveInf, SaveInfo } from "./save-infor.model";
 import { createToolStatus, ToolStatus } from "./tools.model";
 import { UrlData } from "./util.model";
 export declare type ApprovedResultType="Not yet"|"Accept"|"Reject"
-export declare type BookingInforStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"|"cancel"
-export interface BookingInfor extends SaveInfo{
+export declare type OrderDataStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"|"cancel"
+export interface OrderData extends SaveInfo{
     /** create */
     // userId:string;
     // createAt:string;
@@ -41,57 +41,20 @@ export interface BookingInfor extends SaveInfo{
 
     /** storage at YPMV */
     paringTools:ParingData[];   //
-    status:BookingInforStatusType;
+    status:OrderDataStatusType;
 }
 
-export interface BookingInforOpts extends SaveInfoOpts{
-    // userId:string;
-    // createAt:string;
-    // comment:string;
-    // lastUpdate:string;
-    /** create */
-    id?:string;
-    scheduleStart?:string;           // start date in schedule
-    scheduleFinish?:string;          // finish data in schedule
-    tools?:CheckData[];         // renting tools in schedule
-    companyId?:string;               // renting company
-    purpose?:string;                 // purpose of renting tool
+export type OrderDataOpts =Partial<OrderData>
 
-    /** approved*/
-    approvedBy?:string;                      // who approved
-    approvedDate?:string;                    // approved date
-    approvedResult?:ApprovedResultType;      // approved or reject
-    approvedComment?:string;                 // comment
-
-    /** check before renting */
-    checkingDate?:string;         // actual start date
-    checkingTools?:CheckData[];       // actual tools status
-    checkingManId?:string;        // actual yamaha PIC
-    checkingAgencyId?:string;      // Agency main
-    checkingAgencyName?:string;     // Name of agency man who take the tool
-    checkingComment?:string;       // checking comment, ex?: tool a have problem,...
-
-    /** return tools */
-    returnDate?:string;
-    returnTools?:CheckData[];   // tool & status
-    returnManId?:string;         // Yamaha get the tools
-    returnAgencyId?:string;     // agency man who return tools/jigs
-    returnAgencyName?:string;    //
-
-    /** storage at YPMV */
-    paringTools?:ParingData[];   //
-    status?:BookingInforStatusType;
-}
-
-export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
+export function createOrderData(opts?:OrderDataOpts):OrderData{
     const now=new Date();
     const id:string=now.getTime().toString(26);
-    const df:BookingInfor={
+    const df:OrderData={
         id,
         ...createSaveInf({createAt:now.toISOString()}),
         scheduleStart:'',           // start date in schedule
         scheduleFinish:'',          // finish data in schedule
-        tools:[],         // renting tools in schedule
+        tools:[],                   // renting tools in schedule
         companyId:'',               // renting company
         purpose:'',                 // purpose of renting tool
 
@@ -120,7 +83,7 @@ export function createBookingInfor(opts?:BookingInforOpts):BookingInfor{
         paringTools:[],   //
         status:"new"
     }
-    return createOpts(df,opts) as BookingInfor
+    return createOpts(df,opts) as OrderData
 }
 
 export interface CheckData extends BasicView {
@@ -181,7 +144,8 @@ export interface ParingData{
     userId:string;          // Yamaha guys who return tools/jigs into storage
 }
 
+
 /// const
-export const _DB_INFORS="bookInfors"
-export const _STORAGE_INFORS="bookInfors"
+export const _DB_ORDERS="bookInfors"
+export const _STORAGE_ORDERS="bookInfors"
 

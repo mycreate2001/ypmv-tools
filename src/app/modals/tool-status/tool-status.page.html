@@ -39,7 +39,7 @@
   </ion-card>
 
   <!-- before  information -->
-  <ion-card class="infor" *ngIf="beforeList.includes(status)||afterList.includes(status)">
+  <ion-card class="infor" *ngIf="BEFORE_LIST.includes(status)||ARTER_LIST.includes(status)">
     <ion-card-header>before Status</ion-card-header>
     <ion-accordion-group>
       <!-- status -->
@@ -116,7 +116,7 @@
   </ion-card>
 
   <!-- after information -->
-  <ion-card class="infor" *ngIf="afterList.includes(status)" >
+  <ion-card class="infor" *ngIf="ARTER_LIST.includes(status)" >
     <ion-card-header>After Status</ion-card-header>
     <ion-accordion-group>
       <!-- status -->

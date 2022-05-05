@@ -89,9 +89,9 @@ const routes: Routes = [
     loadChildren: () => import('./pages/companies/companies.module').then( m => m.CompaniesPageModule)
   },
   {
-    path: 'histories',
+    path: 'orders',
     canActivate:[LoginGuard],
-    loadChildren: () => import('./pages/histories/histories.module').then( m => m.HistoriesPageModule)
+    loadChildren: () => import('./pages/orders/order.module').then( m => m.HistoriesPageModule)
   },
   {
     path: 'tool-status',

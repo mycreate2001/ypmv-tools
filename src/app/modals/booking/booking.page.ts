@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import {  BasicData, BasicDataType, ChildData, createBasicData } from 'src/app/models/basic.model';
-import { ApprovedResultType, BookingInfor, BookingInforStatusType, CheckData, createBookingInfor, createCheckData, _DB_INFORS, _STORAGE_INFORS } from 'src/app/models/bookingInfor.model';
+import { CheckData, createCheckData, createOrderData, OrderData, OrderDataStatusType, _DB_ORDERS, _STORAGE_ORDERS } from 'src/app/models/order.model';
 import { CodeFormatConfig } from 'src/app/models/codeformat';
 import {  _DB_COMPANY } from 'src/app/models/company.model';
-import { CoverData, createCoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
-import { createToolData, createToolStatus, ModelData, statusList, ToolData, ToolStatusOpts, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
+import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
+import { ModelData, statusList, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import {  _DB_USERS } from 'src/app/models/user.model';
 import { UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
@@ -19,8 +19,6 @@ import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, Search
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
 
-
-
 @Component({
   selector: 'app-booking',
   templateUrl: './booking.page.html',
@@ -28,8 +26,8 @@ import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageR
 })
 export class BookingPage implements OnInit {
   /** input variable */
-  infor:BookingInfor;
-  inforId:string='';
+  order:OrderData;
+  orderId:string='';
 
   /** internal variable */
   selected:ChildData[]=[];
@@ -40,14 +38,21 @@ export class BookingPage implements OnInit {
   isOwner:boolean=false;
   isEdit:boolean=false;
   isSave:boolean=false;
+  isNew:boolean=false;
   conflictList:string[]=[];
   code:string;
-  cancelList:BookingInforStatusType[]=['created','approved']
-  scanList:BookingInforStatusType[]=['approved','renting']
-  approveList:BookingInforStatusType[]=['approved','renting','rejected','returned']
-  returnList:BookingInforStatusType[]=['renting'];
-  showStatusList:BookingInforStatusType[]=['approved','renting','returned']
-  // isChange:boolean=false;
+  //const
+ CAN_BOOK_LIST:OrderDataStatusType[]=['new','created']  ;  // can handler with booking button
+ CAN_RENT_LIST:OrderDataStatusType[]=['approved'];         // can hanler with renting botton
+ CAN_APPROVE_LIST:OrderDataStatusType[]=['created'];       // can handler with approving button
+ CAN_CANCEL_LIST:OrderDataStatusType[]=['created','approved']  // can handler with cancel button
+ CAN_DELETE_LIST:OrderDataStatusType[]=['new','created','approved','returned','cancel','rejected'] // can cancel with button
+ CAN_RETURN_LIST:OrderDataStatusType[]=['renting'];      // can hanler with returning button
+ CAN_EDIT_LIST:OrderDataStatusType[]=['new','created']
+ SCANS:OrderDataStatusType[]=['approved','renting'];
+ APPROVES:OrderDataStatusType[]=['approved','renting','rejected','returned'];
+ RETURNS:OrderDataStatusType[]=['renting'];
+ SHOW_STATUSES:OrderDataStatusType[]=['approved','renting','returned']
   constructor(
     private auth:AuthService,
     private db:FirestoreService,
@@ -58,18 +63,20 @@ export class BookingPage implements OnInit {
   ){ }
 
   ngOnInit() {
-    this._getInfor()
-    .then(infor=>{
-      this.infor=infor;
-      this.inforId=infor.id;
+    this._init()
+    .then(({order,isNew})=>{
+      this.order=order;
+      this.orderId=order.id;
+      this.isNew=isNew;
       console.log("Initial",this);
-      this._update()
+      this._refreshView()
     })
     .catch(err=>console.log("\n#### ERROR[1]: get data error",err))
   }
 
   
-  //////////////// Hander buttons /////////////////
+  //////////////// BUTTONS HANDLERS /////////////////
+
   /** check tool status */
   toolStatus(tool:CheckData){
     const data=this.temImages[tool.id]||{}
@@ -79,7 +86,7 @@ export class BookingPage implements OnInit {
       tool,
       addImages,
       delImages,
-      status:this.infor.status
+      status:this.order.status
     }
     this.disp.showModal(ToolStatusPage,props)
     .then(result=>{
@@ -89,16 +96,16 @@ export class BookingPage implements OnInit {
       if(role=='save'){
         ///
         this.temImages[tool.id]={addImages:data.addImages,delImages:data.delImages}
-        const pos=this.infor.tools.findIndex(x=>x.id==tool.id&&x.type==tool.type)
+        const pos=this.order.tools.findIndex(x=>x.id==tool.id&&x.type==tool.type)
         if(pos==-1) return console.warn("\n#### ERRROR ####\ndata wrong",{result})
-        this.infor.tools[pos]=data.tool
+        this.order.tools[pos]=data.tool
       }
     })
   }
 
   /** QR code */
   printCode(){
-    this.util.generaQRcode(this.infor.id,{label:this.infor.purpose,size:42,type:'booking'})
+    this.util.generaQRcode(this.order.id,{label:this.order.purpose,size:42,type:'booking'})
   }
 
   /** verifycation by scan */
@@ -115,7 +122,7 @@ export class BookingPage implements OnInit {
       code=code?code:data.analysis[CodeFormatConfig.tool.name];
       if(!code) return console.log("it not [coverId,toolId]",{analysis:data.analysis})
       //
-      const tools=this.infor.tools.filter(x=>x.id==code)
+      const tools=this.order.tools.filter(x=>x.id==code)
       if(tools.length>1) return console.warn("\n### ERROR[1]: code is doudle")
       this.toolStatus(tools[0])
     })
@@ -124,29 +131,24 @@ export class BookingPage implements OnInit {
   /** exist */
   done(role:BookingPageRoleType='save'){
     const data:BookingPageOuts={
-      infor:this.infor
+      order:this.order
     }
     this.modal.dismiss(data,role)
   }
 
   /** add more tool */
   pickupTool(){
-    const props:SearchToolPageOpts={exceptionList:this.infor.tools.map(x=>{return{id:x.id,type:x.type}})}
+    const props:SearchToolPageOpts={exceptionList:this.order.tools.map(x=>{return{id:x.id,type:x.type}})}
     this.disp.showModal(SearchToolPage,props)
     .then(result=>{
       const role=result.role as SearchToolPageRole;
+      if(role!=='ok') return; // not select
       const data=result.data as SearchToolPageOuts
-      if(role=='ok'){
-        // const tools=data.search.map(tool=>createCheckData({...tool}))
-        // this.infor.tools=[...this.infor.tools,...tools]
-        // console.log("TEST after picking up tool,",{tools,inforTools:this.infor.tools})
-        // return;
-        this.conflictList=[];
-        this._getToolfromPickup(data.search)
-        .then(tools=>{
-          this.infor.tools=this.infor.tools.concat(tools.map(tool=>createCheckData({...tool})))
-        })
-      }
+      this.conflictList=[];
+      this._getToolfromPickup(data.search)
+      .then(tools=>{
+        this.order.tools=this.order.tools.concat(tools.map(tool=>createCheckData({...tool})))
+      })
     })
   }
 
@@ -161,7 +163,7 @@ export class BookingPage implements OnInit {
       const role=result.role as SearchCompanyPageRole
       const data=result.data as SearchCompanyPageOuts
       if(role=='ok'){
-        this.infor.companyId=data.companyIds[0];
+        this.order.companyId=data.companyIds[0];
         return;
       }
     })
@@ -169,16 +171,15 @@ export class BookingPage implements OnInit {
 
   /** book */
   async book(){
+    if(!this.CAN_BOOK_LIST.includes(this.order.status)) return; // check status can book
     if(!this._verify()) return;
-    console.log("check[0]: verify is ok")
     this._checkConflict()
     .then(conflicts=>{
-      console.log("\ncheck[4]: conflict tools\n",conflicts)
       this.conflictList=conflicts.reduce((acc,cur)=>[...acc,...cur.children],[]).map(x=>x.type+x.id)
       console.log("configlist:",this.conflictList)
       if(conflicts.length) return this.disp.msgbox("Some tools/jigs are not available")
-      this.infor.status='created';
-      this.db.add(_DB_INFORS,this.infor)
+      this.order.status='created';
+      this.db.add(_DB_ORDERS,this.order)
       this.done();
     })
     // this.done('save');//test
@@ -186,39 +187,42 @@ export class BookingPage implements OnInit {
 
   async rent(){
     //verify data
-    if(this.infor.status!='approved') return this.disp.msgbox("wrong data")
-    if(this.infor.approvedResult!='Accept') return this.disp.msgbox("these tools not accept to rent")
-    const notCheck:boolean=this.infor.tools.some(tool=>status(tool.beforeStatus,tool.type)=='Not Check')
+    if(!this.CAN_RENT_LIST.includes(this.order.status)) return this.disp.msgbox("wrong data");
+    if(this.order.approvedResult!='Accept') return this.disp.msgbox("these tools not accept to rent")
+    const notCheck:boolean=this.order.tools.some(tool=>status(tool.beforeStatus,tool.type)=='Not Check')
     if(notCheck) return this.disp.msgbox("Tool not yet complete check status<br> pls check status of all tools")
    
     //------ updatetool stay ----------------//
-    let list:string[]=this.infor.tools.filter(x=>x.type=='cover').map(x=>x.id)
+    let list:string[]=this.order.tools.filter(x=>x.type=='cover').map(x=>x.id)
 
     const covers:CoverData[]=await this.db.gets(_DB_COVERS,list)
     covers.forEach(cover=>{
-      cover.stay=this.infor.companyId;
+      cover.stay=this.order.companyId;
       this.db.add(_DB_COVERS,cover)
     })
-    list=this.infor.tools.filter(x=>x.type=='tool').map(x=>x.id)
+    list=this.order.tools.filter(x=>x.type=='tool').map(x=>x.id)
     const tools:ToolData[]=await this.db.gets(_DB_TOOLS,list);
     tools.forEach(tool=>{
-      tool.stay=this.infor.companyId;
+      tool.stay=this.order.companyId;
       this.db.add(_DB_TOOLS,tool)
     })
+
     //----------- save data -------------//
-    const infor=await this._updateImage()           // update images
+    const infor=await this._refreshViewImage()           // update images
     infor.checkingDate=new Date().toISOString();    // checking date
     infor.checkingManId=this.auth.currentUser.id;   // ypmv checking main
     infor.checkingAgencyName=''                     // @@@
     infor.checkingAgencyId=''                       // @@@
     infor.status='renting';                         // status
-    this.db.add(_DB_INFORS,infor)                   // upload
+    this.db.add(_DB_ORDERS,infor)                   // upload
     this.done();
   }
   
 
   /** approved */
   approve(){
+    //check status
+    if(!this.CAN_APPROVE_LIST.includes(this.order.status)) return this.disp.msgbox(`This order '${this.orderId}' is wrong data<br>pls check it`)
     this.disp.msgbox(
       "pls input your comment",
       {
@@ -231,14 +235,14 @@ export class BookingPage implements OnInit {
       console.log("result",result);
       const role=result.role.toUpperCase();
       if(['ACCEPT','REJECT'].includes(role)){
-        this.infor.approvedResult=role=='ACCEPT'?'Accept':'Reject'  // result
-        this.infor.status='approved'                                // status
-        this.infor.approvedBy=this.auth.currentUser.id              // auth
-        this.infor.approvedComment=result.data.values[0]            // comment
-        this.infor.approvedDate=new Date().toISOString()            // date
-        console.log('test',this.infor)
-        this.db.add(_DB_INFORS,this.infor)
-        this.done();
+        this.order.approvedResult=role=='ACCEPT'?'Accept':'Reject'  // result
+        this.order.status='approved'                                // status
+        this.order.approvedBy=this.auth.currentUser.id              // auth
+        this.order.approvedComment=result.data.values[0]            // comment
+        this.order.approvedDate=new Date().toISOString()            // date
+        console.log('test',this.order)
+        this.db.add(_DB_ORDERS,this.order)
+        this.done('save');
         return;
       }
       
@@ -248,26 +252,27 @@ export class BookingPage implements OnInit {
   /** cancel */
   cancel(){
     //check infor
-    if(!this.cancelList.includes(this.infor.status)) return this.disp.msgbox("cannot cancel this booking")
-    this.infor.status='cancel'
-    this.db.add(_DB_INFORS,this.infor)
-    this.done();
+    if(!this.CAN_CANCEL_LIST.includes(this.order.status)) return this.disp.msgbox(`Order '${this.orderId}' is wrong data<br> pls check it`)
+    this.order.status='cancel'
+    this.db.add(_DB_ORDERS,this.order)
+    this.done('cancel');
   }
 
   /** delete booking (admin only) */
   delete(){
+    //verification
+    if(!this.CAN_DELETE_LIST.includes(this.order.status)) return this.disp.msgbox(`Order '${this.orderId}' is wrong data<br>pls check it`) 
     //configmation
     this.disp.msgbox("Are you sure want to delete this booking?",
     {buttons:[{text:'Cancel',role:'cance'},{text:'Delete',role:'delete'}]})
     .then(result=>{
-      console.log("role:",result)
       if(result.role!='delete') return;
       //delete images
-      const images:string[]=this.infor.tools.reduce((acc,curr)=>[...acc,...curr.beforeImages.map(x=>x.url),...curr.afterImages.map(x=>x.url)],[])
+      const images:string[]=this.order.tools.reduce((acc,curr)=>[...acc,...curr.beforeImages.map(x=>x.url),...curr.afterImages.map(x=>x.url)],[])
       console.log("\n---test---",{images})
       images.forEach(image=>this.storage.delete(image))
-      this.db.delete(_DB_INFORS,this.infor.id);
-      this.done();
+      this.db.delete(_DB_ORDERS,this.order.id);
+      this.done('delete');
     })
     
   }
@@ -275,12 +280,12 @@ export class BookingPage implements OnInit {
   /** returning tools/jigs to YPMV */
   async returning(){
     //check condition
-    console.log("returning tools/jigs")
-    if(this.infor.status!='renting') return console.warn("wrong status/process")
-    const notCheck:boolean=this.infor.tools.some(tool=>status(tool.afterStatus,tool.type)=='Not Check')
+
+    if(!this.CAN_RETURN_LIST.includes(this.order.status)) return console.warn("wrong status/process")
+    const notCheck:boolean=this.order.tools.some(tool=>status(tool.afterStatus,tool.type)=='Not Check')
     if(notCheck) return this.disp.msgbox("Tool not yet complete check status<br> pls check status of all tools")
     //---------- change stay -----------------//
-    const coversId=this.infor.tools.filter(x=>x.type=='cover').map(x=>x.id)
+    const coversId=this.order.tools.filter(x=>x.type=='cover').map(x=>x.id)
     this.db.gets(_DB_COVERS,coversId)
     .then((covers:CoverData[])=>{
       covers.forEach(cover=>{
@@ -289,7 +294,7 @@ export class BookingPage implements OnInit {
       })
     })
 
-    const toolsId=this.infor.tools.filter(x=>x.type=='tool').map(x=>x.id)
+    const toolsId=this.order.tools.filter(x=>x.type=='tool').map(x=>x.id)
     this.db.gets(_DB_TOOLS,toolsId).then((tools:ToolData[])=>{
       tools.forEach(tool=>{
         tool.stay=''//return tool
@@ -298,13 +303,13 @@ export class BookingPage implements OnInit {
     })
 
     //------------- save information --------//
-    const infor=await this._updateImage();
+    const infor=await this._refreshViewImage();
     infor.returnAgencyName=''//@@@
     infor.returnAgencyId=''  //@@@
     infor.returnDate=new Date().toISOString();
     infor.returnManId=this.auth.currentUser.id;
     infor.status='returned';
-    this.db.add(_DB_INFORS,infor)
+    this.db.add(_DB_ORDERS,infor)
     this.done();
   }
 
@@ -326,9 +331,9 @@ export class BookingPage implements OnInit {
    */
   removeTool(){
     this.selected.forEach(select=>{
-      const i=this.infor.tools.findIndex(s=>s.id==select.id&&s.type==select.type)
+      const i=this.order.tools.findIndex(s=>s.id==select.id&&s.type==select.type)
       if(i==-1) return console.log("\n### ERROR: not exist %s '%s'",select.type,select.id)
-      this.infor.tools.splice(i,1)
+      this.order.tools.splice(i,1)
     })
     this.selected=[];
     this.conflictList=[]
@@ -386,7 +391,7 @@ export class BookingPage implements OnInit {
       {key:"scheduleFinish",name:'Schedule Finish'},
       {key:'tools',name:'Tools'}
     ]
-    list=list.filter(item=>Array.isArray(this.infor[item.key])?!this.infor[item.key].length:!this.infor[item.key])
+    list=list.filter(item=>Array.isArray(this.order[item.key])?!this.order[item.key].length:!this.order[item.key])
     if(list.length) {
       this.disp.msgbox("missing input<br>"+list.map(x=>x.name).join(","));
       return false
@@ -400,19 +405,19 @@ export class BookingPage implements OnInit {
    */
   private _checkConflict():Promise<ConflictToolData[]> {
     // console.log('\ncheck[1]: start to check', { infor: this.infor });
-    const cList:BookingInforStatusType[]=['returned','rejected','cancel']
+    const cList:OrderDataStatusType[]=['returned','rejected','cancel']
     return new Promise((resolve, reject) => {
-      const a= this.db.search(_DB_INFORS, { key: 'status', type: 'not-in', value: cList })
+      const a= this.db.search(_DB_ORDERS, { key: 'status', type: 'not-in', value: cList })
         //check time
-        .then((infors:BookingInfor[]) => {
+        .then((orders:OrderData[]) => {
           // console.log("\ncheck[2]: get booking Infor from DB, status<>'returned'\n", { infors })
           //check time
-          const _start = new Date(this.infor.scheduleStart);
-          const _finish = new Date(this.infor.scheduleFinish);
+          const _start = new Date(this.order.scheduleStart);
+          const _finish = new Date(this.order.scheduleFinish);
           //filter -- 
-          return infors.filter(infor => {
+          return orders.filter(infor => {
             if (!infor) { console.log("\n###ERROR[1]: data is empty"); return false; }
-            if(infor.id==this.infor.id) return false;//current booking
+            if(infor.id==this.order.id) return false;//current booking
             let startDate: Date;
             let finishDate: Date;
             if (infor.status == 'created' || infor.status == 'approved') {
@@ -430,22 +435,22 @@ export class BookingPage implements OnInit {
           })     
         })
         //check tool
-        .then(async infors=>{
-          console.log("\ncheck[3]: infors after filting date\n",{infors})
-          if(!infors.length) return []  //completed
+        .then(async orders=>{
+          console.log("\ncheck[3]: infors after filting date\n",{orders})
+          if(!orders.length) return []  //completed
           const allCovers=await this.db.search(_DB_COVERS,[]);
           //calculete current tool
-          let _children:ChildData[]=this.infor.tools.map(x=>{return{id:x.id,type:x.type}})
+          let _children:ChildData[]=this.order.tools.map(x=>{return{id:x.id,type:x.type}})
           const _covers:CoverData[]=getCovers(_children,allCovers,[])
           _children=getChildren(_covers,_children)
           let _duplicateChildren:ConflictToolData[]=[];
-          infors.forEach(infor=>{
-            let children:ChildData[]=infor.tools;
+          orders.forEach(order=>{
+            let children:ChildData[]=order.tools;
             const covers:CoverData[]=getCovers(children,allCovers,[])
             children=getChildren(covers,children)
             const list=checkIncludeObj(_children,children,['id','type'],"All keys")
             if(!list.length) return;// OK
-            _duplicateChildren.push({children:list,infor})
+            _duplicateChildren.push({children:list,order})
           })
           return _duplicateChildren
         })
@@ -456,27 +461,30 @@ export class BookingPage implements OnInit {
   }
 
   /** get booking infor */
-  private _getInfor():Promise<BookingInfor>{
+  private _init():Promise<{isNew:boolean,order:OrderData}>{
     return new Promise((resolve,reject)=>{
-      if(!this.infor && !this.inforId){//new case
+      let isNew:boolean=false;
+      // case 1: new case
+      if(!this.order && !this.orderId){//new case
         const auth=this.auth.currentUser
-        const infor=createBookingInfor({userId:auth.id,companyId:auth.companyId});
-        return resolve(infor)
+        const order=createOrderData({userId:auth.id,companyId:auth.companyId});
+        isNew=true;
+        return resolve({isNew,order})
       }
-      if(this.infor){
-        return resolve(this.infor)
-      }
-      this.db.get(_DB_INFORS,this.inforId)
-      .then((infor:BookingInfor)=>resolve(infor))
+      // case 2: already exist db
+      if(this.order) return resolve({order:this.order,isNew})
+      // case 3: need to get from db
+      this.db.get(_DB_ORDERS,this.orderId)
+      .then((order:OrderData)=>resolve({order,isNew}))
       .catch(err=>reject(err))
     })
   }
 
   /** upload all images */
-  private _updateImage():Promise<BookingInfor>{
-    const stt=this.infor.status;
+  private _refreshViewImage():Promise<OrderData>{
+    const stt=this.order.status;
     return new Promise((resolve,reject)=>{
-      const all=this.infor.tools.map(tool=>{
+      const all=this.order.tools.map(tool=>{
         return this._uploadEachImage(tool.id)
         .then(urls=>{
           if(stt=='approved') tool.beforeImages=urls;
@@ -485,8 +493,8 @@ export class BookingPage implements OnInit {
         })
       })
       Promise.all(all).then(tools=>{
-        this.infor.tools=tools;
-        return resolve(this.infor)
+        this.order.tools=tools;
+        return resolve(this.order)
       })
       .catch(err=>reject(err))
     })
@@ -500,7 +508,7 @@ export class BookingPage implements OnInit {
       const addImages:UrlData[]=data.addImages||[];
       //delete
       delImages.forEach(this.storage.delete)
-      this.storage.uploadImages(addImages,_STORAGE_INFORS)
+      this.storage.uploadImages(addImages,_STORAGE_ORDERS)
       .then(urls=>{
         const a=urls.map(url=>typeof url=='string'?{url:url,caption:''}:url)
         return resolve(a);
@@ -510,12 +518,12 @@ export class BookingPage implements OnInit {
   }
 
   /** update */
-  private _update(){
+  private _refreshView(){
     //check
          //check some condition
-    if(this.auth.currentUser.id==this.infor.userId) this.isOwner=true;
+    if(this.auth.currentUser.id==this.order.userId) this.isOwner=true;
     if(this.auth.currentUser.role=='admin') this.isAdmin=true;
-    if(this.infor.status=='new'||this.infor.status=='created') {this.isEdit=true;this.isSave=true}
+    if(this.CAN_EDIT_LIST.includes(this.order.status)) {this.isEdit=true;this.isSave=true}
     this.isAvailable=true;
   }
 
@@ -530,13 +538,13 @@ export class BookingPage implements OnInit {
  * @param isEdit  enable edit or not
  */
 export interface BookingPageOpts{
-  infor?:BookingInfor
+  order?:OrderData;
   inforId?:string;
   isEdit?:boolean;
 }
 
 export interface BookingPageOuts{
-  infor:BookingInfor
+  order:OrderData
 }
 
 export declare type BookingPageRoleType="save"|"cancel"|'delete'|'back'
@@ -570,7 +578,7 @@ function  getChildren(covers:CoverData[],children:ChildData[]):ChildData[]{
 
 interface ConflictToolData {
   children:ChildData[];
-  infor:BookingInfor;
+  order:OrderData;
 }
 
 function status(stt,type:BasicDataType='tool'):'Not Check'|'OK'|'NG'{

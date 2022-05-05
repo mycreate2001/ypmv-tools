@@ -1,73 +1,44 @@
 import { Component, OnInit } from '@angular/core';
-import { BookingPage, BookingPageOpts, BookingPageOuts, BookingPageRoleType } from 'src/app/modals/booking/booking.page';
+import { BookingPage, BookingPageOpts } from 'src/app/modals/booking/booking.page';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from 'src/app/modals/qrcode/qrcode.page';
-import { BookingInfor, BookingInforStatusType, createBookingInfor, _DB_INFORS } from 'src/app/models/bookingInfor.model';
+import { OrderData, OrderDataStatusType, _DB_ORDERS } from 'src/app/models/order.model';
 import { CodeFormatConfig } from 'src/app/models/codeformat';
-import { createCompanyData, _DB_COMPANY } from 'src/app/models/company.model';
-import { createUserData, _DB_USERS } from 'src/app/models/user.model';
+import { _DB_COMPANY } from 'src/app/models/company.model';
+import { _DB_USERS } from 'src/app/models/user.model';
 import { MenuData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { ResolverService, Schema } from 'src/app/services/firebase/resolver.service';
 import { searchObj } from 'src/app/utils/data.handle';
 
-const config:Schema={
-  table:_DB_INFORS,
-  name:'root',
-  queries:[],
-  items:[...Object.keys(createBookingInfor()),
-    {
-      table:_DB_USERS,
-      name:'CreateBy',
-      queries:{key:'id',type:'==',value:'%userId%'},
-      items:[...Object.keys(createUserData()),
-        {
-          table:_DB_COMPANY,
-          name:'Company',
-          queries:{key:'id',type:'==',value:'%companyId%'},
-          items:Object.keys(createCompanyData())
-        }
-      ]
-    },
-    {
-      table:_DB_USERS,
-      name:'ApprovedBy',
-      queries:{key:'id',type:'==',value:'%approvedBy%'},
-      items:[...Object.keys(createUserData())]
-    }
-  ]
-}
+
 
 @Component({
-  selector: 'app-histories',
-  templateUrl: './histories.page.html',
-  styleUrls: ['./histories.page.scss'],
+  selector: 'app-order',
+  templateUrl: './order.page.html',
+  styleUrls: ['./order.page.scss'],
 })
-export class HistoriesPage implements OnInit {
+export class OrderPage implements OnInit {
   /** db */
   historyDb:ConnectData;
-  histories:BookingInfor[]=[];
+  histories:OrderData[]=[];
 
   /** internal */
-  views:BookingInfor[]=[];
+  views:OrderData[]=[];
   keyword:string=''
   /** control */
   isAvailable:boolean=false;
-  select:BookingInforStatusType|"All"="All"
+  select:OrderDataStatusType|"All"="All"
   constructor(
     private disp:DisplayService,
     private db:FirestoreService,
     private auth:AuthService,
-    private rs:ResolverService
   ) { }
 
   ngOnInit() {
-    this.historyDb=this.db.connect(_DB_INFORS,true);
+    this.historyDb=this.db.connect(_DB_ORDERS,true);
     this.historyDb.onUpdate((histories)=>{
       this.histories=histories;
-      console.time("test1")
-      this.rs.query(config).then(histories=>{console.timeEnd('test1');console.log("\ntest\n------------------\n",{histories})})
       this.update();
     })
   }
@@ -79,14 +50,14 @@ export class HistoriesPage implements OnInit {
   /////// BUTTONS HANDLER ////////////
 
   /** detail history */
-  detail(history:BookingInfor=null){
-    const props:BookingPageOpts={infor:history};//new case
+  detail(order:OrderData=null){
+    const props:BookingPageOpts={order};//new case
     this.disp.showModal(BookingPage,props)
   }
 
   /** option select */
   option(event){
-    const status:(BookingInforStatusType|"All")[]=["All","created","approved","renting","returned","rejected"]
+    const status:(OrderDataStatusType|"All")[]=["All","created","approved","renting","returned","rejected"]
     const menus:MenuData[]=status.map(stt=>{
       const menu:MenuData={
         name:stt,

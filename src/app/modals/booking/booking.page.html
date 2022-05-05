@@ -6,45 +6,45 @@
         <ion-label>Back</ion-label>
       </ion-button>
     </ion-buttons>
-    <ion-title>Booking Infor</ion-title>
+    <ion-title>Booking</ion-title>
     <ion-buttons slot="end" *ngIf="isAvailable">
       <!-- scan -->
-      <ion-button (click)="scan()" *ngIf="scanList.includes(infor.status)">
+      <ion-button (click)="scan()" *ngIf="SCANS.includes(order.status)">
         <ion-icon name="scan"></ion-icon>
       </ion-button>
       <!-- owner -->
       <ng-container *ngIf="isOwner">
         <!-- cancel -->
-        <ion-button (click)="cancel()" title="cancel"  *ngIf="cancelList.includes(infor.status)">
+        <ion-button (click)="cancel()" title="cancel"  *ngIf="CAN_CANCEL_LIST.includes(order.status)">
           <ion-icon name="close-circle"></ion-icon>
         </ion-button>
         <!-- booking button -->
-        <ion-button (click)="book()" title="Book" *ngIf="infor.status=='new'">
+        <ion-button (click)="book()" title="Book" *ngIf="order.status=='new'">
           <ion-label>Book</ion-label>
           <ion-icon name="chevron-forward"></ion-icon>
         </ion-button>
         <!-- save -->
-        <ion-button (click)="book()" title="Save" *ngIf="infor.status=='created'">
+        <ion-button (click)="book()" title="Save" *ngIf="order.status=='created'">
           <ion-icon name="save"></ion-icon>
         </ion-button>
       </ng-container>
       <!-- renting -->
-      <ion-button title="Renting" *ngIf="infor.status=='approved'" (click)="rent()">
+      <ion-button title="Renting" *ngIf="order.status=='approved'" (click)="rent()">
         <ion-label>Rent</ion-label>
         <ion-icon name="chevron-forward"></ion-icon>
       </ion-button>
       <!-- admin -->
       <ng-container *ngIf="isAdmin">
-        <ion-button title="delete" (click)="delete()" *ngIf="['created','rejected','returned','cancel'].includes(infor.status)">
+        <ion-button title="delete" (click)="delete()" *ngIf="CAN_DELETE_LIST.includes(order.status)">
           <ion-icon name="trash"></ion-icon>
         </ion-button>
-        <ion-button title="Approve/Reject" *ngIf="infor.status=='created'" (click)="approve()">
+        <ion-button title="Approve/Reject" *ngIf="order.status=='created'" (click)="approve()">
           <ion-label>Approve</ion-label>
           <ion-icon name="chevron-forward"></ion-icon>
         </ion-button>
       </ng-container>
       <!-- return tools -->
-      <ion-button title="return" (click)="returning()" *ngIf="returnList.includes(infor.status)">
+      <ion-button title="return" (click)="returning()" *ngIf="CAN_RETURN_LIST.includes(order.status)">
         <ion-label>Get back tools</ion-label>
         <ion-icon name="chevron-forward"></ion-icon>
       </ion-button>
@@ -61,7 +61,7 @@
       </ion-card-header>
       <ion-item>
         <ion-label>ID</ion-label>
-        <ion-text>{{infor.id}}</ion-text>
+        <ion-text>{{order.id}}</ion-text>
         <ion-buttons slot="end" title="show QR code">
           <ion-button (click)="printCode()">
             <ion-icon name="qr-code"></ion-icon>
@@ -71,12 +71,12 @@
     
       <ion-item>
         <ion-label>Create Date</ion-label>
-        <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
+        <ion-text>{{order.createAt|date:'yyyy-MMM-dd'}}</ion-text>
       </ion-item>
   
       <ion-item>
         <ion-label>Create by</ion-label>
-        <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
+        <ion-chip color="primary" *ngIf="order.userId|db:'users'|async as user">
           <ion-avatar >
             <img class="avatar" [src]="user.image">
           </ion-avatar>
@@ -87,7 +87,7 @@
       <ion-item (click)="selectCompany()" button>
         <ion-label>Company</ion-label>
         
-        <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
+        <ion-chip color="primary" *ngIf="order.companyId|db:'companies' | async as company;else nocompany" >
           <ion-avatar>
             <img class="avatar" [src]="company.image">
           </ion-avatar>
@@ -98,19 +98,19 @@
   
       <ion-item>
         <ion-label>Purpose</ion-label>
-        <ion-input [(ngModel)]="infor.purpose" ></ion-input>
+        <ion-input [(ngModel)]="order.purpose" ></ion-input>
       </ion-item>
       
       <!-- schedule start -->
       <ion-item button="true" id="schedule-start">
         <ion-label>Schedule Start</ion-label>
-        <ion-text slot="end">{{infor.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
+        <ion-text slot="end">{{order.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
         <ion-popover trigger="schedule-start" show-backdrop="false">
           <ng-template>
             <ion-datetime
               #popoverschedulestart
               presentation="date"
-              (ionChange)="infor.scheduleStart=popoverschedulestart.value"
+              (ionChange)="order.scheduleStart=popoverschedulestart.value"
               >
             </ion-datetime>
           </ng-template>
@@ -120,13 +120,13 @@
       <!-- schedule finish -->
       <ion-item button="true" id="schedule-finish">
         <ion-label>Schedule Finish</ion-label>
-        <ion-text slot="end">{{infor.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
+        <ion-text slot="end">{{order.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
         <ion-popover trigger="schedule-finish" show-backdrop="false">
           <ng-template>
             <ion-datetime
               #popoverschedulefinish
               presentation="date"
-              (ionChange)="infor.scheduleFinish=popoverschedulefinish.value"
+              (ionChange)="order.scheduleFinish=popoverschedulefinish.value"
               >
             </ion-datetime>
           </ng-template>
@@ -148,7 +148,7 @@
         </ion-item>
       </ion-card-header>
       <ion-list>
-        <ion-item *ngFor="let tool of infor.tools;let pos=index">
+        <ion-item *ngFor="let tool of order.tools;let pos=index">
           <ion-thumbnail slot="start">
             <img  [src]="tool.images|url">
           </ion-thumbnail>
@@ -171,7 +171,7 @@
       <ion-list insert="true">
         <ion-item>
           <ion-label>ID</ion-label>
-          <ion-text>{{infor.id}}</ion-text>
+          <ion-text>{{order.id}}</ion-text>
           <ion-buttons slot="end" title="show QR code">
             <ion-button (click)="printCode()">
               <ion-icon name="qr-code"></ion-icon>
@@ -181,12 +181,12 @@
       
         <ion-item>
           <ion-label>Create Date</ion-label>
-          <ion-text>{{infor.createAt|date:'yyyy-MMM-dd'}}</ion-text>
+          <ion-text>{{order.createAt|date:'yyyy-MMM-dd'}}</ion-text>
         </ion-item>
     
         <ion-item>
           <ion-label>Create by</ion-label>
-          <ion-chip color="primary" *ngIf="infor.userId|db:'users'|async as user">
+          <ion-chip color="primary" *ngIf="order.userId|db:'users'|async as user">
             <ion-avatar >
               <img class="avatar" [src]="user.image">
             </ion-avatar>
@@ -196,7 +196,7 @@
       
         <ion-item >
           <ion-label>Company</ion-label>
-          <ion-chip color="primary" *ngIf="infor.companyId|db:'companies' | async as company;else nocompany" >
+          <ion-chip color="primary" *ngIf="order.companyId|db:'companies' | async as company;else nocompany" >
             <ion-avatar> <img class="avatar" [src]="company.image"> </ion-avatar>
             <ion-label>{{company.name}}</ion-label>
           </ion-chip>
@@ -205,25 +205,25 @@
     
         <ion-item>
           <ion-label>Purpose</ion-label>
-          <ion-text>{{infor.purpose}}</ion-text>
+          <ion-text>{{order.purpose}}</ion-text>
         </ion-item>
         
         <!-- schedule start -->
         <ion-item>
           <ion-label>Schedule Start</ion-label>
-          <ion-text slot="end">{{infor.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
+          <ion-text slot="end">{{order.scheduleStart|date:'yyyy-MMM-dd'}}</ion-text>
         </ion-item>
         
         <!-- schedule finish -->
         <ion-item >
           <ion-label>Schedule Finish</ion-label>
-          <ion-text slot="end">{{infor.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
+          <ion-text slot="end">{{order.scheduleFinish|date:'yyyy-MMM-dd'}}</ion-text>
         </ion-item>
       </ion-list>
     </ion-card>
 
     <!-- other infor -->
-    <ion-card *ngIf="approveList.includes(infor.status)" class="infor">
+    <ion-card *ngIf="CAN_APPROVE_LIST.includes(order.status)" class="infor">
       <ion-card-header>Others Infor</ion-card-header>
     
       <ion-accordion-group>
@@ -231,12 +231,12 @@
         <ion-accordion>
           <ion-item slot="header">
             <ion-label>Approved Result</ion-label>
-            <ion-badge>{{infor.approvedResult}}</ion-badge>
+            <ion-badge>{{order.approvedResult}}</ion-badge>
           </ion-item>
           <ion-list slot="content" lines="none">
             <ion-item>
               <ion-label>Approved by</ion-label>
-              <ion-chip *ngIf="infor.approvedBy|db:'users'|async as auth"  color="success">
+              <ion-chip *ngIf="order.approvedBy|db:'users'|async as auth"  color="success">
                 <ion-avatar>
                   <img [src]="auth.image|url">
                 </ion-avatar>
@@ -245,15 +245,15 @@
             </ion-item>
             <ion-item>
               <ion-label>Decided</ion-label>
-              <ion-text>{{infor.approvedResult}}</ion-text>
+              <ion-text>{{order.approvedResult}}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>Comment</ion-label>
-              <ion-text>{{infor.approvedComment}}</ion-text>
+              <ion-text>{{order.approvedComment}}</ion-text>
             </ion-item>
             <ion-item>
               <ion-label>Approved Date</ion-label>
-              <ion-text>{{infor.approvedDate|date:'yyyy-MMM-dd'}}</ion-text>
+              <ion-text>{{order.approvedDate|date:'yyyy-MMM-dd'}}</ion-text>
             </ion-item>
           </ion-list>
         </ion-accordion>
@@ -262,12 +262,12 @@
         <ion-accordion >
           <ion-item slot="header">
             <ion-label>Before Renting</ion-label>
-            <ion-badge>{{(!infor.checkingDate&&!infor.checkingManId)?'Not yet':'Checked'}}</ion-badge>
+            <ion-badge>{{(!order.checkingDate&&!order.checkingManId)?'Not yet':'Checked'}}</ion-badge>
           </ion-item>
           <ion-list slot="content" lines="none">
             <ion-item >
               <ion-label>Checking by</ion-label>
-              <ion-chip *ngIf="infor.checkingManId|db:'users'|async as auth;else noAuth">
+              <ion-chip *ngIf="order.checkingManId|db:'users'|async as auth;else noAuth">
                 <ion-avatar><img [src]="auth.image"></ion-avatar>
                 <ion-label>{{auth.name}}</ion-label>
               </ion-chip>
@@ -275,7 +275,7 @@
             </ion-item>
             <ion-item>
               <ion-label>Checking date</ion-label>
-              <ion-text>{{infor.checkingDate|date:'yyyy-MMM-dd'}}</ion-text>
+              <ion-text>{{order.checkingDate|date:'yyyy-MMM-dd'}}</ion-text>
             </ion-item>
           </ion-list>
         </ion-accordion>
@@ -284,12 +284,12 @@
         <ion-accordion >
           <ion-item slot="header">
             <ion-label>After Renting</ion-label>
-            <ion-badge>{{(!infor.returnDate&&!infor.returnManId)?'Not yet':'Checked'}}</ion-badge>
+            <ion-badge>{{(!order.returnDate&&!order.returnManId)?'Not yet':'Checked'}}</ion-badge>
           </ion-item>
           <ion-list slot="content" lines="none">
             <ion-item >
               <ion-label>Checking by</ion-label>
-              <ion-chip *ngIf="infor.returnManId|db:'users'|async as auth;else noAuth">
+              <ion-chip *ngIf="order.returnManId|db:'users'|async as auth;else noAuth">
                 <ion-avatar><img [src]="auth.image"></ion-avatar>
                 <ion-label>{{auth.name}}</ion-label>
               </ion-chip>
@@ -297,7 +297,7 @@
             </ion-item>
             <ion-item>
               <ion-label>Checking date</ion-label>
-              <ion-text>{{infor.returnDate|date:'yyyy-MMM-dd'}}</ion-text>
+              <ion-text>{{order.returnDate|date:'yyyy-MMM-dd'}}</ion-text>
             </ion-item>
           </ion-list>
         </ion-accordion>
@@ -307,7 +307,7 @@
     <ion-card class="infor">
       <ion-card-header> Tools/Jig </ion-card-header>
       <ion-list>
-        <ion-item *ngFor="let tool of infor.tools;let pos=index" (click)="toolStatus(tool)">
+        <ion-item *ngFor="let tool of order.tools;let pos=index" (click)="toolStatus(tool)">
           <ion-thumbnail slot="start">
             <img  [src]="tool.images|url">
           </ion-thumbnail>
@@ -316,14 +316,14 @@
             <p>{{tool.id}}</p> 
           </ion-label>
           <!-- before -->
-          <ng-container [ngSwitch]="tool.beforeStatus|status:tool.type" *ngIf="showStatusList.includes(infor.status)">
+          <ng-container [ngSwitch]="tool.beforeStatus|status:tool.type" *ngIf="SHOW_STATUSES.includes(order.status)">
             <ion-icon title="Not check" slot="end" *ngSwitchCase="'Not Check'" name="radio-button-on"></ion-icon>
             <ion-icon slot="end" color="success" *ngSwitchCase="'OK'" name="checkmark-circle"></ion-icon>
             <ion-icon slot="end" color="danger" *ngSwitchCase="'NG'" name="close-circle"></ion-icon>
             <ion-icon slot="end" *ngSwitchDefault name="radio-button-off"></ion-icon>
           </ng-container>
           <!-- after -->
-          <ng-container [ngSwitch]="tool.afterStatus|status:tool.type" *ngIf="showStatusList.includes(infor.status)">
+          <ng-container [ngSwitch]="tool.afterStatus|status:tool.type" *ngIf="SHOW_STATUSES.includes(order.status)">
             <ion-icon title="Not check" slot="end" *ngSwitchCase="'Not Check'" name="radio-button-on"></ion-icon>
             <ion-icon slot="end" color="success" *ngSwitchCase="'OK'" name="checkmark-circle"></ion-icon>
             <ion-icon slot="end" color="danger" *ngSwitchCase="'NG'" name="close-circle"></ion-icon>
