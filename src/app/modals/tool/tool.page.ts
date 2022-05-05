@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { ButtonData, MenuData } from 'src/app/models/util.model';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { UtilService } from 'src/app/services/util/util.service';
 import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
@@ -45,6 +44,7 @@ export class ToolPage implements OnInit {
 
   ///////////////// SYSTEM FUNCTIONS //////////////////////
   ngOnInit() {
+    this.isEdit=this.isNew?true:false;
     this._getTool()
     .then(tool=>{
       this.tool=tool;
@@ -146,12 +146,14 @@ export type ToolPageRole="cancel"|"ok"|"delete"|"back"
  * @param toolId
  */
  export interface ToolPageOpts{
+   /** id of tool */
+  toolId?:string;
   /** tool data */
   tool?:ToolData;
   /** tool model */
   model?:ModelData;
-  /** id of tool */
-  toolId?:string;
+  
+  isNew?:boolean;
 }
 
 export interface ToolPageOuts{

@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertInput, ModalController } from '@ionic/angular';
 import { ConfigId, configs, _DB_CONFIGS } from 'src/app/models/config';
-import { createModelData, createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
+import { createModelData, createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
 import { ButtonData, MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
 import {  FirestoreService } from 'src/app/services/firebase/firestore.service';
+import { StorageService } from 'src/app/services/firebase/storage.service';
 
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
 import { ToolPage, ToolPageOpts, ToolPageOuts } from '../tool/tool.page';
@@ -38,14 +39,13 @@ export class ModelPage implements OnInit {
   user:UserData;
 
   /** it's may get from database */
-  visualStatus=["OK","scratch","Crack","other"];
-  operationStatus=["OK","Not smomthly","Cannot operation","other"];
-  functionStatus=["OK","Not correctly","other"];
+  statusList:object={}
   constructor(
     private modal:ModalController,
     private disp:DisplayService,
     private db:FirestoreService,
-    private auth:AuthService
+    private auth:AuthService,
+    private storage:StorageService
   ) {
 
   }
@@ -54,19 +54,20 @@ export class ModelPage implements OnInit {
     this._getModel()
     .then(model=>{
       this.model=model;this.modelId=this.model.id
-      return this.db.search(_DB_TOOLS,{key:'model',type:'==',value:model.id})
+      const toolCtr= this.db.search(_DB_TOOLS,{key:'model',type:'==',value:model.id})
+      const groupId:ConfigId='groups'
+      const groupCtr:Promise<string[]>=this.db.get(_DB_CONFIGS,groupId);
+      const statusId:ConfigId='toolstatus';
+      const statusCtr=this.db.get(_DB_CONFIGS,statusId);
+      Promise.all([toolCtr,groupCtr,statusCtr]).then(
+        ([tools,_groups,_status])=>{
+          this.tools=tools;
+          this.groups=_groups['list']||[];
+          this.statusList=_status;
+          this._update();
+        }
+      )
     })
-    .then((tools:ToolData[])=>{
-      this.tools=tools;
-      const id:ConfigId='groups'
-      return this.db.get(_DB_CONFIGS,id)
-      .then(result=>{
-        this.groups=result.list ||[];//
-        this._update();
-      })
-      
-    })
-
   }
 
   /** check & get model data */
@@ -143,10 +144,21 @@ export class ModelPage implements OnInit {
     })
   }
 
+  /** save data */
   save(){
     const list=this._verify();
     if(list.length) return this.disp.msgbox("Missing information<br>"+list.join("<br>"))
-    this.done()
+    // delete images
+    this.delImages.forEach(image=>this.storage.delete(image));
+    // add new images
+    this.storage.uploadImages(this.addImages,_STORAGE_MODELS)
+    .then(urls=>{
+      const images=urls.map(url=>typeof url=='string'?{caption:'',url}:url)
+      this.model.images=this.model.images.concat(images);
+      return this.db.add(_DB_MODELS,this.model);
+    })
+    .then(()=>this.done('save'))
+    .catch(err=>this.disp.msgbox("save data is error<br>"+err.message))
   }
 
   /** delete model */
@@ -155,41 +167,25 @@ export class ModelPage implements OnInit {
     {buttons:[{text:'Cancel',role:'cancel'},{text:'Delete',role:'delete'}]})
     .then(result=>{
       if(result.role!=='delete') return;
-      this.done('delete')
+      //delete images
+      this.model.images.forEach(image=>this.storage.delete(image.url));
+      //delete database
+      this.db.delete(_DB_MODELS,this.model.id)
+      .then(()=>this.done('delete'))
     })
   }
 
 
   /** detail tool */
   detail(tool:ToolData=null){
-    if(typeof this.model=='string') return;
-    console.log("tool:",tool);
-    tool=tool?tool:createToolData({userId:this.auth.currentUser.id,model:this.model.id})
-    const props:ToolPageOpts={tool,model:this.model}
+    const isNew:boolean=tool?false:true;
+    tool=tool||createToolData({model:this.model.id})
+    const props:ToolPageOpts={
+      model:this.model,
+      tool,
+      isNew
+    }
     this.disp.showModal(ToolPage,props)
-    .then(result=>{
-      const data=result.data as ToolPageOuts
-      const xTool=data.tool;
-      xTool.lastUpdate=new Date().toISOString();
-      switch(result.role.toUpperCase()){
-        case 'OK':
-        case 'SAVE':{
-          this.db.add(_DB_TOOLS,xTool)
-        }
-        break;
-
-        case 'DELETE':{
-          this.db.delete(_DB_TOOLS,xTool.id);
-          const pos=this.tools.findIndex(x=>x.id==xTool.id)
-          if(pos!=-1) this.tools.splice(pos,1);
-        }
-        break;
-
-        default:
-          console.log("#ERROR: Out of case, role:",result.role)
-      }
-    })
-    
   }
 
 
@@ -199,9 +195,6 @@ export class ModelPage implements OnInit {
     const list=['id','name','group','compQty','maintenance']
     return list.filter(key=>!this.model[key])
   }
-
-
- 
 
 }
 
@@ -216,6 +209,7 @@ export interface ModelPageOpts{
   model?:ModelData;   // model data or id, underfind=>create new
   tools?:ToolData[]         // default
   isEdit?:boolean;          // Enable edit
+  isNew?:boolean;
 }
 
 /**

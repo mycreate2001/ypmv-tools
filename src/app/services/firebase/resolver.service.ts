@@ -4,9 +4,11 @@ import { FirestoreService,QueryData, QueryDataType } from './firestore.service';
 @Injectable({
   providedIn: 'root'
 })
-export class ResolverService {
+export class ResolverService extends FirestoreService {
 
-  constructor(private db:FirestoreService) { }
+  // constructor(private db:FirestoreService) {
+  //   super();
+  // }
   handlerCallback(data:object|object[],buffer:BufferData){
     buffer.data=data;
     buffer.isAvailable=true;
@@ -14,12 +16,12 @@ export class ResolverService {
   }
 
   /**
-   * get data from db
+   * get data from db, if same buffers function not get db 2 times
    * @param config table,queries
    * @param _buffers 
    * @returns 
    */
-  private getEnhanceData(config:Schema,_buffers:BufferData[]):Promise<object|object[]>{
+  getEnhanceData(config:Schema,_buffers:BufferData[]):Promise<object|object[]>{
     return new Promise((resolve,reject)=>{
       const id=config.table+"*"+JSON.stringify(config.queries);
       // 1. handler buffer
@@ -34,21 +36,21 @@ export class ResolverService {
         if(idQuery){
           // 1.1.2.1 get ID
           if(idQuery.type=='=='){
-            this.db.get(config.table,idQuery.value,"TEST")
+            this.get(config.table,idQuery.value,"TEST")
             .catch(err=>this.handlerCallback({},buffer))
             .then(data=>this.handlerCallback(data,buffer))
           }
           // 1.1.2.2 gets IDs
           else{
             const type=idQuery.type=='in'?"Include":idQuery.type=='not-in'?"Exclude":"Reject"
-            this.db.gets(config.table,[].concat(idQuery.value),type)
+            this.gets(config.table,[].concat(idQuery.value),type)
             .then(data=>this.handlerCallback(data,buffer))
             .catch(err=>reject(err))
           }
         }
         // 1.1.2 search
         else{
-          this.db.search(config.table,config.queries).then(datas=>this.handlerCallback(datas,buffer))
+          this.search(config.table,config.queries).then(datas=>this.handlerCallback(datas,buffer))
         }
       }
       // 1.2 common
@@ -80,9 +82,13 @@ export class ResolverService {
    * @param config 
    * @returns 
    */
-  private handlerEachData(data:object,config:Schema,_buffers:BufferData[]){
+  queryWithData(data:object,config:Schema,_buffers:BufferData[]=[]){
     const _all=config.items.map(async item=>{
+      //string => return item as string
       if(typeof item=='string') return {item,value:data[item]}
+      //function => handler
+      if(item.handler) return {item:item.name,value:await item.handler(data)}
+      //query => get from db
       let queries=JSON.parse(JSON.stringify(item.queries))
       queries=this.updateQuery(data,queries);
       return {item:item.name,value:await this.query({...item,queries},_buffers)}
@@ -128,13 +134,13 @@ export class ResolverService {
       .then(datas=>{
         if(!datas||!Object.keys(datas).length) return resolve({})
         if(Array.isArray(datas)){
-          const all=datas.map(data=>this.handlerEachData(data,config,_buffers))
+          const all=datas.map(data=>this.queryWithData(data,config,_buffers))
           Promise.all(all)
           .then(data=>resolve(data))
           .catch(err=>reject(err))
         }
         else{
-          this.handlerEachData(datas,config,_buffers)
+          this.queryWithData(datas,config,_buffers)
           .then(data=>resolve(data))
           .catch(err=>reject(err))
         }
@@ -147,6 +153,7 @@ export class ResolverService {
 export interface Schema{
   name:string;
   table:string;
+  handler?:(data:Object)=>any;
   queries:QueryData|QueryData[];
   items:(string|Schema)[];
 }

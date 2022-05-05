@@ -6,12 +6,12 @@
         <ion-label>Cancel</ion-label>
       </ion-button>
     </ion-buttons>
-    <ion-title>Cover Infor</ion-title>
+    <ion-title>Box Infor</ion-title>
     <ion-buttons slot="end">
       <ion-button title="Delete" (click)="delete()" >
         <ion-icon name="trash" ></ion-icon>
       </ion-button>
-      <ion-button title="Save" (click)="save()" >
+      <ion-button title="Save" (click)="save()" *ngIf="isChange" >
         <ion-icon name="save" ></ion-icon>
       </ion-button>
       <ion-button (click)="print()">
@@ -52,11 +52,15 @@
   </ion-card>
   <ion-card class="infor">
     <ion-list>
-      <ion-item>
+      <ion-item *ngIf="isNew">
         <ion-label>ID</ion-label>
         <ion-input [(ngModel)]="cover.id"></ion-input>
       </ion-item>
-      
+      <ion-item *ngIf="!isNew">
+        <ion-label>ID</ion-label>
+        <ion-text>{{cover.id}}</ion-text>
+      </ion-item>
+
       <ion-item>
         <ion-label>Part Name</ion-label>
         <ion-input [(ngModel)]="cover.name"></ion-input>
@@ -96,18 +100,22 @@
           <div slot="content">
             <ion-item lines="none">
               <ion-buttons slot="end">
-                <ion-button (click)="addChild()">
+                <ion-button (click)="addChild()" *ngIf="!sChildren.length">
                   <ion-icon color="secondary" name="add-circle"></ion-icon>
                 </ion-button>
+                <ion-button (click)="removeChild()" *ngIf="sChildren.length">
+                  <ion-icon color="danger" name="trash"></ion-icon>
+                </ion-button> 
               </ion-buttons>
             </ion-item>
-            <ion-item *ngFor="let child of children">
+            <ion-item *ngFor="let child of children" (click)="selectChild(child)">
               <ion-thumbnail slot="start">
                 <img [src]="child.images|url">
               </ion-thumbnail>
               <ion-label (click)="detail(child)">
                 {{child.id}}<p>{{child.name}}</p>
               </ion-label>
+              <ion-checkbox slot="end"></ion-checkbox>
             </ion-item>
           </div>
         </ion-accordion>

@@ -147,15 +147,10 @@ export class ToolsPage implements OnInit {
 
   /** detail model */
   detailModel(model:ModelData){
-    const props:ModelPageOpts={model}
+    const isNew:boolean=model?false:true;
+    model=model||createModelData({userId:this.auth.currentUser.id});
+    const props:ModelPageOpts={model,isNew}
     this.disp.showModal(ModelPage,props)
-    .then(result=>{
-      const data=result.data as ModelPageOuts
-      const role=result.role.toUpperCase();
-      if(role=='OK'|| role=='SAVE') 
-        return this.handlerSave(data.model,_DB_MODELS,data.addImages,_STORAGE_MODELS,data.delImages)
-      if(role=='DELETE') return this.handlerDelete(data.model,_DB_MODELS)
-    })
   }
 
   //////////// backgroup ////////////////
