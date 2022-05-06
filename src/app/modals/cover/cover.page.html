@@ -65,9 +65,11 @@
         <ion-label>Part Name</ion-label>
         <ion-input [(ngModel)]="cover.name"></ion-input>
       </ion-item>
-      <ion-item>
+      <ion-item >
         <ion-label>Category</ion-label>
-         <ion-input [(ngModel)]="cover.group"></ion-input>
+         <ion-select [(ngModel)]="cover.group">
+           <ion-select-option [value]="key" *ngFor="let key of groups">{{key}}</ion-select-option>
+         </ion-select>
       </ion-item>
       <ion-item button (click)="pickupCover()">
         <ion-label>Parents</ion-label>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Config, ModalController } from '@ionic/angular';
 import { BasicData, ChildData } from 'src/app/models/basic.model';
 import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS} from '../../models/cover.model';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
@@ -14,6 +14,7 @@ import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, Search
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { UrlData } from 'src/app/models/util.model';
+import { ConfigId, configList, configs, _DB_CONFIGS } from 'src/app/models/config';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -34,6 +35,7 @@ export class CoverPage implements OnInit {
   addImages:UrlData[]=[];
   delImages:string[]=[];
   viewImages:UrlData[]=[];
+  groups:string[]=[];
   /** internal control */
   isAvailble:boolean=false;
   isChange:boolean=false;
@@ -54,20 +56,30 @@ export class CoverPage implements OnInit {
       this.cover=cover;
       this.coverId=cover.id;
       this.isNew=isNew;
-      //backup
-      this.backup=this.isNew?[]:
-        _BACKUP_LIST.map(key=>JSON.stringify(this[key]))
-      this._getChildren().then(()=>{
-        this.refresh();
+      this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+      const groupId:ConfigId='groups';
+      // const groupCtr=this.db.get(_DB_CONFIGS,groupId);
+      Promise.all([
+        this.db.get(_DB_CONFIGS,groupId),
+        this._getChildren()
+      ]).then(results=>{
+        this.groups=results[0]['list']
+        console.log("group",this.groups)
+        this.refresh()
       })
+      
+
+      // this._getChildren().then(()=>{
+      //   this.refresh();
+      // })
     });
   }
 
   /** view already */
   ionViewDidEnter(){
-    const nodeList=document.querySelector("app-cover").querySelectorAll("input,textarea,select")
+    const nodeList=document.querySelector("app-cover").querySelectorAll("ion-input,ion-textarea,ion-select")
     nodeList.forEach(node=>{
-      node.addEventListener("change",(event)=>{
+      node.addEventListener("ionChange",(event)=>{
         console.log(event);
         this.refresh();
       })
@@ -113,6 +125,7 @@ export class CoverPage implements OnInit {
       this.refresh();
     })
   }
+
 
   /** exit page */
   done(role:CoverPageRole='save'){

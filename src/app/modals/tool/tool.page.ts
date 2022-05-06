@@ -7,7 +7,7 @@ import { UtilService } from 'src/app/services/util/util.service';
 import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
-const _CHANGE_LIST="input,select,textarea,ion-select,ion-input,ion-checkbox"
+const _CHANGE_LIST="ion-select,ion-input,ion-checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
   selector: 'app-tool',
@@ -49,7 +49,7 @@ export class ToolPage implements OnInit {
       this.tool=tool;
       this.isNew=isNew;
       this.isEdit=this.isNew?true:this.isEdit;
-      console.log("get update",{tool,isNew,model:this.model})
+      
       const ctrModel= this._getModel();
       const idToolStatus:ConfigId='toolstatus'
       const ctrstatus=this.db.get(_DB_CONFIGS,idToolStatus);
@@ -59,7 +59,8 @@ export class ToolPage implements OnInit {
         this.statusList=Object.keys(status)
         this.status=status;
         this.isAvailable=true;
-        this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+        this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]));
+        this._refreshView();
       })
     })
     .catch(err=>console.log("\n### ERROR[2]: get data is error",err))
@@ -69,9 +70,9 @@ export class ToolPage implements OnInit {
     const nodeList=document.querySelector('app-tool').querySelectorAll(_CHANGE_LIST);
     console.log("TEST,",{nodeList})
     nodeList.forEach(node=>{
-      node.addEventListener("change",(e)=>{
-        this._refreshView("change");
-      })
+      // node.addEventListener("change",(e)=>{
+      //   this._refreshView("change");
+      // })
       node.addEventListener("ionChange",(e)=>{
         this._refreshView("ionChange");
       })
