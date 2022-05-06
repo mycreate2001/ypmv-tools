@@ -13,12 +13,7 @@ export interface SaveInfo{
     lastUpdate:string;
 }
 
-export interface SaveInfoOpts{
-    userId?:string;
-    createAt?:string;
-    comment?:string;
-    lastUpdate?:string;
-}
+export type SaveInfoOpts=Partial<SaveInfo>
 
 export function createSaveInf(opts?:SaveInfoOpts):SaveInfo{
     const now=new Date().toISOString();

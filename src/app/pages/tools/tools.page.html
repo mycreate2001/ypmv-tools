@@ -5,10 +5,10 @@
     </ion-buttons>
     <ion-searchbar [(ngModel)]="key" (ionChange)="update()"></ion-searchbar>
     <ion-buttons slot="end">
-      <ion-button (click)="addModel()" title="New Tool Infor">
+      <ion-button (click)="detailModel()" title="New Tool Infor">
         <ion-icon name="hammer"></ion-icon>
       </ion-button>
-      <ion-button (click)="addCover()" title="New cover">
+      <ion-button (click)="detailCover()" title="New cover">
         <ion-icon name="clipboard"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -43,3 +43,8 @@
     No data
   </div>
 </ion-content>
+<ion-fab vertical="bottom" horizontal="start">
+  <ion-fab-button (click)="scan()">
+    <ion-icon name="scan-circle-outline"></ion-icon>
+  </ion-fab-button>
+</ion-fab>

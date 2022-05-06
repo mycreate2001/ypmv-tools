@@ -1,5 +1,5 @@
 import { createOpts } from "../utils/minitools";
-import { createSaveInf, SaveInfo, SaveInfoOpts } from "./save-infor.model";
+import { createSaveInf, SaveInfo } from "./save-infor.model";
 import { UrlData } from "./util.model";
 
 /**
@@ -18,16 +18,7 @@ export interface ModelData extends SaveInfo{
     companyId:string;
 }
 
-export interface ModelDataOpts extends SaveInfoOpts{
-    id?:string;                  // model ID
-    name?:string;                // name of tool
-    group?:string;               // Category
-    images?:UrlData[];            // images
-    compQty?:number;
-    maintenance?:number;         // day of maintenance
-    note?:string;
-    companyId?:string;
-}
+export type ModelDataOpts = Partial<ModelData>
 
 /** make new modeldata from default & option */
 export function createModelData(opts?:ModelDataOpts):ModelData{
@@ -61,27 +52,18 @@ export interface ToolData extends SaveInfo{
 }
 
 
-export interface ToolDataOpts extends SaveInfoOpts{
-    id?:string;                  // tool id
-    startUse?:string;              // start use this tool
-    endUse?:String;                // destroy date
-    lastMaintenance?:string;       // last maintenance
-    status?:ToolStatus;
-    model?:string; 
-    stay?:string;               // where keep this tool
-    upperId?:string;            // parents id (like book, cover)  
-    companyId?:string;       
-}
+export type ToolDataOpts = Partial<ToolData>
 
 
 
 export function createToolData(opts?:ToolDataOpts):ToolData{
     const now=new Date();
     const id=now.getTime().toString(26);
+    const createAt:string=now.toISOString()
     const df:ToolData={
-        ...createSaveInf({createAt:now.toISOString()}),
+        ...createSaveInf({createAt}),
         id,
-        startUse:now.toISOString(),
+        startUse:createAt,
         endUse:'',
         lastMaintenance:null,
         status:createToolStatus(),
@@ -101,19 +83,14 @@ export interface ToolStatus{
     quantity:number;
 }
 
-export interface ToolStatusOpts{
-    visual?:number;
-    operation?:number;
-    function?:number;
-    quantity?:number;
-}
+export type ToolStatusOpts =Partial<ToolData>
 
 /** create new ToolStatus */
 export function createToolStatus(opts?:ToolStatusOpts){
     const df:ToolStatus={
-        visual:1,      // not yet check
-        operation:1,   // not yet check
-        function:1,    // not yet check
+        visual:1,       // not yet check
+        operation:1,    // not yet check
+        function:1,     // not yet check
         quantity:1      // not yet check
     }
     return createOpts(df,opts)

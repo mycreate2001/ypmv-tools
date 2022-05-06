@@ -6,8 +6,9 @@ import { AuthService } from 'src/app/services/firebase/auth.service';
 import { UtilService } from 'src/app/services/util/util.service';
 import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
 import { DisplayService } from 'src/app/services/display/display.service';
-
-
+import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
+const _CHANGE_LIST="input,select,textarea,ion-select,ion-input,ion-checkbox"
+const _BACKUP_LIST=['tool']
 @Component({
   selector: 'app-tool',
   templateUrl: './tool.page.html',
@@ -17,20 +18,17 @@ export class ToolPage implements OnInit {
   /** input */
   tool:ToolData;
   toolId:string;
+  isEdit:boolean=true;//can edit
   /** model data default get from db */
   model:ModelData;
 
   /** internal variable */
-  isEdit:boolean=false;//can edit
+  isChange:boolean=false;
   isNew:boolean=false;  //new code
   isAvailable:boolean=false;
-  visualStatus=['OK',"Not check",'Scratch','broken'];
-  operationStatus=['OK',"Not check",'cannot operation'];
-  functionStatus=['OK',"Not check","tolerance's out of specs"];
-  compQtyStatus=["OK","Not check","NG"]
   status:object={};
   statusList:string[]=[];
- 
+  backup:string[];
   /** function */
   constructor(
     private modal:ModalController,
@@ -43,30 +41,58 @@ export class ToolPage implements OnInit {
   }
 
   ///////////////// SYSTEM FUNCTIONS //////////////////////
+
+  /** init */
   ngOnInit() {
-    this.isEdit=this.isNew?true:false;
     this._getTool()
-    .then(tool=>{
+    .then(({isNew,tool})=>{
       this.tool=tool;
-      return this._getModel()
-    })
-    .then(model=>{
-      this.model=model;
-      const id:ConfigId='toolstatus'
-      return this.db.get(_DB_CONFIGS,id)
-    })
-    .then(config=>{
-      const {id,...status}=config;
-      this.status=status;
-      this.statusList=Object.keys(status)
-      this.isAvailable=true;
-      console.log("\ninitial",this);
+      this.isNew=isNew;
+      this.isEdit=this.isNew?true:this.isEdit;
+      const ctrModel= this._getModel();
+      const idToolStatus:ConfigId='toolstatus'
+      const ctrstatus=this.db.get(_DB_CONFIGS,idToolStatus);
+      Promise.all([ctrModel,ctrstatus]).then(([model,_status])=>{
+        this.model=model;
+        const {id,...status}=_status;
+        this.statusList=Object.keys(status)
+        this.status=status;
+        this.isAvailable=true;
+        this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+      })
     })
     .catch(err=>console.log("\n### ERROR[2]: get data is error",err))
   }
 
+  ionViewDidEnter(){
+    const nodeList=document.querySelector('app-tool').querySelectorAll(_CHANGE_LIST);
+    console.log("TEST,",{nodeList})
+    nodeList.forEach(node=>{
+      node.addEventListener("change",(e)=>{
+        this._refreshView("change");
+      })
+      node.addEventListener("ionChange",(e)=>{
+        this._refreshView("ionChange");
+      })
+    })
+  }
+
   //////////////// HANDLE FUNCTIONS ///////////////////////////
 
+  /** pickup upper/parents ID */
+  pickupParent(){
+    const props:SearchToolPageOpts={
+      type:'cover'
+    }
+    this.disp.showModal(SearchToolPage,props)
+    .then(result=>{
+      const role=result.role as SearchToolPageRole;
+      if(role!='ok') return;
+      const data=result.data as SearchToolPageOuts;
+      this.tool.upperId=data.search[0].id;
+      this._refreshView("pickup Parents");
+    })
+  }
   /** save */
   save(){
     // validate data
@@ -110,15 +136,21 @@ export class ToolPage implements OnInit {
   }
 
   ////////////////// BACKGROUND FUNCTIONS /////////////////////
-
+  private _refreshView(debug:string=""){
+    //isChange
+    this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(key))
+    this.isAvailable=true;
+    if(debug) console.log("refresh view\ndebug:%s\n",debug,this);
+  }
   /** get Tool data */
-  private _getTool():Promise<ToolData>{
+  private _getTool():Promise<{tool:ToolData,isNew:boolean}>{
     return new Promise((resolve,reject)=>{
-      if(!this.tool && !this.toolId) return resolve(createToolData({createAt:this.auth.currentUser.id}))
-      if(this.tool) return resolve(this.tool)
+      const isNew=false;
+      if(!this.tool && !this.toolId) return resolve({isNew:true,tool:createToolData({createAt:this.auth.currentUser.id})})
+      if(this.tool) return resolve({isNew,tool:this.tool})
       if(!this.tool) {
         this.db.get(_DB_TOOLS,this.toolId)
-        .then((tool:ToolData)=>resolve(tool))
+        .then((tool:ToolData)=>resolve({tool,isNew}))
         .catch(err=>reject(err))
       }
     })
@@ -152,8 +184,7 @@ export type ToolPageRole="cancel"|"ok"|"delete"|"back"
   tool?:ToolData;
   /** tool model */
   model?:ModelData;
-  
-  isNew?:boolean;
+  isEdit?:boolean;    //default=true;
 }
 
 export interface ToolPageOuts{

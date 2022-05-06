@@ -9,7 +9,7 @@
      <ion-button title="delete" (click)="delete()" >
       <ion-icon name="trash"></ion-icon>
      </ion-button>
-     <ion-button title="save" (click)="save()" >
+     <ion-button title="save" (click)="save()" *ngIf="isChange">
       <ion-icon name="save"></ion-icon>
      </ion-button>
     </ion-buttons>
@@ -63,6 +63,19 @@
       <ion-item>
         <ion-label>Last Maintenace date</ion-label>
         <ion-text>{{tool.lastMaintenance|date:'yyyy-MMM-dd'}}</ion-text>
+      </ion-item>
+      <!-- upper ID -->
+      <ion-item button="true" (click)="pickupParent()">
+        <ion-label>Parents</ion-label>
+        <ion-text *ngIf="tool.upperId|db:'covers'|async as parents else noparents">
+          <ion-chip>
+            <ion-avatar>
+              <img [src]="parents.image|url" class="avatar">
+            </ion-avatar>
+            <ion-label>{{parents.name}}</ion-label>
+          </ion-chip>
+        </ion-text>
+        <ng-template #noparents>(select parents)</ng-template>
       </ion-item>
       <ion-item *ngIf="tool.stay|db:'companies'|async as company">
         <ion-label>Current stay</ion-label>

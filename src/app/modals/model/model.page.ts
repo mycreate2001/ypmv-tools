@@ -13,6 +13,7 @@ import { StorageService } from 'src/app/services/firebase/storage.service';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
 import { ToolPage, ToolPageOpts, ToolPageOuts } from '../tool/tool.page';
 
+const _BACKUP_LIST="model,addImages".split(",")
 
 @Component({
   selector: 'app-tool-detail',
@@ -31,7 +32,9 @@ export class ModelPage implements OnInit {
 
   /** internal */
   isAvailble:boolean=false;
-  
+  isChange:boolean=false;
+  isNew:boolean=false;
+  backup:string[];
   /** use internal only, it's for view */
   viewImages:UrlData[]=[];       //iamges wil add more to db
   addImages:UrlData[]=[];
@@ -51,6 +54,7 @@ export class ModelPage implements OnInit {
   }
 
   ngOnInit() { 
+    console.log("INIT",this);
     this._getModel()
     .then(model=>{
       this.model=model;this.modelId=this.model.id
@@ -64,7 +68,8 @@ export class ModelPage implements OnInit {
           this.tools=tools;
           this.groups=_groups['list']||[];
           this.statusList=_status;
-          this._update();
+          this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+          this._refreshView("initial");
         }
       )
     })
@@ -75,7 +80,10 @@ export class ModelPage implements OnInit {
     return new Promise((resolve,reject)=>{
       if(!this.model && !this.modelId){//new model
         this.tools=[];
-        return resolve(createModelData({userId:this.auth.currentUser.id}))
+        this.isNew=true;
+        const userId:string=this.auth.currentUser.id;
+        const companyId:string=this.auth.currentUser.companyId;
+        return resolve(createModelData({userId,companyId}))
       }
       if(this.model) return resolve(this.model)
       return this.db.get(_DB_MODELS,this.modelId)
@@ -84,10 +92,13 @@ export class ModelPage implements OnInit {
     })
   }
 
-  private _update(){
-    if(typeof this.model=='string') return;
+  private _refreshView(debug:string=""){
+    //isChange
+    this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(key))
+    // viewImage
     this.viewImages=this.model.images.concat(this.addImages)
     this.isAvailble=true;
+    if(debug) console.log("\ndebug:%s\n",debug,this);
   }
 
   ///////// exist ////////
@@ -140,7 +151,7 @@ export class ModelPage implements OnInit {
       this.addImages=data.addImages;
       this.delImages=data.delImages;
       this.model.images=data.images;
-      this._update();
+      this._refreshView();
     })
   }
 
@@ -178,12 +189,9 @@ export class ModelPage implements OnInit {
 
   /** detail tool */
   detail(tool:ToolData=null){
-    const isNew:boolean=tool?false:true;
-    tool=tool||createToolData({model:this.model.id})
     const props:ToolPageOpts={
       model:this.model,
-      tool,
-      isNew
+      tool
     }
     this.disp.showModal(ToolPage,props)
   }

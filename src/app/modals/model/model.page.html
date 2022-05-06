@@ -11,7 +11,7 @@
       <ion-button title="delete" (click)="delete()">
         <ion-icon name="trash"></ion-icon>
       </ion-button>
-      <ion-button title="save" (click)="save()">
+      <ion-button title="save" (click)="save()" *ngIf="isChange">
         <ion-icon name="save"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -20,7 +20,7 @@
 
 <ion-content *ngIf="isAvailble" color="light">
   <ion-card class="image">
-    <ion-grid (click)="detailImage()">
+    <ion-grid (click)="detailImage()  ">
       <ion-row *ngIf="viewImages.length<=1">
         <ion-col size="12">
           <img [src]="viewImages|url" class="image-43">
@@ -49,11 +49,14 @@
   </ion-card>
   <ion-card class="infor">
     <ion-list>
-      <ion-item>
+      <ion-item *ngIf="isNew ">
         <ion-label>Part No</ion-label>
         <ion-input [(ngModel)]="model.id"></ion-input>
       </ion-item>
-      
+      <ion-item *ngIf="!isNew">
+        <ion-label>Part No</ion-label>
+        <ion-text>{{model.id}}</ion-text>
+      </ion-item>
       <ion-item>
         <ion-label>Part Name</ion-label>
         <ion-input [(ngModel)]="model.name"></ion-input>
