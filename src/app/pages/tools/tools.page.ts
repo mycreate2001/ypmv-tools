@@ -111,14 +111,15 @@ export class ToolsPage implements OnInit {
     if(model.type=='cover'){
       const cover=this.covers.find(c=>c.id==model.id)
       if(!cover) return this.disp.msgbox(`ERROR: cannot find box '${model.id}' on DB`)
-      this.detailCover(cover);
+      return this.detailCover(cover);
     }
-    else if (model.type=='tool'){
+    if (model.type=='tool'){
       const _model=this.models.find(m=>m.id==model.id);
       if(!_model) return this.disp.msgbox(`ERROR: not found model '${model.id}' on db`)
-      this.detailModel(_model);
+      return this.detailModel(_model);
     }
-    this.disp.msgbox(`unknow type of tool '${model.id}'`)
+  
+    this.disp.msgbox(`unknow type of <br>'${JSON.stringify(model)}'`)
   }
 
   detailTool(toolId:string){
@@ -141,7 +142,13 @@ export class ToolsPage implements OnInit {
   }
 
   /** detail model */
-  detailModel(model:ModelData){
+  detailModel(iModel:ModelData|string=null){
+    let model:ModelData=null;
+    let modelId:string="";
+    if(iModel){
+      if(typeof iModel=='string') modelId=iModel;
+      else model=iModel
+    }
     const props:ModelPageOpts={model,isEdit:true}
     this.disp.showModal(ModelPage,props)
   }
