@@ -14,6 +14,7 @@ import { UrlData } from 'src/app/models/util.model';
 import { _DB_USERS } from 'src/app/models/user.model';
 import { ToolPage, ToolPageOpts } from 'src/app/modals/tool/tool.page';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from 'src/app/modals/qrcode/qrcode.page';
+import { CodeFormatConfig } from 'src/app/models/codeformat';
 
 
 @Component({
@@ -163,12 +164,13 @@ export class ToolsPage implements OnInit {
       const role=result.role as QRcodePageRole;
       if(role!=='ok') return;
       const data=result.data as QRcodePageOuts;
-      const toolId=data.analysis['toolId']
+      const toolId=data.analysis[CodeFormatConfig.tool.name]
       if(toolId) return this.detailTool(toolId);
-      const coverId=data.analysis['coverId'];
+      const coverId=data.analysis[CodeFormatConfig.cover.name];
       if(coverId) return this.detailCover(coverId);
-      const modelId=data.analysis['modelId'];
+      const modelId=data.analysis[CodeFormatConfig.model.name];
       if(modelId) return this.detailModel(modelId);
+      console.warn("ERROR:",{analysis:data.analysis});
       this.disp.msgbox(`code "${data.analysis.toString()}" is other case`)
     })
   }

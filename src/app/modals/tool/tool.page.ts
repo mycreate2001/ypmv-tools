@@ -49,6 +49,7 @@ export class ToolPage implements OnInit {
       this.tool=tool;
       this.isNew=isNew;
       this.isEdit=this.isNew?true:this.isEdit;
+      console.log("get update",{tool,isNew,model:this.model})
       const ctrModel= this._getModel();
       const idToolStatus:ConfigId='toolstatus'
       const ctrstatus=this.db.get(_DB_CONFIGS,idToolStatus);
@@ -113,7 +114,9 @@ export class ToolPage implements OnInit {
       }
     ).then(result=>{
       if(result.role!=='delete') return;
-      this.done('delete');
+      //delete db
+      this.db.delete(_DB_TOOLS,this.tool.id)
+      .then(()=>this.done('delete'))
     })
   }
 
@@ -131,7 +134,7 @@ export class ToolPage implements OnInit {
       "Which do you want to print<br>",
       { buttons:[ {text:'Code Only',role:'code'},{text:'With Label',role:'label'}]}
     ).then(result=>{
-      this.util.generaQRcode(this.tool.id,{label:result.role=='label'?this.model.name:'',type:'toolId'})
+      this.util.generaQRcode(this.tool.id,{label:result.role=='label'?this.model.name:'',type:'tool'})
     })
   }
 
@@ -146,9 +149,13 @@ export class ToolPage implements OnInit {
   private _getTool():Promise<{tool:ToolData,isNew:boolean}>{
     return new Promise((resolve,reject)=>{
       const isNew=false;
-      if(!this.tool && !this.toolId) return resolve({isNew:true,tool:createToolData({createAt:this.auth.currentUser.id})})
+      if(!this.tool && !this.toolId){
+        if(!this.model||typeof this.model!=='object') return reject(new Error("tool infor is wrong"))
+        const model:string=this.model.id;
+        const userId:string=this.auth.currentUser.id;
+        return resolve({isNew:true,tool:createToolData({userId,model})})}
       if(this.tool) return resolve({isNew,tool:this.tool})
-      if(!this.tool) {
+      if(this.toolId) {
         this.db.get(_DB_TOOLS,this.toolId)
         .then((tool:ToolData)=>resolve({tool,isNew}))
         .catch(err=>reject(err))

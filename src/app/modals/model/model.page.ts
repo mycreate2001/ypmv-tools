@@ -189,6 +189,8 @@ export class ModelPage implements OnInit {
 
   /** detail tool */
   detail(tool:ToolData=null){
+    //log
+    console.log("INIT",{tool,model:this.model})
     const props:ToolPageOpts={
       model:this.model,
       tool

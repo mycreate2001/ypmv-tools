@@ -1,13 +1,8 @@
 import { Injectable } from '@angular/core';
 import QrCreator from 'qr-creator';
+import { CodeFormatConfig, CodeFormatType } from 'src/app/models/codeformat';
 import { createOpts } from 'src/app/utils/minitools';
-const config={
-  toolId:(id)=>`TL$${id}`,
-  coverId:(id)=>`CV$${id}`,
-  modelId:(id)=>`MD$${id}`,
-  orderId:(id)=>`OR$${id}`
-}
-export type CodeType=keyof typeof config
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,13 +11,7 @@ export class UtilService {
   constructor() { }
   generaQRcode(code:string,opts?:GenerateQRcodeDataOpts){
     opts=createGenerateQRcodeData(opts);
-    const _code=opts.type=='text'?code:config[opts.type](code)
-    // const type=opts.type
-    // const sizeX=opts.windowSizeX;
-    // const sizeY=opts.windowSizeY;
-    // const label=opts.label;
-    // const size=opts.size;
-    // code=CodeFormatConfig[type]?CodeFormatConfig[type](code):code
+    const _code=opts.type=='text'?code:CodeFormatConfig[opts.type](code)
     const windowp=window.open('','',`left=0,top=0,width=${opts.windowSizeX},height=${opts.windowSizeY},toolbar=0,scrollbars=0,status=0`);
     windowp.document.write(`
       <style>
@@ -64,7 +53,7 @@ export type GenerateQRcodeDataOpts=Partial<GenerateQRcodeData>
 export interface GenerateQRcodeData{
   windowSizeX:number;
   windowSizeY:number;
-  type:CodeType|"text"
+  type:CodeFormatType|"text"
   label:string;
   size:number;
 }

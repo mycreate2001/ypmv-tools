@@ -105,7 +105,7 @@ export class BookingPage implements OnInit {
 
   /** QR code */
   printCode(){
-    this.util.generaQRcode(this.order.id,{label:this.order.purpose,size:42,type:'orderId'})
+    this.util.generaQRcode(this.order.id,{label:this.order.purpose,size:42,type:'order'})
   }
 
   /** verifycation by scan */

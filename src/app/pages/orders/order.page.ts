@@ -73,11 +73,10 @@ export class OrderPage implements OnInit {
     const props:QRcodePageOpts={type:'analysis',title:'booking Id'}
     this.disp.showModal(QrcodePage,props)
     .then(scan=>{
-      const data=scan.data as QRcodePageOuts;
       const role=scan.role as QRcodePageRole;
       if(role!='ok') return;
-      console.log("Name:",CodeFormatConfig.booking.name);
-      const id:string=data.analysis[CodeFormatConfig.booking.name]
+      const data=scan.data as QRcodePageOuts;
+      const id:string=data.analysis[CodeFormatConfig.order.name]
       if(!id) return;
       const infor=this.histories.find(h=>h.id==id);
       if(!infor) return console.log("cannot find this infor");

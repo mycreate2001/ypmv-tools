@@ -153,11 +153,12 @@ export function checkCode(code:string, format:CodeFormatData){
     return out;
 }
 
+//genera code format
 export const CodeFormatConfig={
-    tool:(data:string)=> 'TL$'+data,
-    model:(data:string)=> 'MD$'+data,
-    cover:(data:string)=> 'CV$'+data,
-    booking:(data:string)=> 'BK$'+data
+    tool:(id:string)=> 'TL$'+id,
+    model:(id:string)=> 'MD$'+id,
+    cover:(id:string)=> 'CV$'+id,
+    order:(id:string)=> 'OR$'+id
 }
 
 export const CodeFormatList=Object.keys(CodeFormatConfig)
