@@ -70,7 +70,7 @@ function createGenerateQRcodeData(opts?:GenerateQRcodeDataOpts){
     size:32,
     background:'',
     fill:'',
-    ecLevel:'L'
+    ecLevel:'M'
   }
   return createOpts(df,opts)
 }

@@ -135,7 +135,9 @@ export class ToolPage implements OnInit {
       "Which do you want to print<br>",
       { buttons:[ {text:'Code Only',role:'code'},{text:'With Label',role:'label'}]}
     ).then(result=>{
-      this.util.generaQRcode(this.tool.id,{label:result.role=='label'?this.model.name:'',type:'tool'})
+      const label=result.role=='label'?this.model.name:''
+      const size=result.role=='label'?32:24 
+      this.util.generaQRcode(this.tool.id,{label,size,type:'tool'})
     })
   }
 
