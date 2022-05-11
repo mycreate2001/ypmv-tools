@@ -34,10 +34,10 @@ export class UtilService {
     QrCreator.render({
       text:_code,
       radius:0,
-      ecLevel:'H',
-      // fill:'#536DFE',
-      background:null,
-      // size:128
+      ecLevel:opts.ecLevel,
+      fill:opts.fill,//'#536DFE',
+      background:opts.background,
+      size:opts.size*10,
     }, windowp.document.querySelector('#qr-code'))
     windowp.focus();
     // windowp.print();
@@ -56,6 +56,9 @@ export interface GenerateQRcodeData{
   type:CodeFormatType|"text"
   label:string;
   size:number;
+  background:string;
+  fill:string;
+  ecLevel:'L'|'M'|'Q'|'H';
 }
 
 function createGenerateQRcodeData(opts?:GenerateQRcodeDataOpts){
@@ -64,7 +67,10 @@ function createGenerateQRcodeData(opts?:GenerateQRcodeDataOpts){
     windowSizeY:300,
     type:'text',
     label:'',
-    size:32
+    size:32,
+    background:'',
+    fill:'',
+    ecLevel:'L'
   }
   return createOpts(df,opts)
 }
