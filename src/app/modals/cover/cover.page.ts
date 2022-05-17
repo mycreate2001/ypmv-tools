@@ -211,7 +211,7 @@ export class CoverPage implements OnInit {
       if(role!='ok') return;
       const data=result.data as SearchToolPageOuts
       this.children=[...this.children,...data.search]
-      this.cover.childrenId=data.search.map(x=>{return{id:x.id,type:x.type}});
+      this.cover.childrenId=[...this.cover.childrenId,...data.search.map(x=>{return{id:x.id,type:x.type}})];
       this.refresh()
     })
   }
