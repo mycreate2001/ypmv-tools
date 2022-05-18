@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Config, ModalController } from '@ionic/angular';
-import { BasicData, ChildData } from 'src/app/models/basic.model';
+import { BasicData, ChildData, createBasicData } from 'src/app/models/basic.model';
 import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS} from '../../models/cover.model';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { DisplayService } from 'src/app/services/display/display.service';
@@ -301,42 +301,37 @@ export class CoverPage implements OnInit {
   private async _getChildren(){//pls run one times
     //update data
     const coversId:string[]=this.cover.childrenId.filter(x=>x.type=='cover').map(y=>y.id)
-    
     const covers:CoverData[]=await this.db.gets(_DB_COVERS,coversId);
 
     const toolsId:string[]=this.cover.childrenId.filter(x=>x.type=='tool').map(y=>y.id);
     const tools:ToolData[]=await this.db.gets(_DB_TOOLS,toolsId);
     const models:ModelData[]=await this.db.gets(_DB_MODELS, getList(tools,"model"))
-    // console.log({coversId,toolsId})
+
+    //console.log("[_getchildren]: test1",{covers,tools,coversId,toolsId,models})
     this.children=this.cover.childrenId.map(child=>{
+      //console.log("[_getchildren]: test2",{child})
       if(child.type=='cover'){
         const cover=covers.find(c=>c.id==child.id);
         if(!cover) return;
-        const out:BasicData={
-          ...child,
-          name:cover.name,
-          group:cover.group,
-          images:cover.images
-        }
+        const out:BasicData=createBasicData({...child,...cover});
+        //console.log("[_getchildren]: test3")
         return out;
       }
       //tool
       if(child.type=='tool'){
+        //console.log("[_getchildren]: test4")
         const tool:ToolData=tools.find(t=>t.id==child.id)
         if(!tool) return;
         const model:ModelData=models.find(m=>m.id==tool.model);
         if(!model) return;
-        const out:BasicData={
-          ...child,
-          name:model.name,
-          group:model.group,
-          images:model.images
-        }
+        const out:BasicData=createBasicData({...child,...model})
+        //console.log("[_getchildren]: test5",{out})
         return out;
       }
+      //console.log("[_getchildren]: test6/out of case")
       return;
     }).filter(x=>x);
-
+    //console.log("[_getchildren]: test7",{children:this.children})
   }
 
 }

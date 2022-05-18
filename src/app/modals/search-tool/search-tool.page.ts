@@ -99,13 +99,13 @@ export class SearchToolPage implements OnInit {
 
   /** pickup model/cover */
   pickup(child:ChildData,model:BasicView){
-    const x:BasicData={
-      ...child,
-      name:model.name,
-      group:model.group,
-      images:model.images
-    }
-
+    // const x:BasicData={
+    //   ...child,
+    //   name:model.name,
+    //   group:model.group,
+    //   images:model.images
+    // }
+    const x:BasicData=createBasicData({...model,...child})
     this.search.push(x);
     //remove child from model
     const pos=model.childrenId.findIndex(x=>x.id==child.id && x.type==child.type)
