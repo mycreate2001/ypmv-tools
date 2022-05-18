@@ -14,6 +14,7 @@ import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-vi
 import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 
 const _BACKUP_LIST="model,addImages".split(",")
+const _UPDATE_LIST="ion-text,ion-select,ion-input,ion-checkbox,ion-textarea"
 
 @Component({
   selector: 'app-tool-detail',
@@ -72,6 +73,17 @@ export class ModelPage implements OnInit {
           this._refreshView("initial");
         }
       )
+    })
+  }
+
+  /** update view */
+  ionViewDidEnter(){
+    const nodeList=document.querySelector("app-tool-detail").querySelectorAll(_UPDATE_LIST)
+    nodeList.forEach(node=>{
+      node.addEventListener("ionChange",(e)=>{
+        //this._refreshView("ionChange")
+        this._refreshView()
+      })
     })
   }
 
