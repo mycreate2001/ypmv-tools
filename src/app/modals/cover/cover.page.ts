@@ -313,7 +313,7 @@ export class CoverPage implements OnInit {
       if(child.type=='cover'){
         const cover=covers.find(c=>c.id==child.id);
         if(!cover) return;
-        const out:BasicData=createBasicData({...child,...cover});
+        const out:BasicData=createBasicData({...cover,...child});
         //console.log("[_getchildren]: test3")
         return out;
       }
@@ -324,7 +324,7 @@ export class CoverPage implements OnInit {
         if(!tool) return;
         const model:ModelData=models.find(m=>m.id==tool.model);
         if(!model) return;
-        const out:BasicData=createBasicData({...child,...model})
+        const out:BasicData=createBasicData({...model,...child})
         //console.log("[_getchildren]: test5",{out})
         return out;
       }

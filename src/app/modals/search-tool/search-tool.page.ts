@@ -125,6 +125,7 @@ export class SearchToolPage implements OnInit {
     }
   }
 
+  /** scan to add */
   scan(){
     const title:string=this.type
     const props:QRcodePageOpts={
@@ -144,6 +145,8 @@ export class SearchToolPage implements OnInit {
         child=tool_code?{id:tool_code,type:'tool'}:{id:cover_code,type:'cover'}
       }
       if(!child.id) return this.disp.msgbox(`Your scaned code is wrong type<br>pls scan ${this.type.replace("&","")} code`)
+      if(this.exceptionList.find(x=>(typeof x=='string' && x==child.id)||(x.type==child.type && x.id==child.id)))
+        return this.disp.msgbox(`"${child.id}" was Already selected!`);
       let model:any=null;
       if(child.type=='tool'){
         const tool:ToolData=this.tools.find(x=>x.id==child.id);
@@ -155,7 +158,7 @@ export class SearchToolPage implements OnInit {
         model=this.covers.find(x=>x.id==child.id)
         if(!model) return this.disp.msgbox(`box '${child.id}' not yet register`)
       }
-      this.search.push(createBasicData({...child,...model}))
+      this.search.push(createBasicData({...model,...child}))
     })
   }
 
