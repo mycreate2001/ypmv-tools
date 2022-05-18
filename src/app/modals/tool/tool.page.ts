@@ -7,6 +7,7 @@ import { UtilService } from 'src/app/services/util/util.service';
 import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
+import { CoverData, _DB_COVERS } from 'src/app/models/cover.model';
 const _CHANGE_LIST="ion-select,ion-input,ion-checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -95,11 +96,30 @@ export class ToolPage implements OnInit {
       this._refreshView("pickup Parents");
     })
   }
+
   /** save */
-  save(){
+  async save(){
     // validate data
-    this.db.add(_DB_TOOLS,this.tool)
-    .then(()=>this.done('ok'))
+
+    try{
+      // update children for cover
+      if(this.tool.upperId){
+        const cover:CoverData=await this.db.get(_DB_COVERS,this.tool.upperId)
+        if(!cover) throw new Error("data is wrong");
+        const tool=cover.childrenId.find(x=>x.type=='tool' && x.id==this.tool.id)
+        if(!tool){
+          cover.childrenId.push({id:this.tool.id,type:'tool'})
+          await this.db.add(_DB_COVERS,cover)
+        }
+      }
+
+      // save data
+      this.db.add(_DB_TOOLS,this.tool)
+      .then(()=>this.done('ok'))
+    }
+    catch(err){
+
+    }
   }
 
   /** delete */
