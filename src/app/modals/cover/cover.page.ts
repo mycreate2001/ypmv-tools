@@ -148,8 +148,11 @@ export class CoverPage implements OnInit {
       const coversId:string[]=this.cover.childrenId.filter(x=>x.type=='cover').map(x=>x.id)
       const covers:CoverData[]=await this.db.gets(_DB_COVERS,coversId);
       const ctr_covers=covers.map(cover=>{
-        cover.upperId==this.cover.id
-        return this.db.add(_DB_COVERS,cover)
+        if(cover.upperId!=this.cover.id){
+          cover.upperId==this.cover.id
+          return this.db.add(_DB_COVERS,cover)
+        }
+        
       })
       //
       const toolsId:string[]=this.cover.childrenId.filter(x=>x.type=='tool').map(x=>x.id)
