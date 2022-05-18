@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertInput, ModalController } from '@ionic/angular';
-import { ConfigId, configs, _DB_CONFIGS } from 'src/app/models/config';
-import { createModelData, createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/models/tools.model';
+import { ModalController } from '@ionic/angular';
+import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
+import { createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
-import { ButtonData, MenuData, UrlData } from 'src/app/models/util.model';
+import { UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
@@ -11,7 +11,7 @@ import {  FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
-import { ToolPage, ToolPageOpts, ToolPageOuts } from '../tool/tool.page';
+import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 
 const _BACKUP_LIST="model,addImages".split(",")
 
@@ -94,7 +94,7 @@ export class ModelPage implements OnInit {
 
   private _refreshView(debug:string=""){
     //isChange
-    this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(key))
+    this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(this[key]))
     // viewImage
     this.viewImages=this.model.images.concat(this.addImages)
     this.isAvailble=true;

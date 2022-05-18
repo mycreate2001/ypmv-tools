@@ -144,7 +144,7 @@ export class ToolPage implements OnInit {
   ////////////////// BACKGROUND FUNCTIONS /////////////////////
   private _refreshView(debug:string=""){
     //isChange
-    this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(key))
+    this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(this[key]))
     this.isAvailable=true;
     if(debug) console.log("refresh view\ndebug:%s\n",debug,this);
   }

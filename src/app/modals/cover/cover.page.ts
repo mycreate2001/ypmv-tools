@@ -105,12 +105,9 @@ export class CoverPage implements OnInit {
 
   selectChild(child:ChildData){
     const pos=this.sChildren.findIndex(c=>c.id==child.id&&c.type==child.type)
-    if(pos!=-1){//exist
-      this.sChildren.splice(pos,1)
-    }
-    else{
-      this.sChildren.push(child)
-    }
+    if(pos!=-1)  this.sChildren.splice(pos,1)
+    else this.sChildren.push(child)
+    console.log("selected",{selected:this.sChildren})
   }
 
   /** select company */
@@ -146,6 +143,22 @@ export class CoverPage implements OnInit {
     .then((urls:UrlData[])=>{
       this.cover.images=this.cover.images.concat(urls);
       return this.db.add(_DB_COVERS,this.cover)
+    })
+    .then(async ()=>{
+      const coversId:string[]=this.cover.childrenId.filter(x=>x.type=='cover').map(x=>x.id)
+      const covers:CoverData[]=await this.db.gets(_DB_COVERS,coversId);
+      const ctr_covers=covers.map(cover=>{
+        cover.upperId==this.cover.id
+        return this.db.add(_DB_COVERS,cover)
+      })
+      //
+      const toolsId:string[]=this.cover.childrenId.filter(x=>x.type=='tool').map(x=>x.id)
+      const tools:ToolData[]=await this.db.gets(_DB_TOOLS,toolsId);
+      const ctr_tools=tools.map(tool=>{
+        tool.upperId=this.cover.id
+        return this.db.add(_DB_TOOLS,tool)
+      })
+      return Promise.all([...ctr_covers,...ctr_tools])
     })
     .then(()=>this.done('save'))
     .catch(err=>this.disp.msgbox(`Save ${name_space} data is failured!<br>`,err.message))

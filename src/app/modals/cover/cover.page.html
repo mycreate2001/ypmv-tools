@@ -14,9 +14,6 @@
       <ion-button title="Save" (click)="save()" *ngIf="isChange" >
         <ion-icon name="save" ></ion-icon>
       </ion-button>
-      <ion-button (click)="print()">
-        <ion-icon name="print"></ion-icon>
-      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -59,6 +56,7 @@
       <ion-item *ngIf="!isNew">
         <ion-label>ID</ion-label>
         <ion-text>{{cover.id}}</ion-text>
+        <ion-icon name="qr-code" slot="end" (click)="print()"></ion-icon>
       </ion-item>
 
       <ion-item>
@@ -110,14 +108,16 @@
                 </ion-button> 
               </ion-buttons>
             </ion-item>
-            <ion-item *ngFor="let child of children" (click)="selectChild(child)">
+            <ion-item *ngFor="let child of children" >
               <ion-thumbnail slot="start">
                 <img [src]="child.images|url">
               </ion-thumbnail>
               <ion-label (click)="detail(child)">
                 {{child.id}}<p>{{child.name}}</p>
               </ion-label>
-              <ion-checkbox slot="end"></ion-checkbox>
+              <ion-buttons slot="end">
+                <ion-checkbox (click)="selectChild(child)"></ion-checkbox>
+              </ion-buttons>
             </ion-item>
           </div>
         </ion-accordion>
