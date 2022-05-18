@@ -134,10 +134,15 @@ export class ToolsPage implements OnInit {
 
   /** show detial cover */
   detailCover(iCover:CoverData|string=null){
-    const coverId=typeof iCover=='string'?iCover:'';
-    const cover=typeof iCover=='string'?null:iCover
+    console.log("[detailCover]",{iCover})
+    let coverId:string="";
+    let cover:CoverData=null;
+    if(typeof iCover=='string')  coverId=iCover;
+    else cover=iCover;
+
     const props:CoverPageOpts={
-      cover
+      cover,
+      coverId
     }
     this.disp.showModal(CoverPage,props)
   }
@@ -146,18 +151,17 @@ export class ToolsPage implements OnInit {
   detailModel(iModel:ModelData|string=null){
     let model:ModelData=null;
     let modelId:string="";
-    if(iModel){
-      if(typeof iModel=='string') modelId=iModel;
-      else model=iModel
-    }
-    const props:ModelPageOpts={model,isEdit:true}
+    if(typeof iModel=='string') modelId=iModel;
+    else model=iModel
+    const props:ModelPageOpts={model,isEdit:true,modelId}
     this.disp.showModal(ModelPage,props)
   }
 
+  /** scan code */
   scan(){
     const props:QRcodePageOpts={
       type:'analysis',
-      title:'model,toolId,boxId'
+      title:'model,tool,box'
     }
     this.disp.showModal(QrcodePage,props)
     .then(result=>{
