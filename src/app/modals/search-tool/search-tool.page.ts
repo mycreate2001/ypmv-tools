@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { BasicData, BasicView, ChildData } from 'src/app/models/basic.model';
+import { BasicData, BasicView, ChildData, createBasicData } from 'src/app/models/basic.model';
+import { CodeFormatConfig, CodeFormatList } from 'src/app/models/codeformat';
 import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { MenuData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';
+import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
 
 
 interface ViewData{
@@ -45,7 +47,8 @@ export class SearchToolPage implements OnInit {
     private modal:ModalController,
     private disp:DisplayService
   ){}
-
+  
+  ////////////////// SYSTEM FUNCTIONS /////////////////////
   /** internal */
   ngOnInit(): void {
     /** connect database */
@@ -85,6 +88,7 @@ export class SearchToolPage implements OnInit {
     console.log("exit search tool\n");
   }
 
+  //////////////// HANDLER BUTTON FUNCTIONS ///////////////
   /** close page */
   done(role:SearchToolPageRole='ok'){
     const out:SearchToolPageOuts={
@@ -119,6 +123,40 @@ export class SearchToolPage implements OnInit {
         }
       }
     }
+  }
+
+  scan(){
+    const title:string=this.type
+    const props:QRcodePageOpts={
+      type:'analysis',
+      title
+    }
+    this.disp.showModal(QrcodePage,props).then(result=>{
+      const role=result.role as QRcodePageRole
+      if(role!='ok') return;
+      const data=result.data as QRcodePageOuts
+      let child:ChildData=null;
+      if(this.type=='cover') child={id:data.analysis[CodeFormatConfig.cover.name],type:'cover'}
+      else if(this.type=='tool') child={id:data.analysis[CodeFormatConfig.tool.name],type:'tool'}
+      else {//cover & tool
+        const tool_code=data.analysis[CodeFormatConfig.tool.name]
+        const cover_code=data.analysis[CodeFormatConfig.cover.name]
+        child=tool_code?{id:tool_code,type:'tool'}:{id:cover_code,type:'cover'}
+      }
+      if(!child.id) return this.disp.msgbox(`Your scaned code is wrong type<br>pls scan ${this.type.replace("&","")} code`)
+      let model:any=null;
+      if(child.type=='tool'){
+        const tool:ToolData=this.tools.find(x=>x.id==child.id);
+        if(!tool) return this.disp.msgbox(`Tool ${child.id} not yet register`)
+        model=this.models.find(x=>x.id==tool.model)
+        if(!model) return this.disp.msgbox(`tool infor of '${child.id}' not yet register`)
+      }
+      else{
+        model=this.covers.find(x=>x.id==child.id)
+        if(!model) return this.disp.msgbox(`box '${child.id}' not yet register`)
+      }
+      this.search.push(createBasicData({...child,...model}))
+    })
   }
 
   /** show modal */

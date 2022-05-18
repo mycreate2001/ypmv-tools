@@ -10,6 +10,9 @@
     <ion-searchbar [(ngModel)]="keyword" (ionChange)="update()" >
     </ion-searchbar>
     <ion-buttons slot="end">
+      <ion-button title="scan" (click)="scan()">
+        <ion-icon name="scan"></ion-icon>
+      </ion-button>
       <ion-button (click)="showCart($event)" title="selected list">
         <ion-icon name="cart"></ion-icon>
         <ion-label>{{search.length}}</ion-label>
