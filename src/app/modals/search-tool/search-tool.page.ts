@@ -145,18 +145,22 @@ export class SearchToolPage implements OnInit {
         child=tool_code?{id:tool_code,type:'tool'}:{id:cover_code,type:'cover'}
       }
       if(!child.id) return this.disp.msgbox(`Your scaned code is wrong type<br>pls scan ${this.type.replace("&","")} code`)
+      //Exception list ->reject
       if(this.exceptionList.find(x=>(typeof x=='string' && x==child.id)||(x.type==child.type && x.id==child.id)))
-        return this.disp.msgbox(`"${child.id}" was Already selected!`);
+        return this.disp.msgbox(`ERR[01]: Select tool/box inside Excluding list<br>id:"${child.id}"`);
+      //search list => reject
+      if(this.search.find(x=>x.type==child.type&&x.id==child.id))
+      return this.disp.msgbox(`ERR[02]: Selected tool/box already in selected list<br>id:"${child.id}"`);
       let model:any=null;
       if(child.type=='tool'){
         const tool:ToolData=this.tools.find(x=>x.id==child.id);
-        if(!tool) return this.disp.msgbox(`Tool ${child.id} not yet register`)
+        if(!tool) return this.disp.msgbox(`ERR[03]: Tool not yet register<br>toolId:"${child.id}"`)
         model=this.models.find(x=>x.id==tool.model)
-        if(!model) return this.disp.msgbox(`tool infor of '${child.id}' not yet register`)
+        if(!model) return this.disp.msgbox(`ERR[04]: tool infor was not yet register<br>modelId:"${child.id}"`)
       }
       else{
         model=this.covers.find(x=>x.id==child.id)
-        if(!model) return this.disp.msgbox(`box '${child.id}' not yet register`)
+        if(!model) return this.disp.msgbox(`ERR[05]: Box not yet register<br>boxId:"${child.id}"`)
       }
       this.search.push(createBasicData({...model,...child}))
     })

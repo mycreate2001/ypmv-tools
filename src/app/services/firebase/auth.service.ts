@@ -34,37 +34,38 @@ export class AuthService {
    * @returns user data
    */
   login(email:string,pass:string):Promise<UserCredential>{
-    return new Promise((resolve,reject)=>{
-      //check password
-      if(!pass || pass.length<6) return reject(new Error('password invalid'))
-      //check email
-      if(!email || !email.includes('@') || !email.includes('.')) return reject(new Error("email invalid"))
-      signInWithEmailAndPassword(this.auth,email,pass)
-      .then(data=>{
-        if(!data.user.emailVerified) {
-          const err=new Error("Your account is not yet verify by email")
-          this.disp.msgbox(`${err.message}<br>Do you want to re-send verification email?`,
-            {
-              buttons:[
-                'cancel',
-                {
-                  text:'Send',handler:()=>{
-                    console.log("send verification email");
-                    sendEmailVerification(data.user).then(result=>{
-                      console.log("send verification email successfully\n",result)
-                    })
-                    .catch(err=>console.log("send verification email failured\n",err))
-                  }
-                }
-              ]
-            }
-          )
-          return reject(err);
-        }
-        return resolve(data);
-      })
-      .catch(err=>reject(err))
-    })
+    // return new Promise((resolve,reject)=>{
+    //   //check password
+    //   if(!pass || pass.length<6) return reject(new Error('password invalid'))
+    //   //check email
+    //   if(!email || !email.includes('@') || !email.includes('.')) return reject(new Error("email invalid"))
+    //   signInWithEmailAndPassword(this.auth,email,pass)
+    //   .then(data=>{
+    //     if(!data.user.emailVerified) {
+    //       const err=new Error("Your account is not yet verify by email")
+    //       this.disp.msgbox(`${err.message}<br>Do you want to re-send verification email?`,
+    //         {
+    //           buttons:[
+    //             'cancel',
+    //             {
+    //               text:'Send',handler:()=>{
+    //                 console.log("send verification email");
+    //                 sendEmailVerification(data.user).then(result=>{
+    //                   console.log("send verification email successfully\n",result)
+    //                 })
+    //                 .catch(err=>console.log("send verification email failured\n",err))
+    //               }
+    //             }
+    //           ]
+    //         }
+    //       )
+    //       return reject(err);
+    //     }
+    //     return resolve(data);
+    //   })
+    //   .catch(err=>reject(err))
+    // })
+    return signInWithEmailAndPassword(this.auth,email,pass)
   }
 
   /** logout */

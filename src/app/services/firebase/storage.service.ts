@@ -88,6 +88,7 @@ export class StorageService {
    * @example delete('images/test.jpg');
    */
   delete(path:string){
+    // console.warn("\n[delete]:test1",{path})
     return deleteObject(ref(this.storage,path))
   }
 
