@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProfilePage, ProfilePageOpts } from 'src/app/modals/profile/profile.page';
 import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
 import { UserConfig, _DB_CONFIGS } from 'src/app/models/config';
-import { UserData, _DB_USERS } from 'src/app/models/user.model';
+import { UserData, UserRole, _DB_USERS } from 'src/app/models/user.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -34,7 +34,8 @@ export class UsersPage implements OnInit {
       const companiesId=getList(users,"companyId");
       const companies:CompanyData[]=await this.db.gets(_DB_COMPANY,companiesId);
       const cUser=this.auth.currentUser;
-      this.isAdmin= cUser.role=='admin'?true:false;
+      const allowList:UserRole[]=["admin"]
+      this.isAdmin= allowList.includes(cUser.role)?true:false;
       this.views=companies.map(company=>{
         const _users:UserData[]=users.filter(u=>u.companyId==company.id);
         const view={group:company.name,users:_users}
@@ -44,6 +45,7 @@ export class UsersPage implements OnInit {
     })
   }
 
+  /** detail */
   detail(user:UserData){
     console.log("admin?",this.isAdmin);
     const progs:ProfilePageOpts={
@@ -54,6 +56,7 @@ export class UsersPage implements OnInit {
     this.disp.showModal(ProfilePage,progs)
   }
 
+  /** new user */
   newUser(){
     if(!this.isAdmin) return;
     const progs:ProfilePageOpts={

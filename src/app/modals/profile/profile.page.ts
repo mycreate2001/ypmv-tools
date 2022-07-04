@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { config } from '../../utils/config'
 import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
 import { configs, UserConfig, _DB_CONFIGS } from 'src/app/models/config';
-import { createUserData, UserData, _DB_USERS, _STORAGE_USERS } from 'src/app/models/user.model';
+import { createUserData, UserData, UserRoleList, _DB_USERS, _STORAGE_USERS } from 'src/app/models/user.model';
 
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
@@ -31,7 +31,7 @@ export class ProfilePage implements OnInit {
   addImage:string;
   backup:string[]=[];
   companies:CompanyData[]=[];
-  roles:string[]=[];
+  roles=UserRoleList;
   pass:string='';
   isHide:boolean=true;
   constructor(
@@ -48,13 +48,10 @@ export class ProfilePage implements OnInit {
   ngOnInit() {
     const _user=this._getUser();
     const _companies=this.db.search(_DB_COMPANY,[]);
-    const _roles=this.db.get(_DB_CONFIGS,configs.user).then((uConfig:UserConfig)=>uConfig.role)
-    Promise.all([_user,_companies,_roles]).then(([user,companies,roles])=>{
-      console.log("result",{user,companies,roles})
+    Promise.all([_user,_companies]).then(([user,companies])=>{
       this.companies=companies;
       this.user=user;
       this.userId=user.id;
-      this.roles=roles;
       this.updateView()
     })
 
