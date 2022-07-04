@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { UserData, _DB_USERS, _STORAGE_USERS } from 'src/app/models/user.model';
-import { UrlData } from 'src/app/models/util.model';
+import { config } from '../../utils/config'
+import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
+import { configs, UserConfig, _DB_CONFIGS } from 'src/app/models/config';
+import { createUserData, UserData, _DB_USERS, _STORAGE_USERS } from 'src/app/models/user.model';
+
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -18,15 +21,19 @@ export class ProfilePage implements OnInit {
   /** input */
   userId:string;
   user:UserData=null;           // user data
-
+  isAdmin:boolean=false;
   /** internal */
+  isNew:boolean=false;          // new user
   isChange:boolean=false;       // check change data
   isOwner:boolean=false;        // Own acount
   isAvailable:boolean=false;    // enable display data
   viewImage:string;                 // new image
   addImage:string;
-  backup:string[]=[]
-
+  backup:string[]=[];
+  companies:CompanyData[]=[];
+  roles:string[]=[];
+  pass:string='';
+  isHide:boolean=true;
   constructor(
     private modal:ModalController,
     private storage:StorageService,
@@ -39,22 +46,21 @@ export class ProfilePage implements OnInit {
 
   ////////////// SYSTEM FUNCTIONS /////////////////
   ngOnInit() {
-    this._getUser().then(user=>{
+    const _user=this._getUser();
+    const _companies=this.db.search(_DB_COMPANY,[]);
+    const _roles=this.db.get(_DB_CONFIGS,configs.user).then((uConfig:UserConfig)=>uConfig.role)
+    Promise.all([_user,_companies,_roles]).then(([user,companies,roles])=>{
+      console.log("result",{user,companies,roles})
+      this.companies=companies;
       this.user=user;
       this.userId=user.id;
-      this.backup=BACKUP_LIST.map(key=>JSON.stringify(this[key]))
-      this.updateView();
-      this.isAvailable=true;
+      this.roles=roles;
+      this.updateView()
     })
+
+    
+
   }
-
-  // ionViewDidEnter(){
-  //   console.log("here")
-  //   const inputs=document.querySelectorAll("app-profile input")
-  //   console.log(inputs)
-  //   inputs.forEach(input=>input.addEventListener(''))
-  // }
-
 
   ////////////// BUTTONS & EVENTS HANDLER ////////
   /** Exit page */
@@ -79,7 +85,9 @@ export class ProfilePage implements OnInit {
 
   /** signout */
   signOut(){
-    this.auth.logout().then(()=>this.done('back'))
+    this.auth.logout()
+    .then(()=>this.disp.goto("/"))
+    .then(()=>this.done('back'))
   }
  
   /** take photo */
@@ -98,6 +106,21 @@ export class ProfilePage implements OnInit {
     })
   }
 
+  /** register new user */
+  async register(){
+    try{
+      const user=await this.auth.register(this.user.email,this.pass)
+      const id=user.user.uid;
+      await this.db.add(_DB_USERS,{...this.user,id})
+      console.log("register successfully")
+    }
+    catch(err){
+      console.log("register failured! ",{error:err.messager})
+    }
+    this.done('register');
+
+  }
+
   ///////////// BACKGROUND FUNCTIONS //////////////
 
   /** update view */
@@ -105,12 +128,16 @@ export class ProfilePage implements OnInit {
     this.viewImage=this.addImage||this.user.image
     if(this.userId==this.auth.currentUser.id) this.isOwner=true;
     this.isChange=BACKUP_LIST.every((key,pos)=>JSON.stringify(this[key])==this.backup[pos])?false:true
+    //avaiable
+    this.isAvailable=true;
   }
   
   /** get user */
-  private _getUser():Promise<UserData>{
+  private async  _getUser():Promise<UserData>{
     return new Promise((resolve,reject)=>{
-      if(!this.userId&&!this.user){//current user
+      if(this.isNew) 
+        return resolve(createUserData({createAt:new Date().toISOString(),role:'standard'}))
+      if(!this.userId&&!this.user){ //current user
         const user=this.auth.currentUser;
         if(!user) return reject(new Error('Not yet login'))
         return resolve(user)
@@ -120,22 +147,24 @@ export class ProfilePage implements OnInit {
       this.db.get(_DB_USERS,this.userId)
       .then((user:UserData)=>resolve(user))
       .catch(err=>reject(err))
-
     })
   }
+
 
 }
 
 ///////////////// INTERFACE //////////////////////////////
 export interface ProfilePageOpts{
   userId?:string;
-  user:UserData;
+  user?:UserData;
+  isAdmin?:boolean;
+  isNew?:boolean;
 }
 
 export interface ProfilePageOuts{
   user:UserData;
 }
 
-export type ProfilePageRole="ok"|"back"
+export type ProfilePageRole="ok"|"back"|"register"|"save"
 
 

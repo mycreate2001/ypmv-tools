@@ -254,6 +254,19 @@ export class FirestoreService {
     })
   }
 
+  async get2(path:string):Promise<any>{
+    // const docsnap=await getDoc(doc(this.db,path))
+    // return {...docsnap.data(),id:docsnap.id}
+    const paths=path.split("/");
+    console.log("get2-input",{paths})
+    return getDoc(doc(this.db,...paths))
+    .then((snap)=>{
+      console.log("get2-002")
+      //return {...snap.data(),id:snap.id}
+      return snap.data()
+    })
+  }
+
   /**
    * monitor dabase from firestore
    * @param tbl table from db

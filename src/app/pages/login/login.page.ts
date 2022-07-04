@@ -32,29 +32,23 @@ export class LoginPage implements OnInit {
       private disp:DisplayService,
       // private storage:StorageService
   ) { }
-
+  
+  ///////////////// SYSTEM FUNCIONS ///////////////// */
   ngOnInit() {
-    this.db.search(_DB_COMPANY,[])
-    .then((companies:CompanyData[])=>{
-      this.companies=companies;
+    //gonna profile if already login
+    this.auth.getUser().then(user=>{
+      if(user) return this.disp.goto("/");
     })
   }
 
   ionViewDidEnter	(){
-    this.list=document.querySelectorAll("app-login ion-input[role] input");
-    this.list.forEach(l=>{
-      l.addEventListener("blur",this.update)
-    })
   }
 
   ionViewDidLeave(){
-    this.list.forEach(l=>l.removeEventListener("blur",this.update))
   }
 
-  update(){
-    console.log("update");
-  }
 
+  ////////////////// USER FUNCTIONS ///////////////////////////////////
   /** login  */
   login(){
     this.msg=""

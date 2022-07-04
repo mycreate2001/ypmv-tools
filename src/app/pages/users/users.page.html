@@ -1,0 +1,39 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>users</ion-title>
+    <ion-buttons slot="end">
+      <ion-button title="new user" (click)="newUser()" *ngIf="isAdmin">
+        <ion-icon name="person-add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col sizeXs="12" sizeMd="6" sizeLg="4" >
+        <ion-accordion-group>
+          <ion-accordion *ngFor="let view of views">
+            <ion-item slot="header">{{view.group}}</ion-item>
+            <ion-list slot="content">
+              <ion-item *ngFor="let user of view.users" button="true" (click)="detail(user)">
+                <ion-avatar slot="start">
+                  <img [src]="user.image|url">
+                </ion-avatar>
+                <ion-label>
+                  <a>{{user.name}}</a>
+                  <p>{{user.email}}</p>
+                </ion-label>
+                <ion-badge slot="end">{{user.role}}</ion-badge>
+              </ion-item>
+            </ion-list>
+          </ion-accordion>
+        </ion-accordion-group>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

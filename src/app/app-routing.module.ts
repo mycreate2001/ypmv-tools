@@ -96,7 +96,11 @@ const routes: Routes = [
   {
     path: 'tool-status',
     loadChildren: () => import('./modals/tool-status/tool-status.module').then( m => m.ToolStatusPageModule)
+  },  {
+    path: 'users',
+    loadChildren: () => import('./pages/users/users.module').then( m => m.UsersPageModule)
   },
+
 
 
 

@@ -6,8 +6,9 @@
         Back
       </ion-button>
     </ion-buttons>
-    <ion-title>Profile</ion-title>
-    <ion-buttons slot="end">
+    <ion-title *ngIf="!isAdmin">Profile</ion-title>
+    <ion-title *ngIf="isAdmin">User Management</ion-title>
+    <ion-buttons slot="end" *ngIf="!isAdmin">
       <ng-container *ngIf="isOwner">
         <ion-button title="sign out" (click)="signOut()">
           <ion-icon name="log-out"></ion-icon>
@@ -20,6 +21,16 @@
         </ion-button>
       </ng-container>
     </ion-buttons>
+    <ion-buttons slot="end" *ngIf="isAdmin">
+      <ion-button (click)="register()" *ngIf="isNew">
+        <ion-icon name="arrow-redo"></ion-icon>
+        <ion-label>Regiseter</ion-label>
+      </ion-button>
+      <ion-button (click)="save()" *ngIf="!isNew">
+        <ion-icon name="arrow-redo"></ion-icon>
+        <ion-label>Save</ion-label>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -28,7 +39,7 @@
   <div class="image-cover">
     <img [src]="viewImage|url" class=" avatar image-square">
   </div>
-  <ion-list class="infor">
+  <ion-list class="infor" *ngIf="!isAdmin">
     <!-- email -->
     <ion-item>
       <ion-label>Email</ion-label>
@@ -65,4 +76,46 @@
     </ion-item>
   </ion-list>
 
+  <!-- admin -->
+  <ion-list class="infor" *ngIf="isAdmin">
+    <!-- email -->
+    <ion-item *ngIf="isNew">
+      <ion-label>Email</ion-label>
+      <ion-input [(ngModel)]="user.email"></ion-input>
+    </ion-item>
+
+    <!-- name \edit -->
+    <ion-item *ngIf="isNew">
+      <ion-label color="primary">Name</ion-label>
+      <ion-input [(ngModel)]="user.name"></ion-input>
+    </ion-item>
+    <!-- name \view -->
+    <ion-item *ngIf="!isNew">
+      <ion-label>Name</ion-label>
+      <ion-input [(ngModel)]="user.name"></ion-input>
+    </ion-item>
+    <!-- company -->
+    <ion-item>
+      <ion-label>Company</ion-label>
+      <ion-select [(ngModel)]="user.companyId">
+        <ion-select-option [value]="company.id" *ngFor="let company of companies">{{company.name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- role -->
+    <ion-item>
+      <ion-label>Role</ion-label>
+      <ion-select [(ngModel)]="user.role">
+        <ion-select-option [value]="role" *ngFor="let role of roles">{{role}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <!-- pass -->
+    <ion-item *ngIf="isNew">
+      <ion-label>Password</ion-label>
+      <ion-input [type]="isHide?'password':'text'" [(ngModel)]="pass"></ion-input>
+      <ion-buttons slot="end" (click)="isHide=!isHide">
+        <ion-icon [name]="isHide?'eye-off':'eye'"></ion-icon>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
 </ion-content>
