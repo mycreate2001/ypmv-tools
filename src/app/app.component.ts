@@ -20,7 +20,7 @@ export class AppComponent  {
     {name:'Code Format',url:'formats',icon:'qr-code',iconColor:'tertiary',type:'Yamaha Branch'},
     {name:'Companies',url:'companies',icon:'briefcase',type:'Yamaha Branch'},//<ion-icon name="briefcase"></ion-icon>
     {name:'Order List',url:'orders',icon:'refresh',iconColor:'danger'},//<ion-icon name="refresh"></ion-icon>
-    {name:'Users',url:"users",icon:"people",iconColor:'success'},//<ion-icon name="people-outline"></ion-icon>
+    {name:'Users',url:"users",icon:"people",iconColor:'success',type:'Yamaha Branch',roles:['admin']},//<ion-icon name="people-outline"></ion-icon>
   ]
   user:UserData=null;
   selectIndex:number=0;
@@ -40,7 +40,14 @@ export class AppComponent  {
           
           .then((company:CompanyData)=>{
             console.log("company",{company})
-            this.pages=this.pages.filter(page=>!page.type||page.type=='All'||page.type==company.type)
+            this.pages=this.pages.filter(page=>{
+              //role
+              if(page.roles&&page.roles.length&&!page.roles.includes(user.role)) return false;
+              //page
+              if(!page.type||page.type=='All'||page.type==company.type) return true
+              //other
+              return false;
+            })
           })
         }
       }

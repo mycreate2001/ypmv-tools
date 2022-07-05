@@ -1,5 +1,6 @@
 import { createOpts } from "../utils/minitools";
 import { CompanyType } from "./company.model";
+import { UserRole } from "./user.model";
 
 export type ColorType="primary"|"secondary"|"danger"|"light"|"tertiary"|"success"|"warning"|"medium"|"dark"
 export type PageType=CompanyType|"All"
@@ -10,6 +11,7 @@ export interface PageData{
     icon:string;
     iconColor?:ColorType;
     type?:PageType;
+    roles?:UserRole[];      //allow role
 }
 
 

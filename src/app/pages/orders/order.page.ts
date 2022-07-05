@@ -3,13 +3,14 @@ import { BookingPage, BookingPageOpts } from 'src/app/modals/booking/booking.pag
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from 'src/app/modals/qrcode/qrcode.page';
 import { OrderData, OrderDataStatusType, _DB_ORDERS } from 'src/app/models/order.model';
 import { CodeFormatConfig } from 'src/app/models/codeformat';
-import { _DB_COMPANY } from 'src/app/models/company.model';
-import { _DB_USERS } from 'src/app/models/user.model';
+import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
+import { UserRole, _DB_USERS } from 'src/app/models/user.model';
 import { MenuData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { searchObj } from 'src/app/utils/data.handle';
+import { getList } from 'src/app/utils/minitools';
 
 
 
@@ -37,9 +38,21 @@ export class OrderPage implements OnInit {
 
   ngOnInit() {
     this.historyDb=this.db.connect(_DB_ORDERS,true);
-    this.historyDb.onUpdate((histories)=>{
-      this.histories=histories;
-      this.update();
+    this.historyDb.onUpdate(async (histories:OrderData[])=>{
+      try{
+        //filter
+        const cUser=this.auth.currentUser;
+        const company:CompanyData=await this.db.get(_DB_COMPANY,cUser.companyId)
+        const allowList:UserRole[]=["admin","manager"];
+        if(company.type=='Yamaha Branch'||allowList.includes(cUser.role)) this.histories=histories;//see all
+        else{
+          this.histories=histories.filter(h=>h.companyId==cUser.companyId)
+        }
+        this.update();
+      }
+      catch(err){
+        console.log("update orderlist is error\n",{err:err.messager});
+      }
     })
   }
 
