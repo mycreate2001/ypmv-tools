@@ -8,6 +8,7 @@
     </ion-buttons>
     <ion-title *ngIf="!isAdmin">Profile</ion-title>
     <ion-title *ngIf="isAdmin">User Management</ion-title>
+    <!-- statandard tool -->
     <ion-buttons slot="end" *ngIf="!isAdmin">
       <ng-container *ngIf="isOwner">
         <ion-button title="sign out" (click)="signOut()">
@@ -21,11 +22,18 @@
         </ion-button>
       </ng-container>
     </ion-buttons>
+    <!-- admin tool -->
     <ion-buttons slot="end" *ngIf="isAdmin">
       <ion-button (click)="register()" *ngIf="isNew">
         <ion-icon name="arrow-redo"></ion-icon>
         <ion-label>Regiseter</ion-label>
       </ion-button>
+
+      <ion-button (click)="del()" >
+        <ion-icon name="trash"></ion-icon>
+        <ion-label>Delete</ion-label>
+      </ion-button>
+
       <ion-button (click)="save()" *ngIf="!isNew">
         <ion-icon name="arrow-redo"></ion-icon>
         <ion-label>Save</ion-label>

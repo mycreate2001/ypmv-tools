@@ -103,6 +103,14 @@ export class ProfilePage implements OnInit {
     })
   }
 
+  del(){
+    this.disp.msgbox("Are you sure want to delete this account?",{buttons:[{text:'OK',role:'ok'},{role:'cancel',text:'Cancel'}]}).then(result=>{
+      if(result.role!='ok') return;
+      this.user.deactive=true
+      this.db.add(_DB_USERS,this.user).then(()=>this.done("delete"))
+    })
+  }
+
   /** register new user */
   async register(){
     try{
@@ -162,6 +170,6 @@ export interface ProfilePageOuts{
   user:UserData;
 }
 
-export type ProfilePageRole="ok"|"back"|"register"|"save"
+export type ProfilePageRole="ok"|"back"|"register"|"save"|"delete"
 
 

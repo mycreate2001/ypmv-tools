@@ -31,6 +31,8 @@ export class UsersPage implements OnInit {
   ngOnInit() {
     this.userDb=this.db.connect(_DB_USERS);
     this.userDb.onUpdate(async (users:UserData[])=>{
+      //filter
+      users=users.filter(u=>!u.deactive)
       const companiesId=getList(users,"companyId");
       const companies:CompanyData[]=await this.db.gets(_DB_COMPANY,companiesId);
       const cUser=this.auth.currentUser;

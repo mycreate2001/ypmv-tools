@@ -10,6 +10,7 @@ export interface UserData{
     createAt:string;
     lastLogin:string;
     companyId:string;
+    deactive:boolean;
 }
 
 export type UserDataOpts=Partial<UserData>
@@ -24,7 +25,8 @@ export function createUserData(opts?:UserDataOpts):UserData{
         image:'',
         companyId:'',
         createAt:now.toISOString(),
-        lastLogin:now.toISOString()
+        lastLogin:now.toISOString(),
+        deactive:false
     }
     return createOpts(df,opts) as UserData
 }
