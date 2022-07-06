@@ -4,7 +4,7 @@ import { CompanyData, createCompanyData, CompanyType, _DB_COMPANY, _STORAGE_COMP
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
-import { CameraPage } from '../camera/camera.page';
+import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
 
 
 @Component({
@@ -66,10 +66,16 @@ export class CompanyPage implements OnInit {
 
   /** addImage button */
   addImage(){
-    this.disp.showModal(CameraPage,{fix:false})
+    const props:CameraPageOpts={
+      fix:false
+    }
+    this.disp.showModal(CameraPage,props)
     .then(result=>{
-      if(result.role.toUpperCase()!='OK') return;
-      this.image=result.data;
+      const role=result.role as CameraPageRole
+      if(role!='ok') return;
+      const data=result.data as CameraPageOuts;
+      this.image=data.image
+      // this.image=result.data;
     })
     .catch(err=>this.disp.msgbox("err<br>"+err.message))
   }
