@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { initializeApp} from 'firebase/app';
 import { Auth,getAuth,
-         signInWithEmailAndPassword,
+         signInWithEmailAndPassword,sendPasswordResetEmail,
          createUserWithEmailAndPassword,
          sendEmailVerification,signOut, updateProfile,
          User,onAuthStateChanged, UserCredential, Unsubscribe                      } from 'firebase/auth'
@@ -110,6 +110,14 @@ export class AuthService {
   /** register revise */ 
   register(email:string,pass:string):Promise<UserCredential>{
     return createUserWithEmailAndPassword(this.auth,email,pass)
+  }
+
+  /** reset account by email */
+  async resetPasswordByEmail(email:string){
+    if(!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)){
+      throw new Error("It's not email");
+    }
+    return sendPasswordResetEmail(this.auth,email)
   }
 }
 

@@ -25,18 +25,15 @@
     <!-- admin tool -->
     <ion-buttons slot="end" *ngIf="isAdmin">
       <ion-button (click)="register()" *ngIf="isNew">
-        <ion-icon name="arrow-redo"></ion-icon>
-        <ion-label>Regiseter</ion-label>
+        <ion-icon name="person-add"></ion-icon>
       </ion-button>
 
       <ion-button (click)="del()" >
         <ion-icon name="trash"></ion-icon>
-        <ion-label>Delete</ion-label>
       </ion-button>
 
       <ion-button (click)="save()" *ngIf="!isNew">
-        <ion-icon name="arrow-redo"></ion-icon>
-        <ion-label>Save</ion-label>
+        <ion-icon name="save"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

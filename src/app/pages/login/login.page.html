@@ -60,6 +60,9 @@
           <a *ngIf="!isRegister">Not yet have account? <b (click)="isRegister=true">Register</b></a>
           <a *ngIf="isRegister">Already have account? <b (click)="isRegister=false">Login</b></a>
         </div> -->
+        <div class="center">
+          <a>Forgot password? <b (click)="resetPass()">Reset</b></a>
+        </div>
       </ion-col>
       <ion-col></ion-col>
     </ion-row>

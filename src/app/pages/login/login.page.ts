@@ -25,6 +25,7 @@ export class LoginPage implements OnInit {
   msg:string='';
   isRegister:boolean=false;
   companies:CompanyData[]=[];
+  ctrl:"reset"|"login"="login"
   constructor(
       private auth:AuthService,
       private router:Router,
@@ -93,6 +94,24 @@ export class LoginPage implements OnInit {
       this.msg=err.message;
     })
     
+  }
+
+  resetPass(){
+    this.disp.msgbox("input your email",{
+      inputs:[{type:'email',label:'email',name:'email'}],
+      mode:'ios'
+    }).then(result=>{
+      console.log("test-001",{result});
+      const role=result.role
+      if(!role||result.role.toLowerCase()!='ok') return;
+      //email
+      const email=result.data.values['email'];
+      return this.auth.resetPasswordByEmail(email)
+    })
+    .then(result=>{
+      console.log("test-003",{result})
+    })
+    .catch(err=>console.log("test-004: error",{err}))
   }
 
 }
