@@ -371,7 +371,7 @@ export class BookingPage implements OnInit {
     tools.forEach(tool=>{
       const model=models.find(m=>m.id==tool.model);
       if(!model) return console.log("\n### ERROR: cannot find model '%s' from db",tool.model)
-      outs.push(createBasicData({id:tool.id,type:'tool',...model}))
+      outs.push(createBasicData({...model,id:tool.id,type:'tool'}))
     })
 
     //cover
