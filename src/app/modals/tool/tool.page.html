@@ -108,9 +108,9 @@
             <ion-label>Others Infor</ion-label>
           </ion-item>
           <ion-list slot="content">
-            <ion-item *ngFor="let item of ['name','group','maintenance','note']">
-              <ion-label>{{item|titlecase}}</ion-label>
-              <ion-text>{{model[item]}}</ion-text>
+            <ion-item *ngFor="let item of items">
+              <ion-label>{{item.name}}</ion-label>
+              <ion-text>{{model[item.value]||"(blank)"}}</ion-text>
             </ion-item>
           </ion-list>
         </ion-accordion>

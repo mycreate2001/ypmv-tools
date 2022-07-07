@@ -30,6 +30,11 @@ export class ToolPage implements OnInit {
   status:object={};
   statusList:string[]=[];
   backup:string[];
+  items=[
+    {name:'name',value:'name'},{name:'group',value:'Group'},
+    {name:'maintenance',value:'maintenance'},{name:'Quantity',value:'compQty'},
+    {name:'Meno',value:'note'}
+  ]//'name','group','maintenance','compQty','note'
   /** function */
   constructor(
     private modal:ModalController,
