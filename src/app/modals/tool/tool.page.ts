@@ -8,6 +8,7 @@ import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { CoverData, _DB_COVERS } from 'src/app/models/cover.model';
+import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
 const _CHANGE_LIST="ion-select,ion-input,ion-checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -86,7 +87,22 @@ export class ToolPage implements OnInit {
   }
 
   //////////////// HANDLE FUNCTIONS ///////////////////////////
-
+  /** read code */
+  readCode(){
+    const props:QRcodePageOpts={
+      type:'code',
+      title:'scan code'
+    }
+    this.disp.showModal(QrcodePage,props)
+    .then(result=>{
+      const role=result.role as QRcodePageRole;
+      if(role!='ok') return;
+      const data=result.data as QRcodePageOuts
+      const code=data.code;
+      this.tool.id=code;
+      this.toolId=code;
+    })
+  }
   /** pickup upper/parents ID */
   pickupParent(){
     const props:SearchToolPageOpts={
@@ -161,7 +177,7 @@ export class ToolPage implements OnInit {
       { buttons:[ {text:'Code Only',role:'code'},{text:'With Label',role:'label'}]}
     ).then(result=>{
       const label=result.role=='label'?this.model.name:''
-      const size=result.role=='label'?32:24 
+      const size=32//result.role=='label'?32:24 
       this.util.generaQRcode(this.tool.id,{label,size,type:'tool'})
     })
   }

@@ -20,24 +20,31 @@ export class UtilService {
         .content{margin-left: 12px;}
         .code{font-size: x-small;}
       </style>`)
-    windowp.document.write(`
-      <div class="cover">
-        <div id="qr-code"></div>
-        ${opts.label?`
-          <div class="content">
-          <div class="label">${opts.label.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase())}</div>
-          <div class="code">${code}</div>
-        </div>`:''
-        }
-      </div>`
-    );
+    if(opts.label){
+      windowp.document.write(`
+        <div class="cover">
+          <div id="qr-code"></div>
+            <div class="content">
+            <div class="label">${opts.label.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase())}</div>
+            <div class="code">${code}</div>
+          </div>
+        </div>`
+      );
+    }
+    else{
+      windowp.document.write(`
+        <div class="cover">
+          <div id="qr-code"></div>
+        </div>`
+      );
+    }
     QrCreator.render({
       text:_code,
       radius:0,
       ecLevel:opts.ecLevel,
       fill:opts.fill,//'#536DFE',
       background:opts.background,
-      size:opts.size*10,
+      size:opts.size*20,
     }, windowp.document.querySelector('#qr-code'))
     windowp.focus();
     // windowp.print();

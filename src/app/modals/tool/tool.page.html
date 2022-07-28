@@ -50,6 +50,11 @@
       <ion-item *ngIf="isNew && isEdit">
         <ion-label>Series Number</ion-label>
         <ion-input [(ngModel)]="tool.id"></ion-input>
+        <ion-buttons slot="end">
+          <ion-buttons title="scan code" (click)="readCode()">
+            <ion-icon name="scan" color="primary"></ion-icon>
+          </ion-buttons>
+        </ion-buttons>
       </ion-item>
       <ion-item *ngIf="!isNew ||!isEdit">
         <ion-label>Series Number</ion-label>
