@@ -23,6 +23,9 @@
 
 ## 6. Images
 ### 6.1 separate [thubnail image & full]
+[status]=> done
+[Lazyloading image]
+use brown directive loading="lazy"
 
 ## 7. companies
 ### 7.1. company modal not get correct image => Done

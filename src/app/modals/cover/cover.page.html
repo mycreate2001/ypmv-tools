@@ -110,7 +110,7 @@
             </ion-item>
             <ion-item *ngFor="let child of children" >
               <ion-thumbnail slot="start">
-                <img [src]="''|url" [attr.lazy-src]="child.images|url:0:'thumb'">
+                <img [src]="child.images|url:0:'thumb'" loading="lazy">
               </ion-thumbnail>
               <ion-label (click)="detail(child)">
                 {{child.id}}<p>{{child.name}}</p>
