@@ -27,7 +27,7 @@
             <ion-list slot="content">
               <ion-item (click)="detail(model)" *ngFor="let model of view.models">
                 <ion-thumbnail slot="start">
-                  <img [src]="''|url" [attr.lazy-src]="model.images|url:0:true">
+                  <img [src]="''|url" [attr.lazy-src]="model.images|url:0:'thumb'">
                 </ion-thumbnail>
                 <ion-label [color]="model.type=='cover'?'secondary':'primary'">
                   {{model.name}}

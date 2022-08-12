@@ -6,7 +6,7 @@ const _NO_IMAGE="../../../assets/image/no-image.png"
 })
 export class UrlPipe implements PipeTransform {
 
-  transform(image:string|string[]|UrlData|UrlData[],pos:number=0,cover:boolean=false): string {
+  transform(image:string|string[]|UrlData|UrlData[],pos:number=0,type:'thumb'|'image'='image'): string {
     const debug=false;
     if(debug) console.log("image:",{image,pos})
     //#1 Empty
@@ -29,7 +29,7 @@ export class UrlPipe implements PipeTransform {
 
     //#4 Image as type
     if(debug) console.log("#K4:UrlData")
-    return cover?_image.thumbnail||_image.url||_NO_IMAGE: _image.url||_NO_IMAGE
+    return type=='thumb'?_image.thumbnail||_image.url||_NO_IMAGE: _image.url||_NO_IMAGE
   }
 
 }

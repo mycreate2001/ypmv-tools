@@ -84,6 +84,20 @@ export class CoverPage implements OnInit {
         this.refresh();
       })
     })
+
+    //create obs & function
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const image=entry.target
+          const src=image.getAttribute("lazy-src");
+          if(src) image.setAttribute("src",src)
+        }
+      })
+    })
+    //set function
+    const images=document.querySelector('app-cover').querySelectorAll("[lazy-src]");
+    images.forEach(img=>obs.observe(img))
   }
 
 

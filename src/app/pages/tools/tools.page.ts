@@ -71,15 +71,13 @@ export class ToolsPage implements OnInit {
         if(entry.isIntersecting){
           const image=entry.target;
           const src=image.getAttribute("lazy-src");
-          image.setAttribute("src",src);
-          console.log("update src=",src);
-          //image.removeAttribute("lazy-src")
+          if(src) image.setAttribute("src",src);
         }
       })
     })
 
     const images=document.querySelector("app-tools").querySelectorAll("[lazy-src]");
-    console.log("\ntest-001",{images})
+    console.log("\nimages",{images})
     images.forEach(image=>{
       obs.observe(image)
     })
