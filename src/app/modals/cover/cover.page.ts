@@ -6,7 +6,7 @@ import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { getList } from 'src/app/utils/minitools';
-import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
+import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts, ImageViewPageRole } from '../image-view/image-view.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 import { UtilService } from 'src/app/services/util/util.service';
@@ -192,18 +192,15 @@ export class CoverPage implements OnInit {
     }
     this.disp.showModal(ImageViewPage,props)
     .then(result=>{
+      const role=result.role as ImageViewPageRole
+      if(role!='ok') return;
+      //handler
       const data=result.data as ImageViewPageOuts
-      switch(result.role.toUpperCase()){
-        case 'OK':
-        case 'SAVE':{
-          this.addImages=data.addImages
-          this.delImages=data.delImages
-          this.cover.images=data.images
-          this.viewImages=this.cover.images.concat(this.addImages);
-          this.refresh();
-        }
-        break;
-      }
+      this.addImages=data.addImages
+      this.delImages=data.delImages
+      this.cover.images=data.images
+      this.viewImages=this.cover.images.concat(this.addImages);
+      this.refresh();
     })
   }
 

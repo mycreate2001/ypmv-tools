@@ -78,9 +78,9 @@ export class StorageService {
       if(!base64) return resolve('');                   //empty
       if(base64.startsWith("https://")) return base64;  //already upload
       const {contentType,data}= new Base64(base64);
-      if(path.endsWith("/")) path+=(new Date()).getTime()+".jpg"      //auto create filename as jpg
-      return uploadString(ref(this.storage,path),data,'base64',{contentType})
-      .then(result=>this.getURL(result.ref.fullPath))
+      if(path.endsWith("/")) path+=(new Date()).getTime()+Math.random().toString(36).substring(2,10)+".jpg"      //auto create filename as jpg
+      uploadString(ref(this.storage,path),data,'base64',{contentType})
+      .then(result=>resolve(this.getURL(result.ref.fullPath)))
     })
     
   }

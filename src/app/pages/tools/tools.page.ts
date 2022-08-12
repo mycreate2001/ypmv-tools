@@ -65,6 +65,26 @@ export class ToolsPage implements OnInit {
     })
   }
 
+  ionViewWillEnter(){
+    let obs=new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const image=entry.target;
+          const src=image.getAttribute("lazy-src");
+          image.setAttribute("src",src);
+          console.log("update src=",src);
+          //image.removeAttribute("lazy-src")
+        }
+      })
+    })
+
+    const images=document.querySelector("app-tools").querySelectorAll("[lazy-src]");
+    console.log("\ntest-001",{images})
+    images.forEach(image=>{
+      obs.observe(image)
+    })
+  }
+
   /** system destroy */
   ngOnDestroy(){
     this._modelDb.disconnect();
