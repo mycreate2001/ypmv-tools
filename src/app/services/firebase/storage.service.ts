@@ -6,7 +6,7 @@ import {  getStorage,uploadString,ref,
           uploadBytesResumable,
           FirebaseStorage,
           UploadResult,          } from 'firebase/storage';
-import { UrlData } from 'src/app/models/util.model';
+import { createUrlData, UrlData } from 'src/app/models/util.model';
 import { Base64 } from 'src/app/utils/base64';
 import { environment } from 'src/environments/environment';
 
@@ -47,15 +47,20 @@ export class StorageService {
   // }
 
    /** upload images to folder */
-   uploadImages(images:UrlData[]|string[]|UrlData|string,path:string):Promise<(string|UrlData)[]>{
+   uploadImages(images:UrlData[]|string[]|UrlData|string,path:string):Promise<UrlData[]>{
     if(!path.endsWith("/")) path=path+"/";
     const _images=[].concat(images);
     return new Promise((resolve,reject)=>{
       if(!images||!_images.length) return resolve([]);//
       const all=_images.map(image=>{
-        if(typeof image=='string') return this.uploadImagebase64(image,path).then(result=>result.url)
-        const url=image['url'] as string;
-        return this.uploadImagebase64(url,path).then(result=>{return{...image,url:result.url}})
+        const _image:UrlData=typeof image=='string'?createUrlData({url:image}):createUrlData(image)
+        // if(typeof image=='string') 
+        //   return this.uploadImagebase64(image,path).then(result=>result.url)
+        // const url=image['url'] as string;
+        // return this.uploadImagebase64(url,path).then(result=>{return{...image,url:result.url}})
+        const pImage=this.uploadImagebase64(_image.url,path)
+        const pThumbnail=this.uploadImagebase64(_image.thumbnail,path)
+        return Promise.all([pImage,pThumbnail]).then(([url,thumbnail])=>createUrlData({url,thumbnail,caption:_image.caption?_image.caption:""}))
       })
       Promise.all(all).then((results)=>resolve(results))
       .catch(err=>reject(err))
@@ -68,18 +73,14 @@ export class StorageService {
    * @param path folder & file name of image, default is "images/" if path="<folder>/" filename automatic create
    * @returns Promise<any>
    */
-  uploadImagebase64(base64:string,path="images/"):Promise<UploadImageResult>{
+  uploadImagebase64(base64:string,path="images/"):Promise<string>{
     return new Promise((resolve,reject)=>{
-      if(!base64) return reject(new Error("image is empty"));
+      if(!base64) return resolve('');                   //empty
+      if(base64.startsWith("https://")) return base64;  //already upload
       const {contentType,data}= new Base64(base64);
       if(path.endsWith("/")) path+=(new Date()).getTime()+".jpg"      //auto create filename as jpg
-      uploadString(ref(this.storage,path),data,'base64',{contentType})
-      .then(async result=>{
-        const url=await this.getURL(result.ref.fullPath);
-        console.log("url2:",url);
-        resolve({url,...result})
-      })
-      .catch(err=>reject(err))
+      return uploadString(ref(this.storage,path),data,'base64',{contentType})
+      .then(result=>this.getURL(result.ref.fullPath))
     })
     
   }

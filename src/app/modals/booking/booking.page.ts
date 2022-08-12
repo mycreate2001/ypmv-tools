@@ -7,7 +7,7 @@ import {  _DB_COMPANY } from 'src/app/models/company.model';
 import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
 import { ModelData, statusList, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import {  _DB_USERS } from 'src/app/models/user.model';
-import { UrlData } from 'src/app/models/util.model';
+import { createUrlData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -510,7 +510,7 @@ export class BookingPage implements OnInit {
       delImages.forEach(this.storage.delete)
       this.storage.uploadImages(addImages,_STORAGE_ORDERS)
       .then(urls=>{
-        const a=urls.map(url=>typeof url=='string'?{url:url,caption:''}:url)
+        const a=urls.map(url=>typeof url=='string'?createUrlData({url}):url)
         return resolve(a);
       })
       .catch(err=>reject(err))

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { MenuData, UrlData } from 'src/app/models/util.model';
+import { DOC_ORIENTATION, NgxImageCompressService } from 'ngx-image-compress';
+import { createUrlData, MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { CameraPage, CameraPageOuts } from '../camera/camera.page';
 
@@ -20,6 +21,14 @@ export interface ImageViewPageOpts{
   delImages?:string[]           
   /** default=false, can add capture to image */
   canCaption?:boolean;        
+}
+
+export interface CompressImageOpts{
+  orientation?:DOC_ORIENTATION;
+  ratio?: number
+  quality?: number
+  maxWidth?: number
+  maxHeight?: number
 }
 
 export type ImageViewPageRole="ok"|"cancel"
@@ -55,8 +64,18 @@ export class ImageViewPage implements OnInit {
   /** function */
   constructor(
     private modal:ModalController,
-    private disp:DisplayService
+    private disp:DisplayService,
+    private imageCompress:NgxImageCompressService
   ) { }
+  
+  compressImage(image:string,opts:CompressImageOpts={}){
+    const orientation=opts.orientation
+    const ratio=opts.ratio
+    const quality=opts.quality
+    const maxWidth=opts.maxWidth
+    const maxHeight=opts.maxHeight
+    return this.imageCompress.compressFile(image,orientation,ratio,quality,maxWidth,maxHeight)
+  }
 
   ngOnInit() {
     if((this.images.length+this.addImages.length)==0) this.add();
@@ -80,8 +99,10 @@ export class ImageViewPage implements OnInit {
     .then(camera=>{
       if(camera.role.toUpperCase()!='OK') return;
       const data=camera.data as CameraPageOuts
-      this.addImages.push({url:data.image,caption:''})
+      return this.compressImage(data.image,{maxWidth:300})
+      .then(thumbnail=>createUrlData({url:data.image,thumbnail}))
     })
+    .then(image=>this.addImages.push(image))
   }
 
   menu(event,pos:number,isNewImage:boolean=false){

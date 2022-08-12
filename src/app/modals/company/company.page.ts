@@ -31,8 +31,7 @@ export class CompanyPage implements OnInit {
     return new Promise((resolve,reject)=>{
       if(!this.image) return resolve(this.company);
       this.storage.uploadImagebase64(this.image,`${_STORAGE_COMPANY}/${this.company.id}.jpeg`)
-      .then(result=>{
-        const url=result.url;
+      .then(url=>{
         this.company.image=url;
         return resolve(this.company)
       })

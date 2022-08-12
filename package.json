@@ -10,7 +10,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "th":"ionic build --prod && firebase deploy --only hosting"
+    "th": "ionic build --prod && firebase deploy --only hosting"
   },
   "private": true,
   "dependencies": {
@@ -31,6 +31,7 @@
     "@ionic/pwa-elements": "^3.1.1",
     "firebase": "^9.6.7",
     "jsqr": "^1.4.0",
+    "ngx-image-compress": "^13.1.13",
     "ngx-image-cropper": "^6.1.0",
     "qr-creator": "^1.0.0",
     "rxjs": "~6.6.0",

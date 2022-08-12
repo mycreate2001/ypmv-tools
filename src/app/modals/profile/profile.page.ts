@@ -10,6 +10,7 @@ import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
+import { UrlData } from 'src/app/models/util.model';
 const BACKUP_LIST=["user",'addImage']
 
 @Component({
@@ -70,8 +71,8 @@ export class ProfilePage implements OnInit {
 
   /** save profile */
   save(){
-    this.storage.uploadImages(this.addImage||[],`${_STORAGE_USERS}/${this.user.id}`)
-    .then((images:string[])=>{
+    this.storage.uploadImages(this.addImage||[],`${_STORAGE_USERS}/${this.user.id}/`)
+    .then((images:UrlData[])=>{
       if(images.length){
         this.user.image=images[0]
       }
@@ -130,7 +131,8 @@ export class ProfilePage implements OnInit {
 
   /** update view */
   updateView(){
-    this.viewImage=this.addImage||this.user.image
+    const userImage=typeof this.user.image=='string'?this.user.image:this.user.image.url
+    this.viewImage=this.addImage||userImage
     if(this.userId==this.auth.currentUser.id) this.isOwner=true;
     this.isChange=BACKUP_LIST.every((key,pos)=>JSON.stringify(this[key])==this.backup[pos])?false:true
     //avaiable

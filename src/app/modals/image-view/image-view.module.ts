@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 // import { ImageViewPageRoutingModule } from './image-view-routing.module';
 
 import { ImageViewPage } from './image-view.page';
+import { NgxImageCompressService } from 'ngx-image-compress';
 
 @NgModule({
   imports: [
@@ -14,6 +15,9 @@ import { ImageViewPage } from './image-view.page';
     FormsModule,
     IonicModule,
     // ImageViewPageRoutingModule
+  ],
+  providers:[
+    NgxImageCompressService
   ],
   declarations: [ImageViewPage]
 })

@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
 import { createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
-import { UrlData } from 'src/app/models/util.model';
+import { createUrlData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
@@ -175,8 +175,7 @@ export class ModelPage implements OnInit {
     this.delImages.forEach(image=>this.storage.delete(image));
     // add new images
     this.storage.uploadImages(this.addImages,_STORAGE_MODELS)
-    .then(urls=>{
-      const images=urls.map(url=>typeof url=='string'?{caption:'',url}:url)
+    .then(images=>{
       this.model.images=this.model.images.concat(images);
       return this.db.add(_DB_MODELS,this.model);
     })

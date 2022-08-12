@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
 import { CheckData, OrderDataStatusType } from 'src/app/models/order.model';
 import { statusList } from 'src/app/models/tools.model';
-import { MenuData, UrlData } from 'src/app/models/util.model';
+import { createUrlData, MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
@@ -83,7 +83,7 @@ export class ToolStatusPage implements OnInit {
       const role=result.role as CameraPageRole;
       if(role!='ok') return;
       const data=result.data as CameraPageOuts
-      this.addImages.push({caption:'',url:data.image})
+      this.addImages.push(createUrlData({url:data.image}))
       this.refresh();
     })
   }
