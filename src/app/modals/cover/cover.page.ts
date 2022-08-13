@@ -187,13 +187,20 @@ export class CoverPage implements OnInit {
       {buttons:[{text:'Cancel',role:'cancel'},{text:'Delete',role:'delete'}]}
     ).then(result=>{
       if(result.role!='delete') return;
+      //delete images
+      const delImages=this.cover.images.reduce((acc,cur)=>{
+        const imgs=[];
+        if(cur.thumbnail) imgs.push(cur.thumbnail);
+        if(cur.url) imgs.push(cur.url)
+        return [...acc,...imgs]
+      },[])
+      const pImages=delImages.map(url=>this.storage.delete(url))
       //delete database
-      this.db.delete(_DB_COVERS,this.cover.id)
+      const pDb=this.db.delete(_DB_COVERS,this.cover.id)
+      //final
+      Promise.all([...pImages,pDb])
       .then(()=>this.done('delete'))
-      .then(()=>{
-        [...this.delImages,...this.cover.images.map(img=>img.url)].forEach(this.storage.delete);
-      })
-      .catch(err=>this.disp.msgbox(`Delete ${name_space} data is error<br>`+err.message))
+      .catch(err=>console.warn("delete cover '%s'(%s) is error\n",this.cover.name,this.cover.id,err.message))
     })
   }
 

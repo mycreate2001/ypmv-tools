@@ -116,7 +116,10 @@ export class ImageViewPage implements OnInit {
           else{
             const image=this.images[pos];
             if(typeof image=='string') this.delImages.push(image)
-            else this.delImages.push(image.url)
+            else {
+              if(image.url) this.delImages.push(image.url)
+              if(image.thumbnail) this.delImages.push(image.thumbnail)
+            }
             this.images.splice(pos,1);
           }
         }

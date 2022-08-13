@@ -20,7 +20,8 @@
 ## 5. check tool status
 ### 5.1 compQty=1 No check quantity
 ### 5.2 save tool status to other table
-
+### 5.3 Database is for each checking times
+git
 ## 6. Images
 ### 6.1 separate [thubnail image & full]
 - [status]=> done
@@ -30,3 +31,5 @@
 
 ## 7. companies
 ### 7.1. company modal not get correct image => Done
+
+## 8. Url for all pages & modals
