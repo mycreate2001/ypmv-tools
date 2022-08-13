@@ -3,8 +3,7 @@ import { Injectable } from '@angular/core';
 import { initializeApp } from 'firebase/app';
 import {  getStorage,uploadString,ref,
           getDownloadURL,listAll,deleteObject,
-          uploadBytesResumable,
-          FirebaseStorage,
+          uploadBytesResumable, FirebaseStorage,
           UploadResult,          } from 'firebase/storage';
 import { createUrlData, UrlData } from 'src/app/models/util.model';
 import { Base64 } from 'src/app/utils/base64';
@@ -18,10 +17,11 @@ export interface UploadImageResult extends UploadResult{
   providedIn: 'root'
 })
 export class StorageService {
-  private storage:FirebaseStorage
+  private storage:FirebaseStorage=null;
   constructor() {
     const app=initializeApp(environment.firebaseConfig);
     this.storage=getStorage(app);
+    console.log("\n*** storage init *** \n",{storage:this.storage})
   }
 
   /** upload general file 
@@ -88,13 +88,17 @@ export class StorageService {
   /** delete file
    * @example delete('images/test.jpg');
    */
-  delete(path:string){
-    // console.warn("\n[delete]:test1",{path})
-    return deleteObject(ref(this.storage,path))
+  delete(url:string){
+    const storage=getStorage();
+    return deleteObject(ref(storage,url))
   }
 
   getURL(path:string){
     return getDownloadURL(ref(this.storage,path))
+  }
+
+  getPathFromUrl(url:string):string{
+    return ref(this.storage,url).fullPath
   }
 
   /** get list folders, files

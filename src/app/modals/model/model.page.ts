@@ -190,7 +190,11 @@ export class ModelPage implements OnInit {
     .then(result=>{
       if(result.role!=='delete') return;
       //delete images
-      this.model.images.forEach(image=>this.storage.delete(image.url));
+      const delImages=this.model.images.reduce((acc,cur)=>{
+        return cur.thumbnail?[...acc,cur.thumbnail,cur.url]:[...acc,cur.url]
+      },[])
+      console.log("test",{delImages})
+      delImages.forEach(image=>this.storage.delete(image))
       //delete database
       this.db.delete(_DB_MODELS,this.model.id)
       .then(()=>this.done('delete'))
