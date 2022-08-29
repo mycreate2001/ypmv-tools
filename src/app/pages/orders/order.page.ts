@@ -10,9 +10,8 @@ import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { searchObj } from 'src/app/utils/data.handle';
-import { getList } from 'src/app/utils/minitools';
 
-
+type StatusType=OrderDataStatusType|"All"|"Auto"
 
 @Component({
   selector: 'app-order',
@@ -29,7 +28,7 @@ export class OrderPage implements OnInit {
   keyword:string=''
   /** control */
   isAvailable:boolean=false;
-  select:OrderDataStatusType|"All"="All"
+  select:StatusType="Auto"
   constructor(
     private disp:DisplayService,
     private db:FirestoreService,
@@ -70,7 +69,7 @@ export class OrderPage implements OnInit {
 
   /** option select */
   option(event){
-    const status:(OrderDataStatusType|"All")[]=["All","created","approved","renting","returned","rejected"]
+    const status:StatusType[]=["Auto","All","created","approved","renting","returned","rejected"]
     const menus:MenuData[]=status.map(stt=>{
       const menu:MenuData={
         name:stt,
@@ -101,7 +100,13 @@ export class OrderPage implements OnInit {
   ///////// Backgroup function /////////////////
   update(){
     //filter by option
-    const histories=this.select=='All'?this.histories:this.histories.filter(x=>x.status==this.select)
+    // const _AutoList:OrderDataStatusType|'All'|'Auto'[]=[]
+    const viewList:StatusType[]=['approved','created','new','renting']
+    const histories=this.select=='All'?
+      this.histories:
+      this.select=='Auto'?
+        this.histories.filter(x=>viewList.includes(x.status)):
+        this.histories.filter(x=>x.status==this.select)
     //search
     this.views=this.keyword?searchObj(this.keyword,histories):histories
     this.isAvailable=true;
