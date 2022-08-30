@@ -101,17 +101,20 @@ export class LoginPage implements OnInit {
       inputs:[{type:'email',label:'email',name:'email'}],
       mode:'ios'
     }).then(result=>{
-      console.log("test-001",{result});
+      // console.log("test-001",{result});
       const role=result.role
-      if(!role||result.role.toLowerCase()!='ok') return;
+      if(role!='OK') throw new Error("cancel by user");
       //email
       const email=result.data.values['email'];
-      return this.auth.resetPasswordByEmail(email)
+      // console.log("test-005",{email});
+      const reg=/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
+      if(!reg.test(email)) throw new Error("It's not like normal email address");
+      return this.auth.resetPasswordByEmail(email);
     })
     .then(result=>{
-      console.log("test-003",{result})
+      // console.log("test-003",{result})
     })
-    .catch(err=>console.log("test-004: error",{err}))
+    .catch(err=>console.log("\nerror",{err}))
   }
 
 }
