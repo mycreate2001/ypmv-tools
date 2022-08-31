@@ -111,9 +111,6 @@ export class LoginPage implements OnInit {
       if(!reg.test(email)) throw new Error("It's not like normal email address");
       return this.auth.resetPasswordByEmail(email);
     })
-    .then(result=>{
-      // console.log("test-003",{result})
-    })
     .catch(err=>console.log("\nerror",{err}))
   }
 
