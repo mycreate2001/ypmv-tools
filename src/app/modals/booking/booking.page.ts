@@ -559,7 +559,13 @@ export class BookingPage implements OnInit {
           <tbody>
             ${trs.join("")}
           </tbody>
-        </table>`
+        </table>`;
+    const title=`<h1>TOOL LIST</h1>
+      <div><b>Create date:</b> ${this.order.createAt}</div>
+      <div><b>Purpose:</b> ${this.order.purpose}</div>
+      <div><b>schedule start:</b> ${this.order.scheduleStart}</div>
+      <div><b>Schedule return:</b> ${this.order.scheduleFinish}</div>
+    `
     const style=`
       img{
         width:150px;height:100px;aspect-ratio: 4/3;object-fit:contain;
@@ -574,7 +580,7 @@ export class BookingPage implements OnInit {
       }
 
     `
-    const html=`<html><head> <style> ${style}</style></head><body>${tbl}</body><html>`
+    const html=`<html><head> <style> ${style}</style></head><body>${title} ${tbl}</body><html>`
     const windowXp=window.open('','',`left=0,top=0,width=700px,height=500px`);
     windowXp.document.write(html);
   }
