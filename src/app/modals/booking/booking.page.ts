@@ -527,6 +527,58 @@ export class BookingPage implements OnInit {
     this.isAvailable=true;
   }
 
+  exportTools(){
+    console.log("export");
+    const tools=this.order.tools;
+    const toolList=getList(tools,"name");
+    const toolsExt=toolList.map(tool=>{
+      const ts=tools.filter(t=>t.name==tool);
+      let image=ts[0].images[0].url
+      if(!image) image='../../../assets/image/no-image.png';
+      return {image,name:tool,qty:ts.length}
+    })
+    console.log("TEST tools",toolsExt);
+    let trs=toolsExt.map((tool,pos)=>
+      `<tr>
+        <td>${pos+1}</td>
+        <td> <img src="${tool.image}"/></td>
+        <td> <h3>${tool.name}</h3>
+        <p>${tool['modelId']?tool['modelId']:""}</p>
+        </td>
+        <td>${tool.qty}</td>
+        <td></td>
+      </tr>`  
+    );
+    const tbl=`<table><thead>
+          <th>No</th>
+          <th>Picture</th>
+          <th>Part Name</th>
+          <th>Qty</th>
+          <th>Remark </th>
+          </thead>
+          <tbody>
+            ${trs.join("")}
+          </tbody>
+        </table>`
+    const style=`
+      img{
+        width:150px;height:100px;aspect-ratio: 4/3;object-fit:contain;
+      }
+      table {
+        border-collapse: collapse;
+        border: 1px solid;
+      }
+      td,th {
+        padding: 5px 12px;
+        border: 1px solid;;
+      }
+
+    `
+    const html=`<html><head> <style> ${style}</style></head><body>${tbl}</body><html>`
+    const windowXp=window.open('','',`left=0,top=0,width=700px,height=500px`);
+    windowXp.document.write(html);
+  }
+
 }
 
 

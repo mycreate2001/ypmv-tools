@@ -144,6 +144,9 @@
             <ion-button (click)="removeTool()" *ngIf="selected.length" title="remove selected tools">
               <ion-icon slot="icon-only" color="danger" name="trash"></ion-icon>
             </ion-button>
+            <ion-button (click)="exportTools()" title="download tool list">
+              <ion-icon name="download" color="primary"></ion-icon>
+            </ion-button>
           </ion-buttons>
         </ion-item>
       </ion-card-header>
