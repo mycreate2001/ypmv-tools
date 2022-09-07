@@ -211,7 +211,8 @@ export class SearchToolPage implements OnInit {
         group:cover.group,
         images:cover.images,
         type:'cover',
-        childrenId:[{id:cover.id,type:'cover'}]
+        childrenId:[{id:cover.id,type:'cover'}],
+        modelId:cover.id
       }
       _views.push(view)
     })
@@ -228,7 +229,8 @@ export class SearchToolPage implements OnInit {
         group:model.group,
         images:model.images,
         type:'tool',
-        childrenId
+        childrenId,
+        modelId:model.id
       }
       _views.push(view);
     })

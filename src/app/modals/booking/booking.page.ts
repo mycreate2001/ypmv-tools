@@ -371,12 +371,12 @@ export class BookingPage implements OnInit {
     tools.forEach(tool=>{
       const model=models.find(m=>m.id==tool.model);
       if(!model) return console.log("\n### ERROR: cannot find model '%s' from db",tool.model)
-      outs.push(createBasicData({...model,id:tool.id,type:'tool'}))
+      outs.push(createBasicData({...model,id:tool.id,type:'tool',modelId:model.id}))
     })
 
     //cover
     covers.forEach(cover=>{
-      outs.push(createBasicData({...cover,type:'cover'}))
+      outs.push(createBasicData({...cover,type:'cover',modelId:cover.id}))
     })
     console.log('check[4] finish',{outs}) 
     return outs;
@@ -530,12 +530,13 @@ export class BookingPage implements OnInit {
   exportTools(){
     console.log("export");
     const tools=this.order.tools;
+    console.log("TEST",{tools});
     const toolList=getList(tools,"name");
     const toolsExt=toolList.map(tool=>{
       const ts=tools.filter(t=>t.name==tool);
       let image=ts[0].images[0].url
       if(!image) image='../../../assets/image/no-image.png';
-      return {image,name:tool,qty:ts.length}
+      return {image,name:tool,qty:ts.length,modelId:ts[0].modelId}
     })
     console.log("TEST tools",toolsExt);
     let trs=toolsExt.map((tool,pos)=>
@@ -543,7 +544,7 @@ export class BookingPage implements OnInit {
         <td>${pos+1}</td>
         <td> <img src="${tool.image}"/></td>
         <td> <h3>${tool.name}</h3>
-        <p>${tool['modelId']?tool['modelId']:""}</p>
+        <p>${tool.modelId?tool.modelId:""}</p>
         </td>
         <td>${tool.qty}</td>
         <td></td>

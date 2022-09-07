@@ -16,24 +16,27 @@ export interface BasicData{
     name:string;                    // name of information ex: repair station key
     group:string;                   // category, group of tool/cover
     type:BasicDataType;             // information type
-    images:UrlData[]     // image
+    images:UrlData[]                // image
+    modelId?:string;
 }
 
-/**
- * basicView for display model/cover
- * @param id    id of cover/model
- * @param name  cover/model name
- * @param group category of model/cover
- * @param type tool or model
- * @param images    images of cover/model
- */
-export interface BasicDataOpts{
-    id?:string;                      // id
-    name?:string;                    // name of information ex: repair station key
-    group?:string;                   // category, group of tool/cover
-    type?:BasicDataType;             // information type
-    images?:UrlData[]     // image
-}
+// /**
+//  * basicView for display model/cover
+//  * @param id    id of cover/model
+//  * @param name  cover/model name
+//  * @param group category of model/cover
+//  * @param type tool or model
+//  * @param images    images of cover/model
+//  */
+// export interface BasicDataOpts{
+//     id?:string;                      // id
+//     name?:string;                    // name of information ex: repair station key
+//     group?:string;                   // category, group of tool/cover
+//     type?:BasicDataType;             // information type
+//     images?:UrlData[]     // image
+// }
+
+export type BasicDataOpts=Partial<BasicData>
 
 export function createBasicData(opts?:BasicDataOpts){
     const df:BasicData={
@@ -41,7 +44,8 @@ export function createBasicData(opts?:BasicDataOpts){
         name:'',                    // name of information ex: repair station key
         group:'',                   // category, group of tool/cover
         type:'tool',                // information type
-        images:[]                   // image  
+        images:[],                   // image 
+        modelId:''
     }
     return createOpts(df,opts)
 }
