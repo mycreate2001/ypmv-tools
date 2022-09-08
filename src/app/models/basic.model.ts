@@ -90,3 +90,13 @@ export interface ChildData{
     id:string;
     type:BasicDataType
 }
+
+export type ChildDataOpts =Partial<ChildData>
+
+export function createChildData(opts?:ChildDataOpts){
+    const df:ChildData={
+        id:'',
+        type:'tool'
+    }
+    return createOpts(df,opts)
+}

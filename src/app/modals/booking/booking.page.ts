@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import {  BasicData, BasicDataType, ChildData, createBasicData } from 'src/app/models/basic.model';
+import {  BasicData, BasicDataType, ChildData, createBasicData, createChildData } from 'src/app/models/basic.model';
 import { CheckData, createCheckData, createOrderData, OrderData, OrderDataStatusType, _DB_ORDERS, _STORAGE_ORDERS } from 'src/app/models/order.model';
 import { CodeFormatConfig } from 'src/app/models/codeformat';
 import {  _DB_COMPANY } from 'src/app/models/company.model';
@@ -123,8 +123,16 @@ export class BookingPage implements OnInit {
       if(!code) return console.log("it not [coverId,toolId]",{analysis:data.analysis})
       //
       const tools=this.order.tools.filter(x=>x.id==code)
-      if(tools.length>1) return console.warn("\n### ERROR[1]: code is doudle")
+      //double code
+      if(tools.length>1) {
+        console.warn("debug-001: double tools",{tools,code})
+        throw new Error("scan-001: double tools");
+      }
+
       this.toolStatus(tools[0])
+    })
+    .catch(err=>{
+      console.warn("\n **** ERROR ****\n",err.message);
     })
   }
 
@@ -138,7 +146,7 @@ export class BookingPage implements OnInit {
 
   /** add more tool */
   pickupTool(){
-    const props:SearchToolPageOpts={exceptionList:this.order.tools.map(x=>{return{id:x.id,type:x.type}})}
+    const props:SearchToolPageOpts={exceptionList:this.order.tools.map(x=>createChildData(x))}
     this.disp.showModal(SearchToolPage,props)
     .then(result=>{
       const role=result.role as SearchToolPageRole;
@@ -147,6 +155,10 @@ export class BookingPage implements OnInit {
       this.conflictList=[];
       this._getToolfromPickup(data.search)
       .then(tools=>{
+        //check double
+        const xTools=this.order.tools;
+        tools=tools.filter(t=>!xTools.some(x=>x.id==t.id))
+        //add tools
         this.order.tools=this.order.tools.concat(tools.map(tool=>createCheckData({...tool})))
       })
     })
@@ -359,13 +371,13 @@ export class BookingPage implements OnInit {
 
   /** get tools/covers from pickup tool (search) */
   private async _getToolfromPickup(iTools:BasicData[]):Promise<BasicData[]>{
-    console.log('check[1]: iTools:',{iTools})
+    // console.log('check[1]: iTools:',{iTools})
     const children=await this._getchildren(iTools,[]);
-    console.log('check[2] _getChildren:',{children}) 
+    // console.log('check[2] _getChildren:',{children}) 
     const tools:ToolData[]=await this.db.gets(_DB_TOOLS,children.filter(x=>x.type=='tool').map(x=>x.id));
     const models:ModelData[]=await this.db.gets(_DB_MODELS,getList(tools,"model"))
     const covers:CoverData[]=await this.db.gets(_DB_COVERS,children.filter(x=>x.type=='cover').map(x=>x.id));
-    console.log('check[3] covers,tools,models:',{covers,tools,models}) 
+    // console.log('check[3] covers,tools,models:',{covers,tools,models}) 
     const outs:BasicData[]=[];
     //tools
     tools.forEach(tool=>{
@@ -378,7 +390,7 @@ export class BookingPage implements OnInit {
     covers.forEach(cover=>{
       outs.push(createBasicData({...cover,type:'cover',modelId:cover.id}))
     })
-    console.log('check[4] finish',{outs}) 
+    // console.log('check[4] finish',{outs}) 
     return outs;
   }
 
