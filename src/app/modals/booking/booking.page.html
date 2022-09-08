@@ -8,10 +8,6 @@
     </ion-buttons>
     <ion-title>Booking</ion-title>
     <ion-buttons slot="end" *ngIf="isAvailable">
-      <!-- scan -->
-      <ion-button (click)="scan()" *ngIf="SCANS.includes(order.status)">
-        <ion-icon name="scan"></ion-icon>
-      </ion-button>
       <!-- owner -->
       <ng-container *ngIf="isOwner">
         <!-- cancel -->
@@ -308,7 +304,16 @@
     </ion-card>
   
     <ion-card class="infor">
-      <ion-card-header> Tools/Jig </ion-card-header>
+      <ion-card-header>
+        <ion-item lines="none">
+          Tools/Jig
+          <ion-buttons slot="end">
+            <ion-button (click)="exportTools()" title="download tool list">
+              <ion-icon name="download" color="primary"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+      </ion-card-header>
       <ion-list>
         <ion-item *ngFor="let tool of order.tools;let pos=index" (click)="toolStatus(tool)">
           <ion-thumbnail slot="start">
@@ -337,3 +342,17 @@
     </ion-card>
   </ng-container>
 </ion-content>
+
+<ion-fab vertical="bottom" horizontal="start">
+  <ion-fab-button>
+    <ion-icon name="list-circle"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-list side="top">
+    <ion-fab-button title="scan" (click)="fabScanHandle()">
+      <ion-icon name="scan"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button title="print" (click)="exportTools()">
+      <ion-icon name="print"></ion-icon>
+    </ion-fab-button>
+  </ion-fab-list>
+</ion-fab>

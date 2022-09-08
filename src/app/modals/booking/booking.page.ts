@@ -164,6 +164,42 @@ export class BookingPage implements OnInit {
     })
   }
 
+  fabScanHandle(){
+    const EditList:OrderDataStatusType[]=['created','new'];
+    const CheckList:OrderDataStatusType[]=['approved','renting'];
+    if(EditList.includes(this.order.status)) return this.pickupToolByScan();  //add tool/box
+    if(CheckList.includes(this.order.status)) return this.scan();             // verify tool/box
+    console.log("Not allow with this status");
+  }
+
+  pickupToolByScan(){
+    const props:QRcodePageOpts={
+      type:'analysis',
+      title:'tool/box'
+    }
+
+    this.disp.showModal(QrcodePage,props)
+    .then(result=>{
+      const role=result.role as QRcodePageRole
+      if(role!='ok') throw new Error("cancel by user");
+      const data=result.data as QRcodePageOuts;
+      const analysis=data.analysis;
+      const _toolId=analysis[CodeFormatConfig.tool.name];
+      const _coverId=analysis[CodeFormatConfig.cover.name];
+      if(!_toolId&& !_coverId) throw new Error("It's not tool/box id");
+      const child:BasicData=createBasicData({type:_toolId?'tool':'cover',id:_toolId?_toolId:_coverId});
+      // console.log("\nTEST-001: child",{child,analysis});
+      this._getToolfromPickup([child])
+      .then(tools=>{
+        // console.log("\nTEST-002: after convert",{tools});
+        const xtools:CheckData[]=tools.filter(t=>!this.order.tools.some(x=>x.id==t.id)).map(t=>createCheckData(t))
+        // console.log("\nTEST-003: xtool",{xtools})
+        this.order.tools=[...this.order.tools,...xtools];
+        // console.log("\nTEST-004: final",{tools:this.order.tools});
+      })
+    })
+  }
+
 
   /** select company */
   selectCompany(){
@@ -573,13 +609,37 @@ export class BookingPage implements OnInit {
             ${trs.join("")}
           </tbody>
         </table>`;
-    const title=`<h1>TOOL LIST</h1>
-      <div><b>Create date:</b> ${this.order.createAt}</div>
-      <div><b>Purpose:</b> ${this.order.purpose}</div>
-      <div><b>schedule start:</b> ${this.order.scheduleStart}</div>
-      <div><b>Schedule return:</b> ${this.order.scheduleFinish}</div>
+    const title=`
+      <div class='title-group'>
+        <h1 class='title'>TOOL LIST</h1>
+        <div class='inf-group'>
+          <div class='inf'>
+            <div><b>Purpose:</b> ${this.order.purpose}</div>
+            <div><b>Create date:</b> ${this.order.createAt.substring(0,10)}</div>
+            <div><b>schedule start:</b> ${this.order.scheduleStart.substring(0,10)}</div>
+            <div><b>Schedule return:</b> ${this.order.scheduleFinish.substring(0,10)}</div>
+          </div>
+          <div>
+            <div id="qr-code"></div>
+            <div class="code">${this.order.id}</div>
+          </div>
+        </div>
+      </div>
     `
     const style=`
+      .inf-group {
+        display: flex;
+        flex-direction: row;
+      }
+      .code {
+        font-size: 0.5rem;
+      }
+      .inf {
+        /* width: calc(100% - 50px); */
+        padding-right: 32px;
+        max-width: 100%;
+        min-width: 400px;
+      }
       img{
         width:150px;height:100px;aspect-ratio: 4/3;object-fit:contain;
       }
@@ -596,6 +656,8 @@ export class BookingPage implements OnInit {
     const html=`<html><head> <style> ${style}</style></head><body>${title} ${tbl}</body><html>`
     const windowXp=window.open('','',`left=0,top=0,width=700px,height=500px`);
     windowXp.document.write(html);
+    const _qrElement=<HTMLElement>windowXp.document.querySelector('#qr-code');
+    this.util.exportQRcode(this.order.id,_qrElement,{type:'order',size:42})
   }
 
 }

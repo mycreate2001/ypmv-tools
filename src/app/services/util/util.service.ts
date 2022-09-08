@@ -51,6 +51,21 @@ export class UtilService {
     // windowp.close();
   }
 
+  exportQRcode(code:string,selector:string|HTMLElement,opts?:GenerateQRcodeDataOpts){
+    //handler Inputing
+    opts=createGenerateQRcodeData(opts);
+    const _code=opts.type=='text'?code:CodeFormatConfig[opts.type](code)
+    const _doc=typeof selector=='string'?<HTMLElement>document.querySelector(selector):selector
+    //make code
+    QrCreator.render({
+      text:_code,
+      radius:0,
+      ecLevel:opts.ecLevel,
+      fill:opts.fill,
+      background:opts.background,
+      size:opts.size
+    },_doc)
+  }
 }
 
 
