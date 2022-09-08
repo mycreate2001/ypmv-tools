@@ -633,6 +633,7 @@ export class BookingPage implements OnInit {
       }
       .code {
         font-size: 0.5rem;
+        margin-top: 6px;
       }
       .inf {
         /* width: calc(100% - 50px); */
