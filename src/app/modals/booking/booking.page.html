@@ -341,12 +341,15 @@
   <ion-fab-button>
     <ion-icon name="list-circle"></ion-icon>
   </ion-fab-button>
-  <ion-fab-list side="top">
-    <ion-fab-button title="scan" (click)="fabScanHandle()">
+  <ion-fab-list side="top" >
+    <ion-fab-button title="add by scanning" (click)="fabScanHandle()" color="warning">
       <ion-icon name="scan"></ion-icon>
     </ion-fab-button>
-    <ion-fab-button title="print" (click)="exportTools()">
+    <ion-fab-button title="print" (click)="exportTools()" color="warning">
       <ion-icon name="print"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button *ngIf="order.status=='created'" title="add by searching" (click)="pickupTool()" color="warning">
+      <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab-list>
 </ion-fab>
