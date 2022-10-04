@@ -15,8 +15,8 @@
 ### 3.2 search by toolID
 
 ## 4. Scaner
-### 4.1 Improvement scan 2D, 1D such as datamatrix,
-
+### 4.1 Improvement scan 2D, 1D such as datamatrix => done[2022.10.04]
+Use Zxing ngx-scanner
 ## 5. check tool status
 ### 5.1 compQty=1 No check quantity
 ### 5.2 save tool status to other table

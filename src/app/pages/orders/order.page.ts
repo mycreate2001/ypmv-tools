@@ -10,7 +10,6 @@ import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { searchObj } from 'src/app/utils/data.handle';
-import { Scan2Page, Scan2PageOpts } from 'src/app/modals/scan2/scan2.page';
 
 type StatusType=OrderDataStatusType|"All"|"Auto"
 

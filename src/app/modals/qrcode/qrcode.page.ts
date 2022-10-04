@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import jsQR, { QRCode } from 'jsqr'
+// import jsQR, { QRCode } from 'jsqr'
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { analysisCode, CodeFormatData, _DB_FORMATS } from 'src/app/models/codeformat';
@@ -15,9 +15,6 @@ const _BACKUP_LIST=['flash','currentCamera'];//Keep local
   styleUrls: ['./qrcode.page.scss'],
 })
 export class QrcodePage implements OnInit {
-  /** viewchild */
-  @ViewChild('video',{static:false}) videoRef:ElementRef;
-  @ViewChild('canvas',{static:false}) canvasRef:ElementRef;
   
   /** input */
   title:string="";
@@ -55,8 +52,6 @@ export class QrcodePage implements OnInit {
       })
     }
   }
-
-  stopScan(){}
 
   changeCamera(){
     if(!this.currentCamera) {
@@ -106,7 +101,6 @@ export class QrcodePage implements OnInit {
 
   done(role:QRcodePageRole='ok'){
     const out:QRcodePageOuts={
-      raw:null,
       code:this.code,
       analysis:this.analysis
     }
@@ -249,29 +243,10 @@ export type QRcodePageType="raw"|"code"|"analysis"
  * @param analysis:Object;    //analysis
  */
 export interface QRcodePageOuts{
-  /** for type = raw */
-  raw:QRCode;  
   /** for type=code */
   code:string; 
   /** result of type=analysis */
   analysis:Object; 
-}
-
-interface QRcodePageOutsOpts{
-  /** for type = raw */
-  raw?:QRCode;  
-  /** for type=code */
-  code?:string; 
-  /** result of type=analysis */
-  analysis?:Object;
-}
-
-function createQRcodePageOut(opts?:QRcodePageOutsOpts){
-  const df:QRcodePageOuts={
-    raw:null,code:null,analysis:null
-  }
-
-  return createOpts(df,opts)
 }
 
 /**
