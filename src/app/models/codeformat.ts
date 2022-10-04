@@ -87,7 +87,7 @@ export function createExtractData(opts?:ExtractDataOpts):ExtractData{
  */
 export function analysisCode(code:string,formats:CodeFormatData|CodeFormatData[]):undefined|Object{
     const out:any={};
-    // console.log({code,formats})
+    console.log({code,formats})
     if(!code||!formats) return;
     const result= [].concat(formats).some(f=>{
         //checking condition
@@ -133,7 +133,7 @@ export function analysisCode(code:string,formats:CodeFormatData|CodeFormatData[]
         console.log("case 6:OK, out:",out);
         return true;
     })
-    if(!result) return;
+    if(!result) return {};
     return out;
 }
 

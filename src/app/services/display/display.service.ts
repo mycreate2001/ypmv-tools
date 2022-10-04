@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { ActionSheetController, ActionSheetOptions, AlertController, AlertOptions, ModalController, PopoverController, PopoverOptions } from '@ionic/angular';
+import { ActionSheetController, ActionSheetOptions, AlertController, 
+          AlertOptions, ModalController, PopoverController, ToastController, ToastOptions } from '@ionic/angular';
 import { Mode, PopoverAttributes, PopoverSize, PositionAlign, PositionReference, PositionSide } from '@ionic/core';
 import { MenuPage } from 'src/app/modals/menu/menu.page';
 import { MenuData } from 'src/app/models/util.model';
@@ -34,7 +35,8 @@ export class DisplayService {
     private act:ActionSheetController,
     private alert:AlertController,
     private popover:PopoverController,
-    private router:Router
+    private router:Router,
+    private toast:ToastController
     ) { }
 
   /**
@@ -55,6 +57,18 @@ export class DisplayService {
     })
     modal.present();
     return await modal.onDidDismiss();
+  }
+
+   /** show toast */
+   async showToast(msg:string|string[],props:ToastOptions={}){
+    const duration:number=props.duration|| 2000;
+    const _msg=[].concat(msg)
+    const toast=await this.toast.create({
+      ...props,
+      duration,
+      message:_msg.join("<br>")
+    })
+    toast.present();
   }
 
   async msgbox(msg:string,opts?:AlertOptions){

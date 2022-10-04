@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="done('cancel')">
+        <ion-icon name="arrow-back"></ion-icon>
+        <ion-label>Back</ion-label>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{title}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button title="flash" (click)="flash=!flash">
+        <ion-icon [name]="flash?'flash':'flash-off'"></ion-icon>
+      </ion-button>
+      <ion-button title="Change camera" (click)="changeCamera()">
+        <ion-icon name="camera-reverse"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <zxing-scanner 
+    [torch]="flash" 
+    [formats]="allowFormats" 
+    (scanSuccess)="scanDone($event)"
+    (camerasFound)="updateCamera($event)"
+    [(device)]="currentCamera"
+  > </zxing-scanner>
+</ion-content>
