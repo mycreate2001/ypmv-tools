@@ -10,6 +10,7 @@ import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { searchObj } from 'src/app/utils/data.handle';
+import { UtilService } from 'src/app/services/util/util.service';
 
 type StatusType=OrderDataStatusType|"All"|"Auto"
 
@@ -33,6 +34,7 @@ export class OrderPage implements OnInit {
     private disp:DisplayService,
     private db:FirestoreService,
     private auth:AuthService,
+    private util:UtilService
   ) { }
 
   ngOnInit() {
@@ -57,6 +59,11 @@ export class OrderPage implements OnInit {
 
   ngOnDestroy(){
     this.historyDb.disconnect();
+  }
+
+  ionViewDidEnter(){
+    console.log("step1: active");
+    this.util.exportCode("Thanh","#test",{includetext:true,bcid:'datamatrix'})
   }
 
   /////// BUTTONS HANDLER ////////////

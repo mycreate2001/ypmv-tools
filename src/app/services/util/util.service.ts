@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import QrCreator from 'qr-creator';
 import { CodeFormatConfig, CodeFormatType } from 'src/app/models/codeformat';
 import { createOpts } from 'src/app/utils/minitools';
+import bwipjs from "bwip-js"
 
 @Injectable({
   providedIn: 'root'
@@ -66,8 +67,36 @@ export class UtilService {
       size:opts.size
     },_doc)
   }
+
+  exportCode(text:string,selector:string,opts:GenerateCodePropertyOpts={}){
+    const _opts=Object.assign(GenerateCodePropertyDefault,{...opts,text})
+    const doc=document.querySelector(selector);
+    if(!doc) return console.warn("selector is wrong");
+    doc.innerHTML="<canvas id='code'></canvas>";
+    const canvas=doc.querySelector("canvas#code")
+    bwipjs.toCanvas('code',_opts)
+  }
 }
 
+export interface GenerateCodeProperty{
+  bcid:"code128"|"datamatrix"|"qrcode"
+  text:string;
+  scale:number;
+  height:number;
+  includetext:boolean;
+  textxalign:'center'|'right'|'left'
+}
+
+export const GenerateCodePropertyDefault:GenerateCodeProperty={
+  bcid:'code128',
+  text:'',
+  scale:1,
+  height:10,
+  includetext:false,
+  textxalign:'center'
+}
+
+export type GenerateCodePropertyOpts=Partial<GenerateCodeProperty>
 
 ///////// interface //////////////////
 export type GenerateQRcodeDataOpts=Partial<GenerateQRcodeData>
