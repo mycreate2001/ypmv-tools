@@ -145,6 +145,22 @@ export function convert(obj:any,keys?:string[]){
   }
   
 
+  interface obj2AttrOpts{
+    delimiter?:string;
+    valueMask?:string;
+}
+
+/**
+ * convert object to string
+ * @param obj example {a:1,b='xyz'}
+ * @param opts 
+ * @returns example a=1,b=xyz
+ */
+export function obj2Attr(obj:object,opts:obj2AttrOpts):string{
+    const dfOpts:obj2AttrOpts={delimiter:" ",valueMask:"\""}
+    const _opts=Object.assign(dfOpts,opts);
+    return Object.keys(obj).map(key=>key+"="+_opts.valueMask+obj[key]+_opts.valueMask).join(_opts.delimiter)
+}
 
 //private
 function makeRandStr(len:number=15){

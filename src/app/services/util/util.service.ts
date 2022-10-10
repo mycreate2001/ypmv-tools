@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import QrCreator from 'qr-creator';
 import { CodeFormatConfig, CodeFormatType } from 'src/app/models/codeformat';
-import { createOpts } from 'src/app/utils/minitools';
+import { createOpts, obj2Attr } from 'src/app/utils/minitools';
 import bwipjs from "bwip-js"
+import { createWindowProperty, defaultHtml, WindowPropertyOpts } from './util.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,21 @@ import bwipjs from "bwip-js"
 export class UtilService {
 
   constructor() { }
+
+  /**
+   * Make new window / popup new windows
+   * @param content default=<div id='root'></div>
+   * @param opts 
+   * @returns 
+   */
+  popUpWindow(content:string="<div id='root'></div>",opts:WindowPropertyOpts={}){
+    const _opts=createWindowProperty(opts);
+    const wd=window.open('','',obj2Attr(_opts,{valueMask:"",delimiter:','}))
+    wd.document.write(content);
+    wd.focus();
+    return wd;
+  }
+
   generaQRcode(code:string,opts?:GenerateQRcodeDataOpts){
     opts=createGenerateQRcodeData(opts);
     const _code=opts.type=='text'?code:CodeFormatConfig[opts.type](code)
@@ -68,32 +84,59 @@ export class UtilService {
     },_doc)
   }
 
-  exportCode(text:string,selector:string,opts:GenerateCodePropertyOpts={}){
-    const _opts=Object.assign(GenerateCodePropertyDefault,{...opts,text})
-    const doc=document.querySelector(selector);
-    if(!doc) return console.warn("selector is wrong");
-    doc.innerHTML="<canvas id='code'></canvas>";
-    const canvas=doc.querySelector("canvas#code")
-    bwipjs.toCanvas('code',_opts)
+  exportCode(code:string,selector:string|Element,opts:GenerateCodePropertyOpts={}){
+    const _opts=Object.assign(GenerateCodePropertyDefault,opts)
+    const text=_opts.type=='text'?code:CodeFormatConfig[_opts.type](code);
+    //const _code=opts.type=='text'?code:CodeFormatConfig[opts.type](code)
+    if(!selector){
+      let template=`<div id='code-body'></div>`
+      if(_opts.label && (['datamatrix','qrcode'].includes(_opts.bcid))){
+        template=`<div id='code-container' display='flex'>
+          <div id='code-body'></div>
+          <div id='code-infor'>
+            <div id='code-label'>${_opts.label}</div>
+            <div id='code-id'>${code}<div>
+          </div>
+        </div>
+        <style>
+          #code-container{display:flex}
+          #code-infor{margin-left:12px;flex-direction:column;}
+          #code-label {font-weight: bold;text-transform: capitalize;}
+        </style>
+        `
+      }
+      const wd=this.popUpWindow(template);
+      wd.document.write(``)
+      selector=wd.document.querySelector('#code-body');
+    }
+    const element=typeof selector=='string'? document.querySelector(selector):selector;
+    if(!element) return console.warn("selector is wrong");
+    // element.innerHTML="<canvas id='code'></canvas>"
+    const canvas=document.createElement("canvas");
+    bwipjs.toCanvas(canvas,{..._opts,text});
+    element.innerHTML=`<img src="${canvas.toDataURL('image/png')}">`
   }
 }
 
+export type BcidType="code128"|"datamatrix"|"qrcode";
 export interface GenerateCodeProperty{
-  bcid:"code128"|"datamatrix"|"qrcode"
-  text:string;
+  bcid:BcidType;
   scale:number;
   height:number;
   includetext:boolean;
-  textxalign:'center'|'right'|'left'
+  textxalign:'center'|'right'|'left';
+  type:CodeFormatType|'text';
+  label:string;
 }
 
 export const GenerateCodePropertyDefault:GenerateCodeProperty={
   bcid:'code128',
-  text:'',
-  scale:1,
+  scale:2,
   height:10,
   includetext:false,
-  textxalign:'center'
+  textxalign:'center',
+  type:'text',
+  label:''
 }
 
 export type GenerateCodePropertyOpts=Partial<GenerateCodeProperty>

@@ -61,10 +61,6 @@ export class OrderPage implements OnInit {
     this.historyDb.disconnect();
   }
 
-  ionViewDidEnter(){
-    console.log("step1: active");
-    this.util.exportCode("Thanh","#test",{includetext:true,bcid:'datamatrix'})
-  }
 
   /////// BUTTONS HANDLER ////////////
 

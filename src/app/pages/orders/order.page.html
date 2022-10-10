@@ -5,6 +5,9 @@
     </ion-buttons>
     <ion-searchbar [(ngModel)]="keyword" (ionChange)="update()"></ion-searchbar>
     <ion-buttons slot="end">
+      <ion-button (click)="test()">
+        <ion-icon name="qr-code-outline"></ion-icon>
+      </ion-button>
       <ion-button (click)="detail()" title="New">
         <ion-icon name="add-circle"></ion-icon>
       </ion-button>

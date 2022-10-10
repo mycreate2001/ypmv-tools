@@ -98,3 +98,9 @@ const BarcodePropertyDefault:BarcodeProperty={
   marginLeft:undefined,
   marginRight:undefined,
 }
+
+export enum defaultHtml{
+    _2DcodeOnly=`<div id="body"><div id="code"></div></div>`,
+    _2DcodeWidthLabel=`<div id="body"><div id="code"></div><div id="title"></div></div>`,
+    _1Dcode=`<div id='code'></div>`
+}

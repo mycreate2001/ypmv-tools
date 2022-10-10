@@ -3,7 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
-import { UtilService } from 'src/app/services/util/util.service';
+import { BcidType, UtilService } from 'src/app/services/util/util.service';
 import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
@@ -171,14 +171,16 @@ export class ToolPage implements OnInit {
   }
 
   /** print code */
-  print(){
+  print(bcid:BcidType='datamatrix'){
     this.disp.msgbox(
       "Which do you want to print<br>",
       { buttons:[ {text:'Code Only',role:'code'},{text:'With Label',role:'label'}]}
     ).then(result=>{
       const label=result.role=='label'?this.model.name:''
-      const size=32//result.role=='label'?32:24 
-      this.util.generaQRcode(this.tool.id,{label,size,type:'tool'})
+      const includetext=label?true:false;
+      // const size=32//result.role=='label'?32:24 
+      // this.util.generaQRcode(this.tool.id,{label,size,type:'tool'});
+      this.util.exportCode(this.tool.id,"",{label,type:'tool',bcid,includetext})
     })
   }
 

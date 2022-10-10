@@ -59,7 +59,14 @@
       <ion-item *ngIf="!isNew ||!isEdit">
         <ion-label>Series Number</ion-label>
         <ion-text >{{tool.id}}</ion-text>
-        <ion-icon name="qr-code" slot="end" (click)="print()"></ion-icon>
+        <ion-buttons slot="end">
+          <ion-button title="print out 2D code" (click)="print('datamatrix')">
+            <ion-icon name="qr-code-outline"></ion-icon>
+          </ion-button>
+          <ion-button title="print out barcode" (click)="print('code128')">
+            <ion-icon name="barcode-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-item>
       <ion-item>
         <ion-label>Start Use</ion-label>
