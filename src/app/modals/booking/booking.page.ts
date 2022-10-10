@@ -104,8 +104,9 @@ export class BookingPage implements OnInit {
   }
 
   /** QR code */
-  printCode(){
-    this.util.generaQRcode(this.order.id,{label:this.order.purpose,size:42,type:'order'})
+  printCode(e){
+    // this.util.generaQRcode(this.order.id,{label:this.order.purpose,size:42,type:'order'})
+    this.util.printCode(e,this.order.id,{type:'order',label:this.order.comment})
   }
 
   /** verifycation by scan */
@@ -586,7 +587,7 @@ export class BookingPage implements OnInit {
       if(!image) image='../../../assets/image/no-image.png';
       return {image,name:tool,qty:ts.length,modelId:ts[0].modelId}
     })
-    console.log("TEST tools",toolsExt);
+    
     let trs=toolsExt.map((tool,pos)=>
       `<tr>
         <td>${pos+1}</td>
@@ -657,8 +658,10 @@ export class BookingPage implements OnInit {
     const html=`<html><head> <style> ${style}</style></head><body>${title} ${tbl}</body><html>`
     const windowXp=window.open('','',`left=0,top=0,width=700px,height=500px`);
     windowXp.document.write(html);
-    const _qrElement=<HTMLElement>windowXp.document.querySelector('#qr-code');
-    this.util.exportQRcode(this.order.id,_qrElement,{type:'order',size:42})
+    const codePng:string=this.util.code2Image(this.order.id,{type:'order',scale:2})
+    windowXp.document.querySelector('#qr-code').innerHTML=`<img src='${codePng}'/>`
+    // this.util.exportQRcode(this.order.id,_qrElement,{type:'order',size:42})
+
   }
 
 }

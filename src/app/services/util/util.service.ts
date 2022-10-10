@@ -42,11 +42,17 @@ export class UtilService {
     return wd
   }
 
+  /**
+   * make code for new window
+   * @param code 
+   * @param opts 
+   */
   generateCode(code:string,opts:Code2ImagePropertyOpts={}){
     const _opts=Object.assign(dfCode2ImageProperty,opts);
     const _2dcodes:BcIdType[]=['datamatrix','qrcode'];
     const _1dcodes:BcIdType[]=['code128']
     const label=_opts.label;
+    // _opts.height=undefined;
     let template="<div id='code-body'></div>"
     if(label &&_2dcodes.includes(_opts.bcid)){
         template=`<div id='code-container' display='flex'>
@@ -63,59 +69,17 @@ export class UtilService {
         </style>
         `
     }
-    if(_1dcodes.includes(_opts.bcid)){
-      _opts.height=4
-    }
-
+    // if(_1dcodes.includes(_opts.bcid)){
+    //   _opts.height=4
+    // }
+    console.log("test-001",{_opts})
     const wd=this.popUpWindow(template);
     const png=this.code2Image(code,_opts);
     wd.document.querySelector('#code-body').innerHTML=`<img src='${png}'/>`
     
   }
 
-  generaQRcode(code:string,opts?:GenerateQRcodeDataOpts){
-    opts=createGenerateQRcodeData(opts);
-    const _code=opts.type=='text'?code:CodeFormatConfig[opts.type](code)
-    const windowp=window.open('','',`left=0,top=0,width=${opts.windowSizeX},height=${opts.windowSizeY},toolbar=0,scrollbars=0,status=0`);
-    windowp.document.write(`
-      <style>
-        canvas{ width: ${opts.size}px;height: ${opts.size}px;} 
-        .cover{display: flex;flex-direction: row;}
-        .content{margin-left: 12px;}
-        .code{font-size: x-small;}
-      </style>`)
-    if(opts.label){
-      windowp.document.write(`
-        <div class="cover">
-          <div id="qr-code"></div>
-            <div class="content">
-            <div class="label">${opts.label.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase())}</div>
-            <div class="code">${code}</div>
-          </div>
-        </div>`
-      );
-    }
-    else{
-      windowp.document.write(`
-        <div class="cover">
-          <div id="qr-code"></div>
-        </div>`
-      );
-    }
-    QrCreator.render({
-      text:_code,
-      radius:0,
-      ecLevel:opts.ecLevel,
-      fill:opts.fill,//'#536DFE',
-      background:opts.background,
-      size:opts.size*20,
-    }, windowp.document.querySelector('#qr-code'))
-    windowp.focus();
-    // windowp.print();
-    // windowp.close();
-  }
-
-  printCode(e:any,code:string,opts:Code2ImagePropertyOpts={}){
+  printCode(event:any,code:string,opts:Code2ImagePropertyOpts={}){
     const menus:MenuData[]=[
       {name:'2D QRcode',role:'qrcode-none'},
       {name:'2D QRcode + label',role:'qrcode-label'},
@@ -123,7 +87,7 @@ export class UtilService {
       {name:'2D Datamatrix + label',role:'datamatrix-label'},
       {name:'1D Barcode',role:'code128-none'},
     ]
-    this.disp.showMenu(e,{menus}).then(result=>{
+    this.disp.showMenu(event,{menus}).then(result=>{
       const role=result.role;
       if(role=='backdrop') return;
       const bcid=role.split("-")[0] as BcIdType
@@ -131,22 +95,6 @@ export class UtilService {
       if(!BCIDs.includes(bcid)) return;
       this.generateCode(code,{...opts,label,bcid})
     })
-  }
-
-  exportQRcode(code:string,selector:string|HTMLElement,opts?:GenerateQRcodeDataOpts){
-    //handler Inputing
-    opts=createGenerateQRcodeData(opts);
-    const _code=opts.type=='text'?code:CodeFormatConfig[opts.type](code)
-    const _doc=typeof selector=='string'?<HTMLElement>document.querySelector(selector):selector
-    //make code
-    QrCreator.render({
-      text:_code,
-      radius:0,
-      ecLevel:opts.ecLevel,
-      fill:opts.fill,
-      background:opts.background,
-      size:opts.size
-    },_doc)
   }
 }
 

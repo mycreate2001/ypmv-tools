@@ -226,8 +226,9 @@ export class CoverPage implements OnInit {
   }
 
   /** print */
-  print(){
-    this.util.generaQRcode(this.cover.id,{label:this.cover.name,type:'cover',size:32})
+  print(e){
+    // this.util.generaQRcode(this.cover.id,{label:this.cover.name,type:'cover',size:32})
+    this.util.printCode(e,this.cover.id,{label:this.cover.name,type:'cover'})
   }
 
   /** add child */
