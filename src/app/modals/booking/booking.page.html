@@ -59,7 +59,7 @@
         <ion-label>ID</ion-label>
         <ion-text>{{order.id}}</ion-text>
         <ion-buttons slot="end" title="show QR code">
-          <ion-button (click)="printCode()">
+          <ion-button (click)="printCode($event)">
             <ion-icon name="qr-code"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -169,7 +169,7 @@
           <ion-label>ID</ion-label>
           <ion-text>{{order.id}}</ion-text>
           <ion-buttons slot="end" title="show QR code">
-            <ion-button (click)="printCode()">
+            <ion-button (click)="printCode($event)">
               <ion-icon name="qr-code"></ion-icon>
             </ion-button>
           </ion-buttons>

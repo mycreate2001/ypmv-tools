@@ -9,8 +9,6 @@ export interface Code2ImageProperty{
   textxalign:'center'|'right'|'left';
   type:CodeFormatType|'text';
   label:string;
-  scaleX:number;
-  scaleY:number;
 }
 
 export type Code2ImagePropertyOpts=Partial<Code2ImageProperty>
