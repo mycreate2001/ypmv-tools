@@ -143,8 +143,17 @@ export function convert(obj:any,keys?:string[]){
     })
     return out;
   }
-  
 
+  
+export interface Obj2AttrOpts{
+    delimiter?:string;
+    space?:string;
+}
+export function obj2attr(obj:object,opts:Obj2AttrOpts={}):string{
+    const _opts=Object.assign({delimiter:',',space:''},opts)
+    return Object.keys(obj).map(key=>`${key}=${_opts.space}${obj[key]}${_opts.space}`)
+        .join(_opts.delimiter)
+}
 
 //private
 function makeRandStr(len:number=15){

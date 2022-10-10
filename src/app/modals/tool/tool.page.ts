@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AlertOptions, ModalController } from '@ionic/angular';
 import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
@@ -9,6 +9,9 @@ import { DisplayService } from 'src/app/services/display/display.service';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { CoverData, _DB_COVERS } from 'src/app/models/cover.model';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
+import { Alert } from 'selenium-webdriver';
+import { MenuData } from 'src/app/models/util.model';
+import { BCIDs, BcIdType } from 'src/app/services/util/util.interface';
 const _CHANGE_LIST="ion-select,ion-input,ion-checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -171,15 +174,23 @@ export class ToolPage implements OnInit {
   }
 
   /** print code */
-  print(){
-    this.disp.msgbox(
-      "Which do you want to print<br>",
-      { buttons:[ {text:'Code Only',role:'code'},{text:'With Label',role:'label'}]}
-    ).then(result=>{
-      const label=result.role=='label'?this.model.name:''
-      const size=32//result.role=='label'?32:24 
-      this.util.generaQRcode(this.tool.id,{label,size,type:'tool'})
-    })
+  print(e){
+    this.util.printCode(e,this.tool.id,{label:this.model.name,type:'tool'})
+    // const menus:MenuData[]=[
+    //   {name:'2D QRcode',role:'qrcode-none'},
+    //   {name:'2D QRcode + label',role:'qrcode-label'},
+    //   {name:'2D Datamatrix',role:'datamatrix-none'},
+    //   {name:'2D Datamatrix + label',role:'datamatrix-label'},
+    //   {name:'1D Barcode',role:'code128-none'},
+    // ]
+    // this.disp.showMenu(e,{menus}).then(result=>{
+    //   const role=result.role;
+    //   if(role=='backdrop') return;
+    //   const bcid=role.split("-")[0] as BcIdType
+    //   const label=role.split("-")[1]=='label'?this.model.name:''
+    //   if(!BCIDs.includes(bcid)) return;
+    //   this.util.generateCode(this.tool.id,{label,type:'tool',bcid})
+    // })
   }
 
   ////////////////// BACKGROUND FUNCTIONS /////////////////////

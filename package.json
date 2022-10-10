@@ -32,6 +32,7 @@
     "@zxing/browser": "^0.1.1",
     "@zxing/library": "^0.19.1",
     "@zxing/ngx-scanner": "^3.5.0",
+    "bwip-js": "^3.1.0",
     "firebase": "^9.6.7",
     "jsqr": "^1.4.0",
     "ngx-image-compress": "^13.1.13",
