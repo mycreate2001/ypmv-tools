@@ -36,8 +36,8 @@ export type WindowPropertyOpts=Partial<WindowProperty>
 const defaultWindow:WindowProperty={
     left:0,
     top:0,
-    width:900,
-    height:500,
+    width:250,
+    height:45,
     toolbar:0,
     scrollbars:0,
     status:0

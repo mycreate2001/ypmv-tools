@@ -66,6 +66,8 @@ export class UtilService {
           #code-container{display:flex}
           #code-infor{margin-left:12px;flex-direction:column;}
           #code-label {font-weight: bold;text-transform: capitalize;}
+          #code-id{font-size: 0.7rem;}
+          body{margin: 2px;}
         </style>
         `
     }
@@ -100,29 +102,29 @@ export class UtilService {
 
 
 ///////// interface //////////////////
-export type GenerateQRcodeDataOpts=Partial<GenerateQRcodeData>
+// export type GenerateQRcodeDataOpts=Partial<GenerateQRcodeData>
 
-export interface GenerateQRcodeData{
-  windowSizeX:number;
-  windowSizeY:number;
-  type:CodeFormatType|"text"
-  label:string;
-  size:number;
-  background:string;
-  fill:string;
-  ecLevel:'L'|'M'|'Q'|'H';
-}
+// export interface GenerateQRcodeData{
+//   windowSizeX:number;
+//   windowSizeY:number;
+//   type:CodeFormatType|"text"
+//   label:string;
+//   size:number;
+//   background:string;
+//   fill:string;
+//   ecLevel:'L'|'M'|'Q'|'H';
+// }
 
-function createGenerateQRcodeData(opts?:GenerateQRcodeDataOpts){
-  const df:GenerateQRcodeData={
-    windowSizeX:500,
-    windowSizeY:300,
-    type:'text',
-    label:'',
-    size:32,
-    background:'',
-    fill:'',
-    ecLevel:'M'
-  }
-  return createOpts(df,opts)
-}
+// function createGenerateQRcodeData(opts?:GenerateQRcodeDataOpts){
+//   const df:GenerateQRcodeData={
+//     windowSizeX:500,
+//     windowSizeY:300,
+//     type:'text',
+//     label:'',
+//     size:32,
+//     background:'',
+//     fill:'',
+//     ecLevel:'M'
+//   }
+//   return createOpts(df,opts)
+// }
