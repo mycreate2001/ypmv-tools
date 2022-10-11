@@ -149,6 +149,15 @@ export interface Obj2AttrOpts{
     delimiter?:string;
     space?:string;
 }
+/**
+ * convert object to attribute
+ * @param obj object {width:100,height:50}
+ * @param opts 
+ * @returns 
+ * @example const obj={width:100,height:50};
+ *  const str=obj2attr(obj,{delimitor:",",space:"\""}) 
+ *  //experted result str='width="100",height="50"'
+ */
 export function obj2attr(obj:object,opts:Obj2AttrOpts={}):string{
     const _opts=Object.assign({delimiter:',',space:''},opts)
     return Object.keys(obj).map(key=>`${key}=${_opts.space}${obj[key]}${_opts.space}`)
