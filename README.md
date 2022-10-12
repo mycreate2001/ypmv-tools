@@ -1,3 +1,11 @@
+# improvement database
+## Selft history
+### Overview
+    - Every table have saveInfo{userId,createAt,createBy,histories}
+### Need to do
+- change SaveInfo interface for history =>did
+- Edit firebase.service > add: handler duplicate
+- share > util > function getUpdate(newObj,oldObject) =>did
 # issue
 ## 1. User
 ### 1.1 Change password --> pending
