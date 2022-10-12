@@ -25,7 +25,7 @@ export function separateObj<T>(arrs:T[],key:string,opts:{dataName:string}={dataN
 }
 
 //*//////////// UPDATE //////////////////
-export function getUpdate(newObj:object,oldObj:object,opts:GetUpdateInputOpts):UpdateInf[]{
+export function getUpdate<T>(newObj:T,oldObj:T,opts:GetUpdateInputOpts={}):UpdateInf[]{
     if(Array.isArray(newObj)||Array.isArray(oldObj)) throw new Error("01:should be object instead of array");
     if(typeof newObj!=='object'||typeof oldObj!=='object') throw new Error("02: New/Old object should be Object")
     const _df:GetUpdateInput={exceptList:[]};

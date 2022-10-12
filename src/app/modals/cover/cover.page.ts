@@ -15,6 +15,7 @@ import { AuthService } from 'src/app/services/firebase/auth.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { UrlData } from 'src/app/models/util.model';
 import { ConfigId, configList, configs, _DB_CONFIGS } from 'src/app/models/config';
+import { createSelfHistory } from 'src/app/models/save-infor.model';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -156,7 +157,12 @@ export class CoverPage implements OnInit {
     this.storage.uploadImages(this.addImages,_STORAGE_COVERS)
     .then((urls:UrlData[])=>{
       this.cover.images=this.cover.images.concat(urls);
-      return this.db.add(_DB_COVERS,this.cover)
+      return this.db.add(_DB_COVERS,this.cover,(list,newDb,oldDb)=>{
+        if(!list.length) return null;
+        const histories=oldDb['histories']||[]
+        histories.push(createSelfHistory({updateList:list,userId:this.auth.currentUser.id}))
+        return {...newDb,histories}
+      })
     })
     .then(async ()=>{
       const coversId:string[]=this.cover.childrenId.filter(x=>x.type=='cover').map(x=>x.id)
@@ -164,7 +170,7 @@ export class CoverPage implements OnInit {
       const ctr_covers=covers.map(cover=>{
         if(cover.upperId!=this.cover.id){
           cover.upperId==this.cover.id
-          return this.db.add(_DB_COVERS,cover)
+          return this.db.add(_DB_COVERS,cover).then(c=>c.id)
         }
         
       })
@@ -173,7 +179,7 @@ export class CoverPage implements OnInit {
       const tools:ToolData[]=await this.db.gets(_DB_TOOLS,toolsId);
       const ctr_tools=tools.map(tool=>{
         tool.upperId=this.cover.id
-        return this.db.add(_DB_TOOLS,tool)
+        return this.db.add(_DB_TOOLS,tool).then(x=>x.id)
       })
       return Promise.all([...ctr_covers,...ctr_tools])
     })

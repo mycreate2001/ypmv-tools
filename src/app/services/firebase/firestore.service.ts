@@ -16,6 +16,8 @@ import { getFirestore,doc,getDoc,getDocs,updateDoc,
                                     } from 'firebase/firestore'
 import { makeId } from '../../utils/minitools';
 import { Unsubscribe } from 'firebase/auth';
+import { getUpdate, UpdateInf } from 'src/app/utils/data.handle';
+import { createSelfHistory } from 'src/app/models/save-infor.model';
 interface HandleData{
   id:string;
   callback:{(data:any[]):any}
@@ -200,39 +202,74 @@ export class FirestoreService {
    * @returns promise
    * @example try{db.add('users',{userid:'123',name:'abc',age:21})}catch(err=>console.log(err))
    */
-  add(tbl:string,data:any,debug:boolean=false):Promise<string>{
-    const _data=JSON.parse(JSON.stringify(data))
-    if(debug) console.log("\nfirestore.add '%s'\n---------------",tbl,data);
-    return new Promise(async (resolve,reject)=>{
-      let {id,...rawData}=_data;
-      /** new data without id */
-      if(!id){
-        try{
-          if(debug) console.log(`add new doc without...`);
-          const docRef=await addDoc(collection(this.db,tbl),data);
-          id=docRef.id;
-          if(debug) console.log(`done!, id="${id}"\n`);
-          return resolve(id);
-        }
-        catch(err){
-          console.log("#ERR-01:",err);
-          return reject(err);
-        }
+  add(tbl:string,data:any,callback:DuplicateHandler=(list,newData,oldData)=>list.length?newData:null):Promise<any>{
+    const {id,...rawData}=data;
+    console.log("01: add record '%s' to table '%s'",id,tbl)
+    // case #1: new record without id
+    if(!id) return this.setDoc(tbl,data)
+    // case #2: data with id
+    return getDoc(doc(this.db,tbl,id)).then(snap=>{
+      // case #2.1 new data with ID
+      if(!snap.exists()) return this.setDoc(tbl,{...rawData,id})
+      // case #2.2 existing data with ID
+      const oldDb={...snap.data(),id:snap.id}
+      const updateList=getUpdate(data,oldDb);
+      const newData=callback(updateList,data,oldDb);
+      if(!newData) {
+        console.log("02: nochange");
+        return data;
       }
 
-      /** create or override data with id */
-      else{
-        if(debug) console.log("create/overwrite record ");
-        try{
-          await setDoc(doc(this.db,tbl,id),rawData);
-          if(debug) console.log(`done! id="${id}"\n`);
-          return resolve(id);
-        }
-        catch(err){
-          console.log("err:",{err});
-          return reject(err);
-        }
-      }
+      console.log("03: update database");
+      return this.setDoc(tbl,newData)
+    })
+
+    // const _data=JSON.parse(JSON.stringify(data))
+    // if(debug) console.log("\nfirestore.add '%s'\n---------------",tbl,data);
+    // return new Promise(async (resolve,reject)=>{
+    //   let {id,...rawData}=_data;
+    //   /** new data without id */
+    //   if(!id){
+    //     try{
+    //       if(debug) console.log(`add new doc without...`);
+    //       const docRef=await addDoc(collection(this.db,tbl),data);
+    //       id=docRef.id;
+    //       if(debug) console.log(`done!, id="${id}"\n`);
+    //       return resolve(id);
+    //     }
+    //     catch(err){
+    //       console.log("#ERR-01:",err);
+    //       return reject(err);
+    //     }
+    //   }
+
+    //   /** create or override data with id */
+    //   else{
+    //     if(debug) console.log("create/overwrite record ");
+    //     try{
+    //       await setDoc(doc(this.db,tbl,id),rawData);
+    //       if(debug) console.log(`done! id="${id}"\n`);
+    //       return resolve(id);
+    //     }
+    //     catch(err){
+    //       console.log("err:",{err});
+    //       return reject(err);
+    //     }
+    //   }
+    // })
+  }
+  setDoc(tbl:string,data:any):Promise<any>{
+    const {id,...rawData}=data;
+    const _id=id||makeId();
+    // console.log("checkpoints[4]:setDoc record '%s' to table '%s'",)
+    return setDoc(doc(this.db,tbl,_id),rawData).then(db=>{
+      console.log("checkpoints[4]:setDoc successfully for record '%s' to table '%s'",_id,tbl,{id})
+      return {...rawData,id:_id}
+    })
+    .catch(err=>{
+      console.log("checkpoints[5]: setDoc failured! id='%s' table='%s'",_id,tbl,{id})
+      console.log(err);
+      throw err;
     })
   }
 
@@ -362,3 +399,15 @@ export interface QueryData{
 }
 
 export declare type QueryDataType="<"|"<="|"=="|">"|">="|"!="|"in"|"not-in"|"array-contains"|"array-contains-any"
+
+
+export interface DuplicateHandler{
+  (updateList:UpdateInf[],newObj:object,oldObj:object):object|null
+}
+
+/**
+ * add(tbl,data,(updateList)=>{
+ * }){
+ *  
+ * }
+ */
