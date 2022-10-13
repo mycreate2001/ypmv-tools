@@ -2,10 +2,28 @@
 ## Selft history
 ### Overview
     - Every table have saveInfo{userId,createAt,createBy,histories}
-### Need to do
-- change SaveInfo interface for history =>did
-- Edit firebase.service > add: handler duplicate
-- share > util > function getUpdate(newObj,oldObject) =>did
+### Need to do [2022-Oct-13]
+- change SaveInfo interface for history                 => done
+- Edit firebase.service > add: handler duplicate        => done
+- share > util > function getUpdate(newObj,oldObject)   => done
+- add history to cover, model,tool                      => done
+### Use
+- firebase.add(tbl,data,duplicateHandler)   duplicateHandler just run when <data> difference from <database>
+### Issue
+- it's speed time for reading old data from database -> it's can solve by using offline database (Proxy)
+
+## reduce loading image
+### Overview
+- it's help to app reduce banwidth. Image just load from server when user can see it
+- use directly browser directive loading="lazy"
+- storage separate 2 parts (1 for thumbnail, 1 for normal image) => when upload image, software save thumbnail image automatically
+### Use
+- add directive loading="lazy" <img>
+example: <img [src]="image.jpg" loading="lazy">
+- for use thumbnail image. pipe url should be add 'thumb'
+example: <img [src]="model.images|url:0:'thumb'" loading="lazy">
+
+
 # issue
 ## 1. User
 ### 1.1 Change password --> pending

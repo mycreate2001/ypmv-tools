@@ -16,6 +16,7 @@ import { StorageService } from 'src/app/services/firebase/storage.service';
 import { UrlData } from 'src/app/models/util.model';
 import { ConfigId, configList, configs, _DB_CONFIGS } from 'src/app/models/config';
 import { createSelfHistory } from 'src/app/models/save-infor.model';
+import { UpdateInf } from 'src/app/utils/data.handle';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -85,20 +86,6 @@ export class CoverPage implements OnInit {
         this.refresh();
       })
     })
-
-    //create obs & function
-    const obs=new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting){
-          const image=entry.target
-          const src=image.getAttribute("lazy-src");
-          if(src) image.setAttribute("src",src)
-        }
-      })
-    })
-    //set function
-    const images=document.querySelector('app-cover').querySelectorAll("[lazy-src]");
-    images.forEach(img=>obs.observe(img))
   }
 
 
@@ -291,7 +278,9 @@ export class CoverPage implements OnInit {
 
 
   ////////////// BACKGROUND FUNCTIONS ////////////////
-
+  displayUpdate(upadeList:UpdateInf[]){
+    return upadeList.map(ud=>`${ud.type} "<li>${ud.key}": "${ud.oldVal}" -> "${ud.newVal}"</li>`).join("")
+  }
   /** refresh view */
   private refresh(debug:string=""){
     //refresh isChange

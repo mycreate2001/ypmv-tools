@@ -47,8 +47,11 @@
       </ion-row>
     </ion-grid>
   </ion-card>
+
+  <!-- information -->
   <ion-card class="infor">
     <ion-list>
+      <!-- code -->
       <ion-item *ngIf="isNew ">
         <ion-label>Part No</ion-label>
         <ion-input [(ngModel)]="model.id"></ion-input>
@@ -57,10 +60,12 @@
         <ion-label>Part No</ion-label>
         <ion-text>{{model.id}}</ion-text>
       </ion-item>
+      <!-- part name -->
       <ion-item>
         <ion-label>Part Name</ion-label>
         <ion-input [(ngModel)]="model.name"></ion-input>
       </ion-item>
+      <!-- Category -->
       <ion-item >
         <ion-label>Category</ion-label>
          <ion-select [(ngModel)]="model.group" (ionChange)="selectGroup()"> 
@@ -68,19 +73,26 @@
            <ion-select-option value="">(new)</ion-select-option>
           </ion-select>
       </ion-item>
+      <!-- maintenance -->
       <ion-item>
         <ion-label>Maintenace Period</ion-label>
          <ion-input [(ngModel)]="model.maintenance"></ion-input>
       </ion-item>
+
+      <!-- memo -->
       <ion-item>
-        <ion-label>Meno</ion-label>
+        <ion-label>Memo</ion-label>
          <ion-textarea [(ngModel)]="model.note"></ion-textarea>
       </ion-item>
+
+      <!-- Component Qty -->
       <ion-item>
         <ion-label>Comp Qty</ion-label>
          <ion-input [(ngModel)]="model.compQty"></ion-input>
       </ion-item>
+
       <ion-accordion-group>
+        <!-- Quantity -->
         <ion-accordion>
           <ion-item slot="header">
             <ion-label>Quantity</ion-label>
@@ -102,6 +114,21 @@
               >
               {{tool.id}}
             </ion-chip>
+          </div>
+        </ion-accordion>
+        <!-- histories -->
+        <ion-accordion>
+          <ion-item slot="header">
+            <ion-label>Histories </ion-label>
+            <ion-badge slot="end" *ngIf="model.histories && model.histories.length">{{model.histories.length}}</ion-badge>
+          </ion-item>
+          <div  slot="content" class="history-wrap">
+            <div class='history-container' *ngFor="let history of model.histories">
+              <div class="history-header">[{{history.createAt|date:'yyyy-MMM-dd'}}] </div>
+              <ul class="history-body" *ngFor="let update of history.updateList">
+                <li>{{update.type}} <b>{{update.key}}</b>: from '<b>{{update.oldVal}}'</b> to '<b>{{update.newVal}}</b>'</li>
+              </ul>
+            </div>
           </div>
         </ion-accordion>
       </ion-accordion-group>

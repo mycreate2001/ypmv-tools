@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
+import { createSelfHistory } from 'src/app/models/save-infor.model';
 import { createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
 import { createUrlData, UrlData } from 'src/app/models/util.model';
@@ -177,7 +178,12 @@ export class ModelPage implements OnInit {
     this.storage.uploadImages(this.addImages,_STORAGE_MODELS)
     .then(images=>{
       this.model.images=this.model.images.concat(images);
-      return this.db.add(_DB_MODELS,this.model);
+      return this.db.add(_DB_MODELS,this.model,(updateList,newModel,oldModel)=>{
+        if(!updateList.length) return null;
+        const histories=oldModel['histories']||[];
+        histories.push(createSelfHistory({updateList,userId:this.auth.currentUser.id}))
+        return {...newModel,histories}
+      });
     })
     .then(()=>this.done('save'))
     .catch(err=>this.disp.msgbox("save data is error<br>"+err.message))

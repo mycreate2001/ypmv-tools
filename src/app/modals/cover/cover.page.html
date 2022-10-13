@@ -121,6 +121,21 @@
             </ion-item>
           </div>
         </ion-accordion>
+        <!-- histories -->
+        <ion-accordion>
+          <ion-item slot="header">
+            <ion-label>Histories </ion-label>
+            <ion-badge slot="end" *ngIf="cover.histories && cover.histories.length">{{cover.histories.length}}</ion-badge>
+          </ion-item>
+          <div  slot="content" class="history-wrap">
+            <div class='history-container' *ngFor="let history of cover.histories">
+              <div class="history-header">[{{history.createAt|date:'yyyy-MMM-dd'}}] </div>
+              <ul class="history-body" *ngFor="let update of history.updateList">
+                <li>{{update.type}} <b>{{update.key}}</b>: from '<b>{{update.oldVal}}'</b> to '<b>{{update.newVal}}</b>'</li>
+              </ul>
+            </div>
+          </div>
+        </ion-accordion>
       </ion-accordion-group>
     </ion-list>
   </ion-card>

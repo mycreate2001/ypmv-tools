@@ -12,6 +12,7 @@ import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../q
 import { Alert } from 'selenium-webdriver';
 import { MenuData } from 'src/app/models/util.model';
 import { BCIDs, BcIdType } from 'src/app/services/util/util.interface';
+import { createSelfHistory } from 'src/app/models/save-infor.model';
 const _CHANGE_LIST="ion-select,ion-input,ion-checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -133,12 +134,22 @@ export class ToolPage implements OnInit {
         const tool=cover.childrenId.find(x=>x.type=='tool' && x.id==this.tool.id)
         if(!tool){
           cover.childrenId.push({id:this.tool.id,type:'tool'})
-          await this.db.add(_DB_COVERS,cover)
+          await this.db.add(_DB_COVERS,cover,(updateList,newData,oldData)=>{
+              if(!updateList.length) return null;
+              const histories=oldData['histories']||[];
+              histories.push(createSelfHistory({updateList,userId:this.auth.currentUser.id}))
+              return {...newData,histories}
+          })
         }
       }
 
       // save data
-      this.db.add(_DB_TOOLS,this.tool)
+      this.db.add(_DB_TOOLS,this.tool,(updateList,newData,oldData)=>{
+        if(!updateList.length) return null;
+        const histories=oldData['histories']||[];
+        histories.push(createSelfHistory({updateList,userId:this.auth.currentUser.id}))
+        return {...newData,histories}
+      })
       .then(()=>this.done('ok'))
     }
     catch(err){
