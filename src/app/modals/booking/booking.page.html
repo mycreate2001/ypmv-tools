@@ -129,6 +129,7 @@
         </ion-popover>
       </ion-item>
     </ion-card>
+
     <ion-card class="infor">
       <ion-card-header>
         <ion-item lines="none">
@@ -143,6 +144,7 @@
           </ion-buttons>
         </ion-item>
       </ion-card-header>
+      
       <ion-list>
         <ion-item *ngFor="let tool of order.tools;let pos=index">
           <ion-thumbnail slot="start">
@@ -158,7 +160,6 @@
     </ion-card>
   </ng-container>
 
-  <!-- view page -->
   <ng-container *ngIf="!isEdit">
     <ion-card class="infor">
       <ion-card-header>

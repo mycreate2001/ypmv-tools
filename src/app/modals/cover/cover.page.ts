@@ -14,7 +14,7 @@ import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, Search
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { UrlData } from 'src/app/models/util.model';
-import { ConfigId, configList, configs, _DB_CONFIGS } from 'src/app/models/config';
+import { ConfigId, configList, configs, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/models/config';
 import { createSelfHistory } from 'src/app/models/save-infor.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
 
@@ -38,6 +38,8 @@ export class CoverPage implements OnInit {
   delImages:string[]=[];
   viewImages:UrlData[]=[];
   groups:string[]=[];
+  statusList:string[]=[];
+  AllStatusList:string[]=[];
   /** internal control */
   isAvailble:boolean=false;
   isChange:boolean=false;
@@ -63,17 +65,16 @@ export class CoverPage implements OnInit {
       // const groupCtr=this.db.get(_DB_CONFIGS,groupId);
       Promise.all([
         this.db.get(_DB_CONFIGS,groupId),
-        this._getChildren()
-      ]).then(results=>{
-        this.groups=results[0]['list']
+        this._getChildren(),
+        this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>
+      ]).then(([configs,children,statusConfig])=>{
+        this.groups=configs['list']
         console.log("group",this.groups)
+        if(!this.cover.statusList) this.cover.statusList=[];
+        this.AllStatusList=statusConfig.statuslist.map(y=>y.key);
+        this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
         this.refresh()
       })
-      
-
-      // this._getChildren().then(()=>{
-      //   this.refresh();
-      // })
     });
   }
 
@@ -90,6 +91,15 @@ export class CoverPage implements OnInit {
 
 
   ////////////// BUTTONS HANDLER ///////////////
+  addProperty(pos:number,opr:'add'|'rem'='add'){
+    if(opr=='add')
+      this.cover.statusList.push(this.statusList[pos]);
+    else 
+      this.cover.statusList.splice(pos,1)
+
+    const list=this.cover.statusList||[];    
+    this.statusList=this.AllStatusList.filter(x=>!list.includes(x))
+  }
 
   removeChild(){
     this.sChildren.forEach(child=>{
@@ -171,7 +181,10 @@ export class CoverPage implements OnInit {
       return Promise.all([...ctr_covers,...ctr_tools])
     })
     .then(()=>this.done('save'))
-    .catch(err=>this.disp.msgbox(`Save ${name_space} data is failured!<br>`,err.message))
+    .catch(err=>{
+      console.log("ERROR:",err);
+      this.disp.msgbox(`Save ${name_space} data is failured!<br>`,err.message)
+    })
   }
 
   /** handler delete button */
@@ -290,6 +303,7 @@ export class CoverPage implements OnInit {
     this.viewImages=this.cover.images.concat(this.addImages);
     this.isAvailble=true;
     console.log("\n---------Refresh data -------\n",this);
+    // this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
   }
 
   /** init for first times */

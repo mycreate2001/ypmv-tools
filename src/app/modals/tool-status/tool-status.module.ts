@@ -8,15 +8,14 @@ import { IonicModule } from '@ionic/angular';
 
 import { ToolStatusPage } from './tool-status.page';
 import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
-import { StatusPipeModule } from 'src/app/pipes/status/status.pipe.module';
+// import { StatusPipeModule } from 'src/app/pipes/status/status.pipe.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    UrlPipeModule,
-    StatusPipeModule
+    UrlPipeModule
     // ToolStatusPageRoutingModule
   ],
   declarations: [ToolStatusPage]

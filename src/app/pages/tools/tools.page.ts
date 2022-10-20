@@ -82,7 +82,8 @@ export class ToolsPage implements OnInit {
         name:cover.name,
         group:cover.group,
         images:cover.images,
-        type:'cover'
+        type:'cover',
+        statusList:cover.statusList
       }
       _views.push(view)
     })
@@ -94,7 +95,8 @@ export class ToolsPage implements OnInit {
         name:model.name,
         group:model.group,
         images:model.images,
-        type:'tool'
+        type:'tool',
+        statusList:model.statusList
       }
       _views.push(view)
     })

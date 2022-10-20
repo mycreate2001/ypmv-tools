@@ -9,7 +9,7 @@ import { IonicModule } from '@ionic/angular';
 import { BookingPage } from './booking.page';
 import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
 import { DbPipeModule } from 'src/app/pipes/db/db.pipe.module';
-import { StatusPipeModule } from 'src/app/pipes/status/status.pipe.module';
+// import { StatusPipeModule } from 'src/app/pipes/status/status.pipe.module';
 
 @NgModule({
   imports: [
@@ -18,7 +18,7 @@ import { StatusPipeModule } from 'src/app/pipes/status/status.pipe.module';
     IonicModule,
     UrlPipeModule,
     DbPipeModule,
-    StatusPipeModule
+    // StatusPipeModule
     // BookingPageRoutingModule
   ],
   declarations: [BookingPage]

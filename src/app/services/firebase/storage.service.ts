@@ -113,3 +113,25 @@ export class StorageService {
     })
   }
 }
+
+export function getUpdateImages(images:(UrlData|string)[],oldImages:(string|UrlData)[]=[]):{currImages:UrlData[],addImages:UrlData[],delImages:string[]}{
+  const addImages:UrlData[]=[];
+  const delImages:string[]=[];
+  const currImages:UrlData[]=[];
+  //find new images
+  const newImages=images.map(img=>{
+    const url:UrlData=createUrlData(typeof img=='string'?{url:img}:img)
+    if(!url.url.startsWith('http')) addImages.push(url);
+    else currImages.push(url);
+    return url.url;
+  })
+  //find delete images
+  oldImages.forEach(img=>{
+    const url=createUrlData(typeof img=='string'?{url:img}:img)
+    if(!newImages.includes(url.url)) {
+      delImages.push(url.url);
+      if(url.thumbnail) delImages.push(url.thumbnail)
+    }
+  })
+  return {addImages,delImages,currImages}
+}

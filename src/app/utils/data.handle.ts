@@ -33,7 +33,7 @@ export function getUpdate<T>(newObj:T,oldObj:T,opts:GetUpdateInputOpts={}):Updat
     const list:UpdateInf[]=[]
     Object.keys(newObj).forEach(key=>{
         if(_opts.exceptList.includes(key)) return;
-        const oldVal=oldObj[key];
+        const oldVal=oldObj[key]||null;
         const newVal=newObj[key];
         if(oldVal==undefined) return list.push({key,type:'add',oldVal,newVal});
         if(JSON.stringify(oldVal)!=JSON.stringify(newVal)) return list.push({key,type:'update',oldVal,newVal})

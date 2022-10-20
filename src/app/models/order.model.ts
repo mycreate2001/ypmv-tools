@@ -1,7 +1,7 @@
 import { createOpts } from "../utils/minitools";
-import {  BasicView, BasicViewOpts, createBasicData } from "./basic.model";
+import {  BasicData, BasicView, BasicViewOpts, createBasicData } from "./basic.model";
 import { createSaveInf, SaveInfo } from "./save-infor.model";
-import { createToolStatus, ToolStatus } from "./tools.model";
+// import { createToolStatus, ToolStatus } from "./tools.model";
 import { UrlData } from "./util.model";
 export declare type ApprovedResultType="Not yet"|"Accept"|"Reject"
 export declare type OrderDataStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"|"cancel"
@@ -14,7 +14,7 @@ export interface OrderData extends SaveInfo{
     id:string;
     scheduleStart:string;           // start date in schedule
     scheduleFinish:string;          // finish data in schedule
-    tools:CheckData[];         // renting tools in schedule
+    tools:BasicData[];         // renting tools in schedule
     companyId:string;               // renting company
     purpose:string;                 // purpose of renting tool
 
@@ -25,22 +25,17 @@ export interface OrderData extends SaveInfo{
     approvedComment:string;                 // comment
 
     /** check before renting */
-    checkingDate:string;         // actual start date
-    checkingTools:CheckData[];       // actual tools status
-    checkingManId:string;        // actual yamaha PIC
+    checkingTools:string;       // actual tools status
     checkingAgencyId?:string;      // Agency main
     checkingAgencyName:string;     // Name of agency man who take the tool
-    checkingComment:string;       // checking comment, ex: tool a have problem,...
+    rentDate:string;
 
     /** return tools */
-    returnDate:string;
-    returnTools:CheckData[];   // tool & status
-    returnManId:string;         // Yamaha get the tools
+    returnTools:string;   // tool & status
     returnAgencyId?:string;     // agency man who return tools/jigs
     returnAgencyName:string;    //
 
     /** storage at YPMV */
-    paringTools:ParingData[];   //
     status:OrderDataStatusType;
 }
 
@@ -65,75 +60,70 @@ export function createOrderData(opts?:OrderDataOpts):OrderData{
         approvedComment:'',                 // comment
 
         /** check before renting */
-        checkingDate:'',         // actual start date
-        checkingTools:[],       // actual tools status
-        checkingManId:'',        // actual yamaha PIC
+        checkingTools:'',       // actual tools status
         checkingAgencyId:'',      // Agency main
         checkingAgencyName:'',     // Name of agency man who take the tool
-        checkingComment:'',       // checking comment, ex?: tool a have problem,...
+        rentDate:'',
 
         /** return tools */
-        returnDate:'',
-        returnTools:[],   // tool & status
-        returnManId:'',         // Yamaha get the tools
+        returnTools:'',   // tool & status
         returnAgencyId:'',     // agency man who return tools/jigs
         returnAgencyName:'',    //
 
         /** storage at YPMV */
-        paringTools:[],   //
         status:"new"
     }
     return createOpts(df,opts) as OrderData
 }
 
-export interface CheckData extends BasicView {
-    /** status of tool/jig before renting */
-    beforeStatus:ToolStatus;       
-    /** images of tool/jig before rentig */
-    beforeImages:UrlData[];       
-    /** person who check before renting tool/jig */
-    beforeUserId:string;            
-    /** status of tool/jig after return */
-    afterStatus:ToolStatus;         
-    /** image of tool/jig after return  */
-    afterImages:UrlData[];          
-    /** user who checking after tool come back */
-    afterUserId:string;
+// export interface CheckData extends BasicView {
+//     /** status of tool/jig before renting */
+//     beforeStatus:ToolStatus;       
+//     /** images of tool/jig before rentig */
+//     beforeImages:UrlData[];       
+//     /** person who check before renting tool/jig */
+//     beforeUserId:string;            
+//     /** status of tool/jig after return */
+//     afterStatus:ToolStatus;         
+//     /** image of tool/jig after return  */
+//     afterImages:UrlData[];          
+//     /** user who checking after tool come back */
+//     afterUserId:string;
     
-}
+// }
 
 
-export interface CheckDataOpts extends BasicViewOpts {
-    /** status of tool/jig before renting */
-    beforeStatus?:ToolStatus;      
-    /** images of tool/jig before rentig */
-    beforeImages?:UrlData[];        
-    /** person who check before renting tool/jig */
-    beforeUserId?:string;        
-    /** status of tool/jig after return */
-    afterStatus?:ToolStatus;       
-    /** image of tool/jig after return  */
-    afterImages?:UrlData[];        
-    /** user who checking after tool come back */
-    afterUserId?:string;
+// export interface CheckDataOpts extends BasicViewOpts {
+//     /** status of tool/jig before renting */
+//     beforeStatus?:ToolStatus;      
+//     /** images of tool/jig before rentig */
+//     beforeImages?:UrlData[];        
+//     /** person who check before renting tool/jig */
+//     beforeUserId?:string;        
+//     /** status of tool/jig after return */
+//     afterStatus?:ToolStatus;       
+//     /** image of tool/jig after return  */
+//     afterImages?:UrlData[];        
+//     /** user who checking after tool come back */
+//     afterUserId?:string;
     
-}
+// }
 
-export function createCheckData(opts:CheckDataOpts){
-    const now=new Date();
+// export function createCheckData(opts:CheckDataOpts){
+//     const now=new Date();
 
-    const df:CheckData={
-        ...createBasicData(),
-        beforeImages:[],
-        beforeStatus:createToolStatus(),
-        beforeUserId:'',
-        afterImages:[],
-        afterStatus:createToolStatus(),
-        afterUserId:'',
-        childrenId:[]
-    }
-    return createOpts(df,opts)
-}
+//     const df:CheckData={
+//         ...createBasicData(),
+//         beforeImages:[],
+//         beforeStatus:createToolStatus(),
+//         beforeUserId:'',
+//         afterImages:[],
+//         afterStatus:createToolStatus(),
+//         afterUserId:'',
+//         childrenId:[]
+//     }
+//     return createOpts(df,opts)
+// }
 
 
 export interface ParingData{

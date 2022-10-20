@@ -18,6 +18,7 @@ export interface BasicData{
     type:BasicDataType;             // information type
     images:UrlData[]                // image
     modelId?:string;
+    statusList:string[];
 }
 
 // /**
@@ -45,7 +46,8 @@ export function createBasicData(opts?:BasicDataOpts){
         group:'',                   // category, group of tool/cover
         type:'tool',                // information type
         images:[],                   // image 
-        modelId:''
+        modelId:'',
+        statusList:[]
     }
     return createOpts(df,opts)
 }

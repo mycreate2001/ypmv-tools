@@ -108,6 +108,7 @@
                 </ion-button> 
               </ion-buttons>
             </ion-item>
+
             <ion-item *ngFor="let child of children" >
               <ion-thumbnail slot="start">
                 <img [src]="child.images|url:0:'thumb'" loading="lazy">
@@ -119,8 +120,30 @@
                 <ion-checkbox (click)="selectChild(child)"></ion-checkbox>
               </ion-buttons>
             </ion-item>
+
           </div>
         </ion-accordion>
+
+        <!-- inspection items -->
+        <ion-accordion>
+          <ion-item slot="header">
+            <ion-label>Inspection items</ion-label>
+            <ion-text>{{cover.statusList}}</ion-text>
+          </ion-item>
+          <div slot="content">
+            <ion-chip color="primary" *ngFor="let item of cover.statusList;let pos=index" (click)="addProperty(pos,'rem')">
+              <ion-label>{{item}}</ion-label>
+              <ion-icon color="danger" name="close-circle-outline"></ion-icon>
+            </ion-chip>
+            <ion-card>
+              <ion-chip color="primary" *ngFor="let item of statusList;let pos=index" (click)="addProperty(pos,'add')">
+                <ion-label>{{item}}</ion-label>
+                <ion-icon color="secondary" name="add-circle-outline"></ion-icon>
+              </ion-chip>
+            </ion-card>
+          </div>
+        </ion-accordion>
+
         <!-- histories -->
         <ion-accordion>
           <ion-item slot="header">

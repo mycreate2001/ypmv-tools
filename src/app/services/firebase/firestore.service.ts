@@ -219,7 +219,7 @@ export class FirestoreService {
         console.log("02: nochange");
         return data;
       }
-
+      console.log("TEST, newdata",newData)
       console.log("03: update database");
       return this.setDoc(tbl,newData)
     })

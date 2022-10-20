@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
-import { CheckData, OrderDataStatusType } from 'src/app/models/order.model';
-import { statusList } from 'src/app/models/tools.model';
+import { BasicData } from 'src/app/models/basic.model';
+import { ConfigId, StatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/models/config';
+import { StatusInf, ToolStatus, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK } from 'src/app/models/status-record.model';
+// import { CheckData, OrderDataStatusType } from 'src/app/models/order.model';
+// import { statusList } from 'src/app/models/tools.model';
 import { createUrlData, MenuData, UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -16,19 +18,18 @@ const _BACKUP_LIST=['tool','addImages']
 })
 export class ToolStatusPage implements OnInit {
   /** input */
-  tool:CheckData;
-  addImages:UrlData[]=[];
-  delImages:string[]=[];
-  status:OrderDataStatusType='created'
+  tool:BasicData;     //Tool/cover information
+  status:ToolStatus
 
   /** internal */
-  ARTER_LIST:OrderDataStatusType[]=['renting','returned'];
-  BEFORE_LIST:OrderDataStatusType[]=['approved']
+  // ARTER_LIST:OrderDataStatusType[]=['renting','returned'];
+  // BEFORE_LIST:OrderDataStatusType[]=['approved']
   backup:string[]=[];
   statusDb:object={}        //get status list from DB
-  statusList=statusList;
+  statusList:string[];
   viewImages:UrlData[]=[];
   isChange:boolean=false;
+  statusconfigs:StatusConfig[]=[];
 
   /** control */
   isAvailable:boolean=false;
@@ -41,38 +42,55 @@ export class ToolStatusPage implements OnInit {
   ngOnInit() {
     //backup
     this.backup=_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
-    const id:ConfigId='toolstatus'
-    this.db.get(_DB_CONFIGS,id)
-    .then(result=>{
-      const {id,...status}=result
-      this.statusDb=status;
+
+    //get config
+    const statusConfigDb=this.db.get(_DB_CONFIGS,_CONFIG_STATUS_ID);
+    Promise.all([statusConfigDb]).then(([statusConfigs])=>{
+      /** statusConfig=[{key:'visual',order:1,list:['scratch','crack']}] */
+      this.statusconfigs=statusConfigs;
+      this.statusconfigs=this.statusconfigs.sort((a,b)=>a.order-b.order);
+      this.statusList=this.statusconfigs.map(stt=>stt.key);
       this.refresh();
       this.isAvailable=true;
-      console.log("init",this);
     })
+    // const id:ConfigId='toolstatus'
+    // this.db.get(_DB_CONFIGS,id)
+    // .then(result=>{
+    //   const {id,...status}=result
+    //   this.statusDb=status;
+    //   this.refresh();
+    //   this.isAvailable=true;
+    //   console.log("init",this);
+    // })
   }
 
   /////////////// BUTTONS HANDLER /////////////////////
+  getStatus(){
+    const status=this.status.status;
+    const notResult=status.every(stt=>stt.value==_STATUS_NOTYET.value);//not yet
+    const okResult=status.every(stt=>stt.value==_STATUS_OK.value);
+    return notResult?_STATUS_NOTYET.key:okResult?_STATUS_OK.key:_STATUS_NG.key
+  }
 
   /** show option for images */
   showImageOption(event:any,pos:number,process:'beforeImages'|'afterImages', type:'local'|'db'='db'){
-    const menus:MenuData[]=[
-      {
-        name:'Delete',icon:'trash',iconColor:'danger',
-        handler:()=>{
-          if(type=='db'){
-            this.delImages.push(this.tool[process][pos].url)
-            this.tool[process].splice(pos,1)
-          }else{
-            this.addImages.splice(pos,1)
-          }
-        }
-      }
-    ]
-    this.disp.showMenu(event,{menus})
-    .then(result=>{
-      this.refresh()
-    })
+    // const menus:MenuData[]=[
+    //   {
+    //     name:'Delete',icon:'trash',iconColor:'danger',
+    //     handler:()=>{
+    //       if(type=='db'){
+    //         this.delImages.push(this.tool[process][pos].url)
+    //         this.tool[process].splice(pos,1)
+    //       }else{
+    //         this.addImages.splice(pos,1)
+    //       }
+    //     }
+    //   }
+    // ]
+    // this.disp.showMenu(event,{menus})
+    // .then(result=>{
+    //   this.refresh()
+    // })
   }
 
   /** take image */
@@ -83,7 +101,8 @@ export class ToolStatusPage implements OnInit {
       const role=result.role as CameraPageRole;
       if(role!='ok') return;
       const data=result.data as CameraPageOuts
-      this.addImages.push(createUrlData({url:data.image}))
+      // this.addImages.push(createUrlData({url:data.image}))
+      this.status.images.push(createUrlData({url:data.image}))
       this.refresh();
     })
   }
@@ -91,8 +110,7 @@ export class ToolStatusPage implements OnInit {
   /** show/edit images */
   showImage(){
     const props:ImageViewPageOpts={
-      addImages:this.addImages,
-      delImages:this.delImages,
+      addImages:this.status.images,
       canCaption:true
     }
     this.disp.showModal(ImageViewPage,props)
@@ -100,8 +118,9 @@ export class ToolStatusPage implements OnInit {
       const role=result.role as ImageViewPageRole;
       if(role!=='ok') return;
       const data=result.data as ImageViewPageOuts;
-      this.addImages=data.addImages;
-      this.delImages=data.delImages;
+      // this.addImages=data.addImages;
+      // this.delImages=data.delImages;
+      this.status.images=[...[].concat(data.images),data.images]
       this.refresh();
     })
   }
@@ -109,9 +128,7 @@ export class ToolStatusPage implements OnInit {
   /** edit page */
   done(role:ToolStatusPageRole='save'){
     const out:ToolStatusPageOuts={
-      tool:this.tool,
-      addImages:this.addImages,
-      delImages:this.delImages,
+      status:this.status
     }
     this.modal.dismiss(out,role)
   }
@@ -123,9 +140,7 @@ export class ToolStatusPage implements OnInit {
     //check change data
     this.isChange=_BACKUP_LIST.every((key,pos)=>this.backup[pos]==JSON.stringify(this[key]))?false:true
     //onsole.log("viewImages:",this);
-    const images=this.status=='approved'?this.tool.beforeImages:
-        this.status=='renting'?this.tool.afterImages:[]
-    this.viewImages=[...images,...this.addImages]
+    this.viewImages=this.status.images;
   }
 
 
@@ -146,10 +161,8 @@ export type ToolStatusPageRole="cancel"|"save"
  * @param images  current images
  */
 export interface ToolStatusPageOpts{
-  tool:CheckData;
-  status:OrderDataStatusType;
-  addImages?:UrlData[];
-  delImages?:string[];
+  tool:BasicData;   // [tool/box] information
+  status:ToolStatus;
 }
 
 /**
@@ -160,10 +173,5 @@ export interface ToolStatusPageOpts{
   @param isChange boolean;
  */
 export interface ToolStatusPageOuts{
-  /** tool id */
-  tool:CheckData;
-  /** status of tool */ 
-  addImages:UrlData[];
-  /** image will delete */
-  delImages:string[];
+  status:ToolStatus;
 }

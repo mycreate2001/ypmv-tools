@@ -164,7 +164,33 @@ export function obj2attr(obj:object,opts:Obj2AttrOpts={}):string{
         .join(_opts.delimiter)
 }
 
-//private
+export interface CompareArraysInput{
+    items:string[];
+    condition:'All items same'|'one of items is same'
+}
+function createCompareArraysInput(opts:CompareArraysInputOpts={}){
+    const df:CompareArraysInput={
+        items:[],
+        condition:'All items same'
+    }
+    return createOpts(df,opts)
+}
+export type CompareArraysInputOpts=Partial<CompareArraysInput>
+export function compareArrays(arrs1:object[],arrs2:object[],opts:CompareArraysInputOpts={}):boolean{
+    const _opts=createCompareArraysInput(opts);
+    const _items=!_opts.items.length?_opts.items:Object.keys(arrs1[0])
+    return arrs1.some(arr1=>arrs2.includes(arr2=>{
+            if((_opts.condition=='All items same' && _items.every(item=>arr1[item]==arr2[item]))||
+                (_opts.condition=='one of items is same' && _items.some(item=>arr1[item]==arr2[item]))
+            ) return true;
+            return false;
+        })
+    )
+}
+
+
+
+////////////////////// private ///////////////////////////////
 function makeRandStr(len:number=15){
     const n=Math.ceil(len/10);
     let str:string='';
