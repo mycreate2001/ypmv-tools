@@ -59,3 +59,6 @@ git
 ### 7.1. company modal not get correct image => Done
 
 ## 8. Url for all pages & modals
+
+## 9. Protect database
+Not delete database, just set destroy data to database

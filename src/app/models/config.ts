@@ -14,13 +14,7 @@ export interface UserConfig{
     role:string[];
 }
 
-export interface GroupConfig{
-    list:string[];
-}
 
-export interface QRcodeConfig{
-    list:string[];
-}
 
 export const configList=Object.keys(configs)
 export type ConfigId=keyof typeof configs
@@ -36,4 +30,12 @@ export interface StatusConfig{
 
 export interface ToolStatusConfig{
     statuslist:StatusConfig[];
+}
+
+export interface GroupConfig{
+    list:string[];
+}
+
+export interface QRcodeConfig{
+    list:string[];
 }

@@ -13,6 +13,7 @@ export interface SaveInfo{
     comment:string;
     lastUpdate:string;
     histories:SelfHistory[];
+    destroyDate:string;
 }
 
 export interface SelfHistory{
@@ -41,7 +42,8 @@ export function createSaveInf(opts?:SaveInfoOpts):SaveInfo{
         createAt:now,
         comment:'',
         lastUpdate:now,
-        histories:[]
+        histories:[],
+        destroyDate:''
     }
     return Object.assign(df,opts);
 }

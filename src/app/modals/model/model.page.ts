@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { ConfigId, _DB_CONFIGS } from 'src/app/models/config';
-import { createSelfHistory } from 'src/app/models/save-infor.model';
+import { ConfigId, configs, GroupConfig, StatusConfig, ToolStatusConfig, _DB_CONFIGS } from 'src/app/models/config';
+import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
 import { createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/models/tools.model';
 import { UserData } from 'src/app/models/user.model';
-import { createUrlData, UrlData } from 'src/app/models/util.model';
+import { UrlData } from 'src/app/models/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
@@ -14,7 +14,7 @@ import { StorageService } from 'src/app/services/firebase/storage.service';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
 import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 
-const _BACKUP_LIST="model,addImages".split(",")
+const _BACKUP_LIST="model".split(",")
 const _UPDATE_LIST="ion-text,ion-select,ion-input,ion-checkbox,ion-textarea"
 
 @Component({
@@ -37,14 +37,15 @@ export class ModelPage implements OnInit {
   isChange:boolean=false;
   isNew:boolean=false;
   backup:string[];
-  /** use internal only, it's for view */
-  viewImages:UrlData[]=[];       //iamges wil add more to db
+  histories:SelfHistory[]=[];     // histories
+  statusList:string[]=[];         // available adding status 
+  AllStatusList:string[]=[];      // all status
+  viewImages:UrlData[]=[];       // iamges wil add more to db
   addImages:UrlData[]=[];
   delImages:string[]=[];    //image will delete
   user:UserData;
 
   /** it's may get from database */
-  statusList:object={}
   constructor(
     private modal:ModalController,
     private disp:DisplayService,
@@ -56,24 +57,26 @@ export class ModelPage implements OnInit {
   }
 
   ngOnInit() { 
-    console.log("INIT",this);
     this._getModel()
-    .then(model=>{
-      this.model=model;this.modelId=this.model.id
-      const toolCtr= this.db.search(_DB_TOOLS,{key:'model',type:'==',value:model.id})
-      const groupId:ConfigId='groups'
-      const groupCtr:Promise<string[]>=this.db.get(_DB_CONFIGS,groupId);
-      const statusId:ConfigId='toolstatus';
-      const statusCtr=this.db.get(_DB_CONFIGS,statusId);
-      Promise.all([toolCtr,groupCtr,statusCtr]).then(
-        ([tools,_groups,_status])=>{
-          this.tools=tools;
-          this.groups=_groups['list']||[];
-          this.statusList=_status;
-          this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
-          this._refreshView("initial");
-        }
-      )
+    .then(({model,isNew})=>{
+      //set params
+      this.model=model;
+      this.modelId=this.model.id
+      this.isNew=isNew;
+      //get database
+      Promise.all([
+        this.db.search(_DB_TOOLS,{key:'model',type:'==',value:model.id}) as Promise<ToolData[]>,      // tools
+        this.db.get(_DB_CONFIGS,configs.groups) as Promise<GroupConfig>,                              // groups list
+        this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,                     // status config
+      ])
+      .then(([tools,groupConfigs,statusConfigs])=>{
+        this.tools=tools;
+        this.groups=groupConfigs.list
+        this.AllStatusList=statusConfigs.statuslist.map(x=>x.key);
+        // this.statusList=this.AllStatusList.filter(x=>!this.model.statusList.includes(x))
+        this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+        this._refreshView("initial");
+      })
     })
   }
 
@@ -89,23 +92,22 @@ export class ModelPage implements OnInit {
   }
 
   /** check & get model data */
-  private async _getModel():Promise<ModelData>{
-    return new Promise((resolve,reject)=>{
-      if(!this.model && !this.modelId){//new model
-        this.tools=[];
-        this.isNew=true;
-        const userId:string=this.auth.currentUser.id;
-        const companyId:string=this.auth.currentUser.companyId;
-        return resolve(createModelData({userId,companyId}))
-      }
-      if(this.model) return resolve(this.model)
-      return this.db.get(_DB_MODELS,this.modelId)
-      .then((model:ModelData)=>resolve(model))
-      .catch(err=>reject(err))
-    })
+  private async _getModel():Promise<{model:ModelData,isNew:boolean}>{
+    if(!this.model&&!this.modelId){//new case
+      const model=createModelData({userId:this.auth.currentUser.id,companyId:this.auth.currentUser.companyId})
+      return {model,isNew:true}
+    }
+    if(this.model) return {isNew:false,model:this.model}
+    return this.db.get(_DB_MODELS,this.modelId)
+      .then((model:ModelData)=>{
+        return {isNew:false,model} 
+      })
   }
 
   private _refreshView(debug:string=""){
+    //status list
+    if(!this.model.statusList) this.model.statusList=[];
+    this.statusList=this.AllStatusList.filter(x=>!this.model.statusList.includes(x))
     //isChange
     this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(this[key]))
     // viewImage
@@ -168,6 +170,17 @@ export class ModelPage implements OnInit {
     })
   }
 
+  addProperty(pos:number,opr:'add'|'rem'='add'){
+    if(opr=='add')
+      this.model.statusList.push(this.statusList[pos]);
+    else 
+      this.model.statusList.splice(pos,1)
+
+    // const list=this.model.statusList||[];    
+    // this.statusList=this.AllStatusList.filter(x=>!list.includes(x))
+    this._refreshView();
+  }
+
   /** save data */
   save(){
     const list=this._verify();
@@ -199,10 +212,13 @@ export class ModelPage implements OnInit {
       const delImages=this.model.images.reduce((acc,cur)=>{
         return cur.thumbnail?[...acc,cur.thumbnail,cur.url]:[...acc,cur.url]
       },[])
-      console.log("test",{delImages})
-      delImages.forEach(image=>this.storage.delete(image))
-      //delete database
-      this.db.delete(_DB_MODELS,this.model.id)
+      const delDate=new Date().toISOString();
+      this.model.destroyDate=delDate;
+      //delete
+      Promise.all([
+        ...this.tools.map(tool=>this.db.add(_DB_TOOLS,{...tool,destroyDate:delDate})),
+        this.db.add(_DB_MODELS,this.model)
+      ])
       .then(()=>this.done('delete'))
     })
   }

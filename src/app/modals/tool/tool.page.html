@@ -95,7 +95,7 @@
       </ion-item>
       <ion-accordion-group>
         <!-- status -->
-        <ion-accordion>
+        <!-- <ion-accordion>
           <ion-item slot="header">
             <ion-label>Status</ion-label>
             <ion-text>
@@ -110,7 +110,7 @@
               </ion-select>
             </ion-item>
           </ion-list>
-        </ion-accordion>
+        </ion-accordion> -->
         <!-- other infor -->
         <ion-accordion>
           <ion-item slot="header">
@@ -127,10 +127,10 @@
         <ion-accordion>
           <ion-item slot="header">
             <ion-label>Histories </ion-label>
-            <ion-badge slot="end" *ngIf="tool.histories && tool.histories.length">{{tool.histories.length}}</ion-badge>
+            <ion-badge slot="end" *ngIf="histories && histories.length">{{histories.length}}</ion-badge>
           </ion-item>
           <div  slot="content" class="history-wrap">
-            <div class='history-container' *ngFor="let history of tool.histories">
+            <div class='history-container' *ngFor="let history of histories">
               <div class="history-header">[{{history.createAt|date:'yyyy-MMM-dd'}}] </div>
               <ul class="history-body" *ngFor="let update of history.updateList">
                 <li>{{update.type}} <b>{{update.key}}</b>: from '<b>{{update.oldVal}}'</b> to '<b>{{update.newVal}}</b>'</li>

@@ -4,7 +4,7 @@ import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { UtilService } from 'src/app/services/util/util.service';
-import { ConfigId,  _DB_CONFIGS } from 'src/app/models/config';
+import { ConfigId,  configs,  StatusConfig,  ToolStatusConfig,  _DB_CONFIGS } from 'src/app/models/config';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { CoverData, _DB_COVERS } from 'src/app/models/cover.model';
@@ -12,7 +12,10 @@ import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../q
 import { Alert } from 'selenium-webdriver';
 import { MenuData } from 'src/app/models/util.model';
 import { BCIDs, BcIdType } from 'src/app/services/util/util.interface';
-import { createSelfHistory } from 'src/app/models/save-infor.model';
+import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
+import { StatusInf, StatusRecord, _STORAGE_STATUS_RECORD } from 'src/app/models/status-record.model';
+import { UpdateInf } from 'src/app/utils/data.handle';
+import { getList } from 'src/app/utils/minitools';
 const _CHANGE_LIST="ion-select,ion-input,ion-checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -29,16 +32,16 @@ export class ToolPage implements OnInit {
   model:ModelData;
 
   /** internal variable */
+  histories:SelfHistory[]=[];
   isChange:boolean=false;
   isNew:boolean=false;  //new code
   isAvailable:boolean=false;
-  status:object={};
-  statusList:string[]=[];
+  statusConfigs:StatusConfig[];
   backup:string[];
   items=[
     {name:'name',value:'name'},{name:'group',value:'Group'},
     {name:'maintenance',value:'maintenance'},{name:'Quantity',value:'compQty'},
-    {name:'Meno',value:'note'}
+    {name:'Memo',value:'note'}
   ]//'name','group','maintenance','compQty','note'
   /** function */
   constructor(
@@ -55,23 +58,41 @@ export class ToolPage implements OnInit {
 
   /** init */
   ngOnInit() {
+    //1. get tool
     this._getTool()
     .then(({isNew,tool})=>{
       this.tool=tool;
-      this.isNew=isNew;
+      this.isNew=isNew
       this.isEdit=this.isNew?true:this.isEdit;
-      
-      const ctrModel= this._getModel();
-      const idToolStatus:ConfigId='toolstatus'
-      const ctrstatus=this.db.get(_DB_CONFIGS,idToolStatus);
-      Promise.all([ctrModel,ctrstatus]).then(([model,_status])=>{
-        this.model=model;
-        const {id,...status}=_status;
-        this.statusList=Object.keys(status)
-        this.status=status;
+      //2. update more infor
+      Promise.all([
+        this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,
+        this.db.get(_DB_MODELS,this.tool.model) as Promise<ModelData>,
+        this.db.search(_STORAGE_STATUS_RECORD,{key:'ids',type:'array-contains',value:'tool-'+this.toolId}) as Promise<StatusRecord[]>
+      ])
+      .then(([config,model,records])=>{
+        this.statusConfigs=config.statuslist
         this.isAvailable=true;
         this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]));
+        if(!this.model || this.model.id!==model.id) this.model=model;
+
+        //3. histories
+        this.histories=records.reduce((acc,cur)=>{
+          const updateList:UpdateInf[]=cur.data.find(x=>x.id==this.toolId&&x.type=='tool').status.map(st=>{return {key:st.key,newVal:st.value,oldVal:null,type:'update'}})
+          const history:SelfHistory={updateList,userId:cur.userId,createAt:cur.createAt}
+          return [...acc,history]
+        },[])
+        this.histories=[...this.histories,...(model.histories||[]),...(this.tool.histories||[])]
+        
+        this.histories.sort((a,b)=>{
+          const ta=new Date(a.createAt).getTime();
+          const tb=new Date(b.createAt).getTime();
+          return tb-ta;
+        })
+
+        // 4. refresh
         this._refreshView();
+
       })
     })
     .catch(err=>console.log("\n### ERROR[2]: get data is error",err))
@@ -107,6 +128,7 @@ export class ToolPage implements OnInit {
       this.toolId=code;
     })
   }
+
   /** pickup upper/parents ID */
   pickupParent(){
     const props:SearchToolPageOpts={
@@ -205,6 +227,9 @@ export class ToolPage implements OnInit {
   }
 
   ////////////////// BACKGROUND FUNCTIONS /////////////////////
+  getStatusList(key:string):StatusConfig{
+    return this.statusConfigs.find(x=>x.key==key)
+  }
   private _refreshView(debug:string=""){
     //isChange
     this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(this[key]))
@@ -212,21 +237,28 @@ export class ToolPage implements OnInit {
     if(debug) console.log("refresh view\ndebug:%s\n",debug,this);
   }
   /** get Tool data */
-  private _getTool():Promise<{tool:ToolData,isNew:boolean}>{
-    return new Promise((resolve,reject)=>{
-      const isNew=false;
-      if(!this.tool && !this.toolId){
-        if(!this.model||typeof this.model!=='object') return reject(new Error("tool infor is wrong"))
-        const model:string=this.model.id;
-        const userId:string=this.auth.currentUser.id;
-        return resolve({isNew:true,tool:createToolData({userId,model})})}
-      if(this.tool) return resolve({isNew,tool:this.tool})
-      if(this.toolId) {
-        this.db.get(_DB_TOOLS,this.toolId)
-        .then((tool:ToolData)=>resolve({tool,isNew}))
-        .catch(err=>reject(err))
-      }
-    })
+  private async _getTool():Promise<{tool:ToolData,isNew:boolean}>{
+    // return new Promise((resolve,reject)=>{
+    //   const isNew=false;
+    //   if(!this.tool && !this.toolId){
+    //     if(!this.model||typeof this.model!=='object') return reject(new Error("tool infor is wrong"))
+    //     const model:string=this.model.id;
+    //     const userId:string=this.auth.currentUser.id;
+    //     return resolve({isNew:true,tool:createToolData({userId,model})})}
+    //   if(this.tool) return resolve({isNew,tool:this.tool})
+    //   if(this.toolId) {
+    //     this.db.get(_DB_TOOLS,this.toolId)
+    //     .then((tool:ToolData)=>resolve({tool,isNew}))
+    //     .catch(err=>reject(err))
+    //   }
+    // })
+    if(!this.tool && !this.toolId){
+      const tool=createToolData({userId:this.auth.currentUser.id,companyId:this.auth.currentUser.companyId,model:this.model.id})
+      return {isNew:true,tool}
+    }
+    if(this.tool) return {isNew:false,tool:this.tool}
+    return this.db.get(_DB_TOOLS,this.toolId)
+    .then((tool:ToolData)=>{return {tool,isNew:false}})
   }
 
   /** get model data */
