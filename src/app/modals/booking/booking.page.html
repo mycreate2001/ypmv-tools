@@ -160,6 +160,7 @@
     </ion-card>
   </ng-container>
 
+  <!-- view page -->
   <ng-container *ngIf="!isEdit">
     <ion-card class="infor">
       <ion-card-header>
@@ -254,50 +255,6 @@
             </ion-item>
           </ion-list>
         </ion-accordion>
-
-        <!-- checking infor -->
-        <ion-accordion >
-          <ion-item slot="header">
-            <ion-label>Before Renting</ion-label>
-            <ion-badge>{{(!order.checkingDate&&!order.checkingManId)?'Not yet':'Checked'}}</ion-badge>
-          </ion-item>
-          <ion-list slot="content" lines="none">
-            <ion-item >
-              <ion-label>Checking by</ion-label>
-              <ion-chip *ngIf="order.checkingManId|db:'users'|async as auth;else noAuth">
-                <ion-avatar><img [src]="auth.image"></ion-avatar>
-                <ion-label>{{auth.name}}</ion-label>
-              </ion-chip>
-              <ng-template #noAuth></ng-template>
-            </ion-item>
-            <ion-item>
-              <ion-label>Checking date</ion-label>
-              <ion-text>{{order.checkingDate|date:'yyyy-MMM-dd'}}</ion-text>
-            </ion-item>
-          </ion-list>
-        </ion-accordion>
-
-        <!-- getting tool -->
-        <ion-accordion >
-          <ion-item slot="header">
-            <ion-label>After Renting</ion-label>
-            <ion-badge>{{(!order.returnDate&&!order.returnManId)?'Not yet':'Checked'}}</ion-badge>
-          </ion-item>
-          <ion-list slot="content" lines="none">
-            <ion-item >
-              <ion-label>Checking by</ion-label>
-              <ion-chip *ngIf="order.returnManId|db:'users'|async as auth;else noAuth">
-                <ion-avatar><img [src]="auth.image"></ion-avatar>
-                <ion-label>{{auth.name}}</ion-label>
-              </ion-chip>
-              <ng-template #noAuth></ng-template>
-            </ion-item>
-            <ion-item>
-              <ion-label>Checking date</ion-label>
-              <ion-text>{{order.returnDate|date:'yyyy-MMM-dd'}}</ion-text>
-            </ion-item>
-          </ion-list>
-        </ion-accordion>
       </ion-accordion-group>
     </ion-card>
   
@@ -319,18 +276,16 @@
             <p>{{tool.id}}</p> 
           </ion-label>
           <!-- before -->
-          <ng-container [ngSwitch]="tool.beforeStatus|status:tool.type" *ngIf="SHOW_STATUSES.includes(order.status)">
-            <ion-icon title="Not check" slot="end" *ngSwitchCase="'Not Check'" name="radio-button-on"></ion-icon>
-            <ion-icon slot="end" color="success" *ngSwitchCase="'OK'" name="checkmark-circle"></ion-icon>
-            <ion-icon slot="end" color="danger" *ngSwitchCase="'NG'" name="close-circle"></ion-icon>
-            <ion-icon slot="end" *ngSwitchDefault name="radio-button-off"></ion-icon>
+          <ng-container [ngSwitch]="tool.before" *ngIf="SHOW_STATUSES.includes(order.status)">
+            <ion-icon slot="end" title="Not check" *ngSwitchCase="1" name="radio-button-on"></ion-icon>
+            <ion-icon slot="end" color="success" *ngSwitchCase="0" name="checkmark-circle"></ion-icon>
+            <ion-icon slot="end" color="danger" *ngSwitchDefault name="close-circle"></ion-icon>
           </ng-container>
           <!-- after -->
-          <ng-container [ngSwitch]="tool.afterStatus|status:tool.type" *ngIf="SHOW_STATUSES.includes(order.status)">
-            <ion-icon title="Not check" slot="end" *ngSwitchCase="'Not Check'" name="radio-button-on"></ion-icon>
-            <ion-icon slot="end" color="success" *ngSwitchCase="'OK'" name="checkmark-circle"></ion-icon>
-            <ion-icon slot="end" color="danger" *ngSwitchCase="'NG'" name="close-circle"></ion-icon>
-            <ion-icon slot="end" *ngSwitchDefault name="radio-button-off"></ion-icon>
+          <ng-container [ngSwitch]="tool.after" *ngIf="SHOW_STATUSES.includes(order.status)">
+            <ion-icon slot="end" title="Not check"  *ngSwitchCase="1" name="radio-button-on"></ion-icon>
+            <ion-icon slot="end" color="success" *ngSwitchCase="0" name="checkmark-circle"></ion-icon>
+            <ion-icon slot="end" color="danger" *ngSwitchDefault name="close-circle"></ion-icon>
           </ng-container>
         </ion-item>
       </ion-list>
@@ -349,7 +304,7 @@
     <ion-fab-button title="print" (click)="exportTools()" color="warning">
       <ion-icon name="print"></ion-icon>
     </ion-fab-button>
-    <ion-fab-button *ngIf="order.status=='created'" title="add by searching" (click)="pickupTool()" color="warning">
+    <ion-fab-button *ngIf="order && order.status=='created'" title="add by searching" (click)="pickupTool()" color="warning">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab-list>

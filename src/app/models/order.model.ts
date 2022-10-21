@@ -1,5 +1,5 @@
 import { createOpts } from "../utils/minitools";
-import {  BasicData, BasicView, BasicViewOpts, createBasicData } from "./basic.model";
+import {  BasicData, createBasicData } from "./basic.model";
 import { createSaveInf, SaveInfo } from "./save-infor.model";
 // import { createToolStatus, ToolStatus } from "./tools.model";
 import { UrlData } from "./util.model";
@@ -14,7 +14,7 @@ export interface OrderData extends SaveInfo{
     id:string;
     scheduleStart:string;           // start date in schedule
     scheduleFinish:string;          // finish data in schedule
-    tools:BasicData[];         // renting tools in schedule
+    tools:BasicDataExt[];         // renting tools in schedule
     companyId:string;               // renting company
     purpose:string;                 // purpose of renting tool
 
@@ -132,6 +132,24 @@ export interface ParingData{
     parentsId:string;       // code of storage
     createAt:string;        // date of first scan
     userId:string;          // Yamaha guys who return tools/jigs into storage
+}
+
+export interface BasicDataExt extends BasicData{   
+    before:number;              // -1 not check, 0 = OK, 1~xxx = NG
+    after:number;               // -1 not check, 0 = OK, 1~xxx = NG
+    // haveImage:boolean;          // have images or not
+    // haveComment:boolean;        // have comment
+}
+
+export function createBasicDataExt(opts:Partial<BasicDataExt>={}){
+    const df:BasicDataExt={
+        ...createBasicData({...opts}),
+        // haveImage:false,
+        // haveComment:false,
+        before:1,
+        after:1
+    }
+    return createOpts(df,opts);
 }
 
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import {  BasicData, BasicDataType, ChildData, createBasicData, createChildData } from 'src/app/models/basic.model';
-import { createOrderData, OrderData, OrderDataStatusType, _DB_ORDERS, _STORAGE_ORDERS } from 'src/app/models/order.model';
+import { BasicDataExt, createBasicDataExt, createOrderData, OrderData, OrderDataStatusType, _DB_ORDERS, _STORAGE_ORDERS } from 'src/app/models/order.model';
 import { CodeFormatConfig } from 'src/app/models/codeformat';
 import {  _DB_COMPANY } from 'src/app/models/company.model';
 import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
@@ -18,7 +18,7 @@ import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../q
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
-import { createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NOTYET, _STORAGE_STATUS_RECORD } from 'src/app/models/status-record.model';
+import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NOTYET, _STORAGE_STATUS_RECORD } from 'src/app/models/status-record.model';
 import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
 
 @Component({
@@ -71,8 +71,9 @@ export class BookingPage implements OnInit {
       this.order=order;
       this.orderId=order.id;
       this.isNew=isNew;
-      const data:ToolStatus[]=this.order.tools.map(tool=>createToolStatus({...tool}))
+      const data:ToolStatus[]=this.order.tools.map(tool=>createToolStatus({...tool,images:[],status:createStatusInfor(tool)}))
       const record:StatusRecord=createStatusRecord({data,userId:this.auth.currentUser.id})
+      console.log('TEST-76',{record});
       switch(this.order.status){
         case 'approved':
           if(!this.order.checkingTools)  return record;
@@ -98,10 +99,13 @@ export class BookingPage implements OnInit {
   //////////////// BUTTONS HANDLERS /////////////////
 
   /** check tool status */
-  toolStatus(tool:BasicData){
+  toolStatus(tool:BasicDataExt){
+    const status=this.status.data.find(t=>t.id==tool.id)
+    console.log("test-105",{status})
+    if(!status) return this.disp.msgbox("ERROR<br>Incorrect data")
     const props:ToolStatusPageOpts={
       tool,
-      status:this.status.data.find(x=>x.id==tool.id)
+      status
     }
     this.disp.showModal(ToolStatusPage,props)
     .then(result=>{
@@ -109,6 +113,23 @@ export class BookingPage implements OnInit {
       console.log("data",{result})
       if(role!=='save') return
       const data=result.data as ToolStatusPageOuts
+      //update tools
+      // result
+      switch(this.order.status){
+        case 'approved':
+          tool.before=data.totalStatus;
+          break;
+        
+        case 'renting':
+          tool.after=data.totalStatus;
+          break;
+      }
+
+      //update for status
+      const pos=this.status.data.findIndex(d=>d.id==tool.id)
+      if(pos==-1) return this.disp.msgbox("ERROR<br>status is abnormal");
+      this.status.data[pos]=data.status;
+      console.log("TEST:after get status",{status:data.status,globalStatusData:this.status.data})
     })
   }
 
@@ -165,13 +186,9 @@ export class BookingPage implements OnInit {
       this.conflictList=[];
       this._getToolfromPickup(data.search)
       .then(tools=>{
-        console.log("TEST-002: new tools",tools);
         //check double
         tools=tools.filter(t=>!this.order.tools.some(x=>x.id==t.id&&x.type==t.type))
-        //add tools
-        console.log("TEST-003: new tools",tools);
-        this.order.tools=this.order.tools.concat(tools);
-        console.log("TEST-004: new tools",this.order.tools);
+        this.order.tools=this.order.tools.concat(tools.map(t=>createBasicDataExt(t)));
       })
     })
   }
@@ -203,10 +220,10 @@ export class BookingPage implements OnInit {
       this._getToolfromPickup([child])
       .then(tools=>{
         const xtools=tools.filter(t=>!this.order.tools.some(x=>x.id==t.id))
-        this.order.tools.concat(tools);
+        this.order.tools.concat(tools.map(t=>createBasicDataExt(t)));
       })
     })
-  }
+  } 
 
 
   /** select company */
@@ -253,8 +270,6 @@ export class BookingPage implements OnInit {
     if(!this.CAN_RENT_LIST.includes(this.order.status)) return this.disp.msgbox("wrong data");
     if(this.order.approvedResult!='Accept') return this.disp.msgbox("these tools not accept to rent")
     if(getNotCheckStatus(this.status)) return this.disp.msgbox("Tool not yet complete check status<br> pls check status of all tools/jigs")
-    // const notCheck:boolean=this.order.tools.some(tool=>status(tool.beforeStatus,tool.type)=='Not Check')
-    // if(notCheck) return this.disp.msgbox("Tool not yet complete check status<br> pls check status of all tools")
    
     //------ updatetool stay ----------------//
     let list:string[]=this.order.tools.filter(x=>x.type=='cover').map(x=>x.id)
@@ -273,6 +288,7 @@ export class BookingPage implements OnInit {
 
     //----------- save data -------------//
     const infor=await this.updateStatusRecord()           // update images
+    infor.rentDate=new Date().toISOString()         //date
     infor.checkingAgencyName=''                     // @@@
     infor.checkingAgencyId=''                       // @@@
     infor.status='renting';                         // status
@@ -459,67 +475,6 @@ export class BookingPage implements OnInit {
     return true;
   }
 
-  // /**
-  //  * check conflict tools & data
-  //  * @returns conflict Information
-  //  */
-  // private _checkConflict():Promise<ConflictToolData[]> {
-  //   // console.log('\ncheck[1]: start to check', { infor: this.infor });
-  //   const cList:OrderDataStatusType[]=['returned','rejected','cancel']
-  //   return new Promise((resolve, reject) => {
-  //     const a= this.db.search(_DB_ORDERS, { key: 'status', type: 'not-in', value: cList })
-  //       //check time
-  //       .then((orders:OrderData[]) => {
-  //         // console.log("\ncheck[2]: get booking Infor from DB, status<>'returned'\n", { infors })
-  //         //check time
-  //         const _start = new Date(this.order.scheduleStart);
-  //         const _finish = new Date(this.order.scheduleFinish);
-  //         //filter -- 
-  //         return orders.filter(infor => {
-  //           if (!infor) { console.log("\n###ERROR[1]: data is empty"); return false; }
-  //           if(infor.id==this.order.id) return false;//current booking
-  //           let startDate: Date;
-  //           let finishDate: Date;
-  //           if (infor.status == 'created' || infor.status == 'approved') {
-  //             startDate = new Date(infor.scheduleStart)
-  //             finishDate = new Date(infor.scheduleFinish)
-  //           }
-  //           else if (infor.status == 'renting') {
-  //             startDate = new Date(infor.checkingDate);
-  //             finishDate = new Date(infor.scheduleFinish)
-  //           }
-  //           else { console.log("#\n### ERROR[2]: Out of case"); return false; }
-  //           if (_start >= startDate && finishDate >= _start) { return true; }
-  //           if (startDate >= _start && startDate <= _finish) { return true; }
-  //           return false;
-  //         })     
-  //       })
-  //       //check tool
-  //       .then(async orders=>{
-  //         console.log("\ncheck[3]: infors after filting date\n",{orders})
-  //         if(!orders.length) return []  //completed
-  //         const allCovers=await this.db.search(_DB_COVERS,[]);
-  //         //calculete current tool
-  //         let _children:ChildData[]=this.order.tools.map(x=>{return{id:x.id,type:x.type}})
-  //         const _covers:CoverData[]=getCovers(_children,allCovers,[])
-  //         _children=getChildren(_covers,_children)
-  //         let _duplicateChildren:ConflictToolData[]=[];
-  //         orders.forEach(order=>{
-  //           let children:ChildData[]=order.tools;
-  //           const covers:CoverData[]=getCovers(children,allCovers,[])
-  //           children=getChildren(covers,children)
-  //           const list=checkIncludeObj(_children,children,['id','type'],"All keys")
-  //           if(!list.length) return;// OK
-  //           _duplicateChildren.push({children:list,order})
-  //         })
-  //         return _duplicateChildren
-  //       })
-  //       // .catch(err=>reject(err))
-  //     return resolve(a)
-
-  //   })
-  // }
-
   private _getConflict():Promise<{tools:BasicData[],start:string,finish:string}[]>{
     //get order valid
     const dontCareList:OrderDataStatusType[]=['returned','rejected','cancel']
@@ -591,9 +546,8 @@ export class BookingPage implements OnInit {
       })
     })
 
-    //upload status
+    //upload images
     const uploadStatus=this.status.data.map(data=>{
-      //update images
       const {addImages,currImages}=getUpdateImages(data.images);
       return this.storage.uploadImages(addImages,_STORAGE_STATUS_RECORD)
       .then(urls=>{
@@ -604,6 +558,8 @@ export class BookingPage implements OnInit {
 
     return Promise.all(uploadStatus).then(data=>{
       this.status.data=data;
+      //update ids
+      this.status.ids=this.order.tools.map(tool=>`${tool.type}-${tool.id}`)
       return this.db.add(_DB_STATUS_RECORD,this.status,(updateList,newStatus,oldStatus)=>{
         const histories:SelfHistory[]=oldStatus['histories']||[];
         histories.push(createSelfHistory({updateList,userId:this.auth.currentUser.id}))

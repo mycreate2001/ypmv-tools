@@ -30,7 +30,7 @@
           </ion-item>
           <ion-item>
             <ion-label>Status</ion-label>
-            <ion-text>{{getStatus()}}</ion-text>
+            <ion-text>{{getStatus().key}}</ion-text>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -44,26 +44,31 @@
         <!-- status.header -->
         <ion-item slot="header">
           <ion-label>Status</ion-label>
-          <ion-text> {{getStatus()}}</ion-text>
+          <ion-text> {{getStatus().key}}</ion-text>
         </ion-item>
         <ion-list slot="content" >
           <ion-item *ngFor="let stt of status.status">
             <ion-label>{{stt.key|titlecase}}</ion-label>
-            <ion-select [(ngModel)]="stt.value">
-              <ion-select-option [value]="pos" *ngFor="let xstt of statusList[stt.key];let pos=index">{{xstt.key}}</ion-select-option>
+            <ion-select [(ngModel)]="stt.value" (ionChange)="refresh()">
+              <ion-select-option [value]="pos" *ngFor="let xstt of getStatusList(stt.key);let pos=index">{{xstt}}</ion-select-option>
             </ion-select>
           </ion-item>
         </ion-list>
       </ion-accordion>
-
+      <!-- comment -->
+      <ion-accordion>
+        <ion-item slot="header">
+          <ion-label>Comment</ion-label>
+          <ion-badge slot="end">{{status.comment.length?"comment":"No comment"}}</ion-badge>
+        </ion-item>
+        <ion-textarea slot="content" [(ngModel)]="status.comment" spellcheck="true" placeholder="leave some comments"></ion-textarea>
+      </ion-accordion>
       <!-- images -->
       <ion-accordion>
-        <!-- image.header -->
         <ion-item slot="header">
           <ion-label>Images</ion-label>
           <ion-badge slot="end" *ngIf="status.images">{{status.images.length}}</ion-badge>
         </ion-item>
-        <!-- view & edit images -->
         <div slot="content" >
           <ion-item lines="none"  >
             <ion-buttons slot="end" title="Take image">
@@ -72,11 +77,11 @@
               </ion-button>
             </ion-buttons>
           </ion-item>
-          <!-- current images -->
+          <!-- images -->
           <div *ngFor="let image of status.images;let pos=index" class="image-wrap">
             <ion-item class="image-caption" lines="none">
               <ion-input [(ngModel)]="image.caption" placeholder="type your caption here"></ion-input>
-              <ion-icon name="ellipsis-vertical" (click)="showImageOption($event,pos,'beforeImages')"></ion-icon>
+              <ion-icon name="ellipsis-vertical" (click)="showImageOption($event,pos)"></ion-icon>
             </ion-item>
             <img [src]="image|url" class="image-43">
           </div>

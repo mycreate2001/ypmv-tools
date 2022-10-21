@@ -15,8 +15,9 @@ import { AuthService } from 'src/app/services/firebase/auth.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { UrlData } from 'src/app/models/util.model';
 import { ConfigId, configList, configs, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/models/config';
-import { createSelfHistory } from 'src/app/models/save-infor.model';
+import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
+import { StatusRecord, ToolStatus, _DB_STATUS_RECORD } from 'src/app/models/status-record.model';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -40,6 +41,7 @@ export class CoverPage implements OnInit {
   groups:string[]=[];
   statusList:string[]=[];
   AllStatusList:string[]=[];
+  histories:SelfHistory[]=[];
   /** internal control */
   isAvailble:boolean=false;
   isChange:boolean=false;
@@ -66,13 +68,34 @@ export class CoverPage implements OnInit {
       Promise.all([
         this.db.get(_DB_CONFIGS,groupId),
         this._getChildren(),
-        this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>
-      ]).then(([configs,children,statusConfig])=>{
+        this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,
+        this.db.search(_DB_STATUS_RECORD,{key:'ids',type:'array-contains',value:'cover-'+this.cover.id}) as Promise<StatusRecord[]>
+      ]).then(([configs,children,statusConfig,record])=>{
         this.groups=configs['list']
         console.log("group",this.groups)
         if(!this.cover.statusList) this.cover.statusList=[];
         this.AllStatusList=statusConfig.statuslist.map(y=>y.key);
         this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
+        //histories
+        console.log("TEST-80",{record});
+        this.histories=record.map(r=>{
+          const updateList:UpdateInf[]=r.data.find(x=>x.id===this.coverId && x.type=='cover').status.map(st=>{
+            const up:UpdateInf={type:'update',oldVal:null,newVal:st.value,key:st.key}
+            return up;
+            // return {type:'update',oldVal:null,newVal:st.value,key:st.key}
+          });
+          return createSelfHistory({...r,updateList})
+        })
+  
+        this.histories=this.histories.concat(this.cover.histories||[]);
+        console.log("TEST-90",{histories:this.histories});
+        this.histories.sort((a,b)=>{
+          const at=new Date(a.createAt).getTime();
+          const bt=new Date(b.createAt).getTime();
+          return at-bt;
+        })
+        // histories=histories.concat()
+        console.log("TEST, histories:",this.histories);
         this.refresh()
       })
     });

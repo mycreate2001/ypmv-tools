@@ -1,5 +1,6 @@
 import { createOpts } from "../utils/minitools";
-import { ChildData } from "./basic.model";
+import { BasicData, ChildData  } from "./basic.model";
+import { BasicDataExt } from "./order.model";
 import { createSaveInf, SaveInfo } from "./save-infor.model";
 import { UrlData } from "./util.model";
 
@@ -33,6 +34,7 @@ export interface ToolStatus extends ChildData{
     // id, type:tool/box
     images:UrlData[];       // images of tool/box
     status:StatusInf[];     // status information
+    comment:string;
 }
 
 export type ToolStatusOpts=Partial<ToolStatus>
@@ -41,10 +43,21 @@ export function createToolStatus(opts:ToolStatusOpts={}):ToolStatus{
         id:'',
         type:'tool',
         status:[],
-        images:[]
+        images:[],
+        comment:''
     }
 
     return createOpts(df,opts)
+}
+
+export function createStatusInfor(tool:BasicData|BasicDataExt|string[]){
+    let list:string[]=[]
+    if(Array.isArray(tool)) list=tool;
+    else list=tool.statusList
+    return list.map(key=>{
+        const stt:StatusInf={key,value:_STATUS_NOTYET.value}
+        return stt;
+    })
 }
 
 export interface StatusInf{
@@ -57,7 +70,7 @@ export function createStatusRecord(opts:Partial<StatusRecord>={}):StatusRecord{
     const id=now.getTime().toString(36)+'-'+Math.random().toString(36).substring(2,10);
     const df:StatusRecord={
         id,
-        ids:[],
+        ids:[],             // <cover/tool>-<id>
         data:[],
         ...createSaveInf({createAt:now.toISOString(),...opts})
 
@@ -65,9 +78,9 @@ export function createStatusRecord(opts:Partial<StatusRecord>={}):StatusRecord{
     return createOpts(df,opts);
 }
 
-export const _STATUS_NOTYET={value:-1,key:'Not yet'}
+export const _STATUS_NOTYET={value:1,key:'Not yet'}
 export const _STATUS_OK={key:'ok',value:0}
-export const _STATUS_NG={key:'NG'}
+export const _STATUS_NG={key:'NG',value:2}
 
 export const _DB_STATUS_RECORD='histories';
 export const _STORAGE_STATUS_RECORD='histories'
