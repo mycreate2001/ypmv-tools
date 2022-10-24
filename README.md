@@ -62,3 +62,6 @@ git
 
 ## 9. Protect database
 Not delete database, just set destroy data to database
+
+## 10.Database
+### 10.1 Cover(box) check modifile database before save children

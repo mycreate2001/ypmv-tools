@@ -120,8 +120,7 @@ export class CoverPage implements OnInit {
     else 
       this.cover.statusList.splice(pos,1)
 
-    const list=this.cover.statusList||[];    
-    this.statusList=this.AllStatusList.filter(x=>!list.includes(x))
+    this.refresh()
   }
 
   removeChild(){
@@ -188,16 +187,16 @@ export class CoverPage implements OnInit {
       const coversId:string[]=this.cover.childrenId.filter(x=>x.type=='cover').map(x=>x.id)
       const covers:CoverData[]=await this.db.gets(_DB_COVERS,coversId);
       const ctr_covers=covers.map(cover=>{
-        if(cover.upperId!=this.cover.id){
-          cover.upperId==this.cover.id
-          return this.db.add(_DB_COVERS,cover).then(c=>c.id)
-        }
+        if(cover.upperId==this.cover.id) return;//ignore cover already update
+        cover.upperId==this.cover.id
+        return this.db.add(_DB_COVERS,cover).then(c=>c.id)
         
       })
       //
       const toolsId:string[]=this.cover.childrenId.filter(x=>x.type=='tool').map(x=>x.id)
       const tools:ToolData[]=await this.db.gets(_DB_TOOLS,toolsId);
       const ctr_tools=tools.map(tool=>{
+        if(tool.upperId==this.cover.id) return  ;//remove tool ready update
         tool.upperId=this.cover.id
         return this.db.add(_DB_TOOLS,tool).then(x=>x.id)
       })
@@ -325,8 +324,8 @@ export class CoverPage implements OnInit {
     //update images
     this.viewImages=this.cover.images.concat(this.addImages);
     this.isAvailble=true;
-    console.log("\n---------Refresh data -------\n",this);
-    // this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
+    const list=this.cover.statusList||[];    
+    this.statusList=this.AllStatusList.filter(x=>!list.includes(x))
   }
 
   /** init for first times */
