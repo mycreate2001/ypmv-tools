@@ -148,26 +148,12 @@ export class ToolStatusPage implements OnInit {
 /////////////// interface //////////////////
 
 export type ToolStatusPageRole="cancel"|"save"
-/**
- * input prarameters
- * @param tool CheckData
- * @param status current status
- * @param addImages images will add to status
- * @param delImages iamges will delete
- * @param images  current images
- */
+
 export interface ToolStatusPageOpts{
   tool:BasicData;   // [tool/box] information
   status:ToolStatus;
 }
 
-/**
-  @param tool BasicData;
-  @param status ToolStatus
-  @param addImages UrlData[];
-  @param delImages string[];
-  @param isChange boolean;
- */
 export interface ToolStatusPageOuts{
   status:ToolStatus;
   totalStatus:number;//0=OK, 1=Not yet, 2...=NG

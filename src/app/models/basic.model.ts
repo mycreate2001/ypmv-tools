@@ -76,11 +76,9 @@ export interface BasicView extends BasicData{
  * @param images    images of cover/model
  * @param childrenId    children of cover/model
  */
-export interface BasicViewOpts extends BasicDataOpts{
-    childrenId?:ChildData;
-}
+export type BasicViewOpts =Partial<BasicView>
 
-export function createBasicView(opts?:BasicViewOpts){
+export function createBasicView(opts:BasicViewOpts={}){
     const df:BasicView={
         ...createBasicData(),
         childrenId:[]

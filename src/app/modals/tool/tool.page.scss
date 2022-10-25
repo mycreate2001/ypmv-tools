@@ -18,8 +18,15 @@ img.avatar{
   object-fit: cover;
 }
 
-ion-card.infor{
-  padding: 24px 12px;
+ion-card{
+  .infor{
+    padding: 24px 12px;
+  }
+  .status-cover {
+    padding: 12px;
+    padding-bottom: 24px;
+    padding-top: 24px;
+  }
 }
 
 ion-item{

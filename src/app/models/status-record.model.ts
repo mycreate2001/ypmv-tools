@@ -5,14 +5,6 @@ import { createSaveInf, SaveInfo } from "./save-infor.model";
 import { UrlData } from "./util.model";
 
 export interface StatusRecord extends SaveInfo{
-    /**
-     * SaveInfo
-     * - createAt       // create date
-     * - userId         // who make this record
-     * - histories      // Selft histories
-     * - comment
-     * - lastupdate     // last revise
-     */
     id:string;
     ids:string[];       // id of tool/cover = <cover/tool>-<id>
     data:ToolStatus[];
@@ -67,15 +59,15 @@ export interface StatusInf{
 
 export function createStatusRecord(opts:Partial<StatusRecord>={}):StatusRecord{
     const now=new Date();
-    const id=now.getTime().toString(36)+'-'+Math.random().toString(36).substring(2,10);
     const df:StatusRecord={
-        id,
+        id:'',
         ids:[],             // <cover/tool>-<id>
         data:[],
         ...createSaveInf({createAt:now.toISOString(),...opts})
 
     }
-    return createOpts(df,opts);
+    const ids:string[]=(opts && opts.data)?opts.data.map(st=>`${st.type}-${st.id}`):[]
+    return createOpts(df,opts,{ids});
 }
 
 export const _STATUS_NOTYET={value:1,key:'Not yet'}

@@ -9,6 +9,9 @@
      <ion-button title="delete" (click)="delete()" >
       <ion-icon name="trash"></ion-icon>
      </ion-button>
+     <ion-button title="update status" (click)="updateStatus()">
+      <ion-icon name="color-wand-outline"></ion-icon>
+     </ion-button>
      <ion-button title="save" (click)="save()" *ngIf="isChange">
       <ion-icon name="save"></ion-icon>
      </ion-button>
@@ -95,22 +98,48 @@
       </ion-item>
       <ion-accordion-group>
         <!-- status -->
-        <!-- <ion-accordion>
+        <ion-accordion *ngIf="lastRecord">
           <ion-item slot="header">
             <ion-label>Status</ion-label>
-            <ion-text>
-              {{tool.status|status}}
+            <ion-text >
+              {{lastRecord.createAt|date:'yyyy-MMM-dd HH:mm'}}
             </ion-text>
+            <ion-badge slot="end">{{lastRecord.data[0].status|status}}</ion-badge>
           </ion-item>
-          <ion-list slot="content">
-            <ion-item *ngFor="let key of statusList">
-              <ion-label>{{key}}</ion-label>
-              <ion-select [(ngModel)]="tool.status[key]">
-                <ion-select-option [value]="pos" *ngFor="let stt of status[key];let pos=index">{{stt|titlecase}}</ion-select-option>
-              </ion-select>
-            </ion-item>
-          </ion-list>
-        </ion-accordion> -->
+          <ion-card class="status-cover"slot="content" >
+            <ion-list lines="none" >
+              <ion-item *ngFor="let stt of lastRecord.data[0].status">
+                <ion-label>{{stt.key|titlecase}}</ion-label>
+                <ion-text>{{getStatusList(stt.key).list[stt.value]}}</ion-text>
+              </ion-item>
+              <ion-item>
+                <ion-label>date</ion-label>
+                <ion-text>{{lastRecord.createAt|date:'yyyy-MMM-dd'}}</ion-text>
+              </ion-item>
+              <ion-item >
+                <ion-label>check by</ion-label>
+                <ion-chip color="primary" *ngIf="lastRecord.userId|db:'users'|async as user;else nouser">
+                  <ion-avatar>
+                    <img [src]="user.image|url">
+                  </ion-avatar>
+                  <ion-text>{{user.name}}</ion-text>
+                </ion-chip>
+                <ng-template #nouser>Unknown</ng-template>
+              </ion-item>
+              <ion-item *ngIf="lastRecord.comment">
+                <ion-label>Comment</ion-label>
+                <ion-textarea disabled="true" value="lastRecord.comment"></ion-textarea>
+              </ion-item>
+            </ion-list>
+          </ion-card>
+        </ion-accordion>
+        <ion-accordion *ngIf="!lastRecord">
+          <ion-item slot="header">
+            <ion-label>Status</ion-label>
+            <ion-text>Not yet check</ion-text>
+          </ion-item>
+          <div slot="content"></div>
+        </ion-accordion>
         <!-- other infor -->
         <ion-accordion>
           <ion-item slot="header">

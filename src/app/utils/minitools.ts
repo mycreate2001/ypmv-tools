@@ -67,14 +67,21 @@ export function getList(arrs:any[],key:string="id",debug:boolean=false):string[]
     return outs;
 }
 
-export function createOpts<T>(defaultValue:T,opts?:any,debug:boolean=false):T{
-    if(!opts) return defaultValue;
-    Object.keys(defaultValue).forEach(key=>{
-        if(opts[key]==undefined) return;
-        defaultValue[key]=opts[key]
-    });
-    if(debug) console.log("\ncreateOpts\n",{opts,result:defaultValue})
-    return {...defaultValue};
+export function createOpts<T>(defaultObj:T,...opts:Partial<T>[]):T{
+    // if(!opts) return defaultValue;
+    // Object.keys(defaultValue).forEach(key=>{
+    //     if(opts[key]==undefined) return;
+    //     defaultValue[key]=opts[key]
+    // });
+    // return {...defaultValue};
+    opts.forEach(opt=>{
+        Object.keys(defaultObj).forEach(key=>{
+            const val=opt[key];
+            if(val==undefined) return;
+            defaultObj[key]=opt[key]
+        })
+    })
+    return {...defaultObj}
 }
 
 export declare type AlignType="Right"|"Left"|"Center"

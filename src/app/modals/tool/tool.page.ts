@@ -13,10 +13,12 @@ import { Alert } from 'selenium-webdriver';
 import { MenuData } from 'src/app/models/util.model';
 import { BCIDs, BcIdType } from 'src/app/services/util/util.interface';
 import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
-import { StatusInf, StatusRecord, _STORAGE_STATUS_RECORD } from 'src/app/models/status-record.model';
+import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK, _STORAGE_STATUS_RECORD } from 'src/app/models/status-record.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
 import { getList } from 'src/app/utils/minitools';
-const _CHANGE_LIST="ion-select,ion-input,ion-checkbox"
+import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
+import { BasicData, createBasicData } from 'src/app/models/basic.model';
+const _CHANGE_LIST="select,input,checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
   selector: 'app-tool',
@@ -37,6 +39,8 @@ export class ToolPage implements OnInit {
   isNew:boolean=false;  //new code
   isAvailable:boolean=false;
   statusConfigs:StatusConfig[];
+  // lastStatus:ToolStatus=null;
+  lastRecord:StatusRecord=null;
   backup:string[];
   items=[
     {name:'name',value:'name'},{name:'group',value:'Group'},
@@ -62,7 +66,8 @@ export class ToolPage implements OnInit {
     this._getTool()
     .then(({isNew,tool})=>{
       this.tool=tool;
-      this.isNew=isNew
+      this.isNew=isNew;
+      this.toolId=this.tool.id;
       this.isEdit=this.isNew?true:this.isEdit;
       //2. update more infor
       Promise.all([
@@ -71,24 +76,36 @@ export class ToolPage implements OnInit {
         this.db.search(_STORAGE_STATUS_RECORD,{key:'ids',type:'array-contains',value:'tool-'+this.toolId}) as Promise<StatusRecord[]>
       ])
       .then(([config,model,records])=>{
-        this.statusConfigs=config.statuslist
+        this.statusConfigs=config.statuslist.map(cf=>{
+          const list:string[]=[_STATUS_OK.key,_STATUS_NOTYET.key,...cf.list]
+          return {...cf,list}
+        })
         this.isAvailable=true;
         this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]));
         if(!this.model || this.model.id!==model.id) this.model=model;
-
-        //3. histories
-        this.histories=records.reduce((acc,cur)=>{
-          const updateList:UpdateInf[]=cur.data.find(x=>x.id==this.toolId&&x.type=='tool').status.map(st=>{return {key:st.key,newVal:st.value,oldVal:null,type:'update'}})
-          const history:SelfHistory={updateList,userId:cur.userId,createAt:cur.createAt}
-          return [...acc,history]
-        },[])
-        this.histories=[...this.histories,...(model.histories||[]),...(this.tool.histories||[])]
-        
-        this.histories.sort((a,b)=>{
-          const ta=new Date(a.createAt).getTime();
-          const tb=new Date(b.createAt).getTime();
-          return tb-ta;
+        let lastRecord:StatusRecord=null;
+        this.histories=records.map(record=>{
+          const updateList:UpdateInf[]=record.data.find(x=>x.id==this.toolId).status.map(stt=>{
+            return {key:stt.key,type:'add',newVal:stt.value,oldVal:null}
+          })
+          //last record
+          if(!lastRecord) lastRecord=record;
+          else{
+            const rtime=new Date(record.createAt).getTime();
+            const ltime=new Date(lastRecord.createAt).getTime();
+            if(rtime>ltime) lastRecord=record;
+          }
+          //result
+          return createSelfHistory({...record,updateList})
         })
+
+        //lastRecord
+        if(lastRecord){
+          const data=lastRecord.data.filter(tool=>tool.id==this.tool.id);
+          if(!data||!data.length) console.warn("ERROR");
+          this.lastRecord={...lastRecord,data}
+        }
+        console.log("TEST:check record",{lastRecord})
 
         // 4. refresh
         this._refreshView();
@@ -209,27 +226,44 @@ export class ToolPage implements OnInit {
   /** print code */
   print(e){
     this.util.printCode(e,this.tool.id,{label:this.model.name,type:'tool'})
-    // const menus:MenuData[]=[
-    //   {name:'2D QRcode',role:'qrcode-none'},
-    //   {name:'2D QRcode + label',role:'qrcode-label'},
-    //   {name:'2D Datamatrix',role:'datamatrix-none'},
-    //   {name:'2D Datamatrix + label',role:'datamatrix-label'},
-    //   {name:'1D Barcode',role:'code128-none'},
-    // ]
-    // this.disp.showMenu(e,{menus}).then(result=>{
-    //   const role=result.role;
-    //   if(role=='backdrop') return;
-    //   const bcid=role.split("-")[0] as BcIdType
-    //   const label=role.split("-")[1]=='label'?this.model.name:''
-    //   if(!BCIDs.includes(bcid)) return;
-    //   this.util.generateCode(this.tool.id,{label,type:'tool',bcid})
-    // })
+  }
+
+  /** update status */
+  updateStatus(){
+    const userId=this.auth.currentUser.id;
+    const status:StatusInf[]=createStatusInfor(this.model.statusList)
+    const tool:BasicData=createBasicData({...this.model,...this.tool,type:'tool'})
+    const data:ToolStatus[]=[createToolStatus({...tool,status,images:[]})]
+    const record=createStatusRecord({userId,data});
+    this.lastRecord=record;
+    const props:ToolStatusPageOpts={
+      tool:createBasicData({...this.model,...this.tool,type:'tool'}),
+      status:record.data[0]
+    }
+    this.disp.showModal(ToolStatusPage,props)
+    .then(result=>{
+      const role=result.role as ToolStatusPageRole
+      if(role!='save') return;
+      const data=result.data as ToolStatusPageOuts
+      record.data=[data.status];
+      console.log("TEST: after update",{record})
+      return this.db.add(_DB_STATUS_RECORD,record) as Promise<StatusRecord>
+    })
+    .then(record=>{
+      this.lastRecord=record;
+    })
   }
 
   ////////////////// BACKGROUND FUNCTIONS /////////////////////
+  // getStatus():string{
+  //   if(!this.lastStatus) return _STATUS_NOTYET.key
+  //   if(this.lastStatus.some(stt=>stt.value==_STATUS_NOTYET.value)) return _STATUS_NOTYET.key
+  //   return this.lastStatus.every(stt=>stt.value==_STATUS_OK.value)?_STATUS_OK.key:_STATUS_NG.key
+  // }
   getStatusList(key:string):StatusConfig{
     return this.statusConfigs.find(x=>x.key==key)
   }
+
   private _refreshView(debug:string=""){
     //isChange
     this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(this[key]))
@@ -238,20 +272,6 @@ export class ToolPage implements OnInit {
   }
   /** get Tool data */
   private async _getTool():Promise<{tool:ToolData,isNew:boolean}>{
-    // return new Promise((resolve,reject)=>{
-    //   const isNew=false;
-    //   if(!this.tool && !this.toolId){
-    //     if(!this.model||typeof this.model!=='object') return reject(new Error("tool infor is wrong"))
-    //     const model:string=this.model.id;
-    //     const userId:string=this.auth.currentUser.id;
-    //     return resolve({isNew:true,tool:createToolData({userId,model})})}
-    //   if(this.tool) return resolve({isNew,tool:this.tool})
-    //   if(this.toolId) {
-    //     this.db.get(_DB_TOOLS,this.toolId)
-    //     .then((tool:ToolData)=>resolve({tool,isNew}))
-    //     .catch(err=>reject(err))
-    //   }
-    // })
     if(!this.tool && !this.toolId){
       const tool=createToolData({userId:this.auth.currentUser.id,companyId:this.auth.currentUser.companyId,model:this.model.id})
       return {isNew:true,tool}
