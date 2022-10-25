@@ -98,48 +98,16 @@
       </ion-item>
       <ion-accordion-group>
         <!-- status -->
-        <ion-accordion *ngIf="lastRecord">
-          <ion-item slot="header">
-            <ion-label>Status</ion-label>
-            <ion-text >
+        <ion-item button="true" (click)="detailStatus()">
+          <ion-label>Status</ion-label>
+          <div *ngIf="lastRecord;else norecord">
+            <ion-text>
               {{lastRecord.createAt|date:'yyyy-MMM-dd HH:mm'}}
             </ion-text>
             <ion-badge slot="end">{{lastRecord.data[0].status|status}}</ion-badge>
-          </ion-item>
-          <ion-card class="status-cover"slot="content" >
-            <ion-list lines="none" >
-              <ion-item *ngFor="let stt of lastRecord.data[0].status">
-                <ion-label>{{stt.key|titlecase}}</ion-label>
-                <ion-text>{{getStatusList(stt.key).list[stt.value]}}</ion-text>
-              </ion-item>
-              <ion-item>
-                <ion-label>date</ion-label>
-                <ion-text>{{lastRecord.createAt|date:'yyyy-MMM-dd'}}</ion-text>
-              </ion-item>
-              <ion-item >
-                <ion-label>check by</ion-label>
-                <ion-chip color="primary" *ngIf="lastRecord.userId|db:'users'|async as user;else nouser">
-                  <ion-avatar>
-                    <img [src]="user.image|url">
-                  </ion-avatar>
-                  <ion-text>{{user.name}}</ion-text>
-                </ion-chip>
-                <ng-template #nouser>Unknown</ng-template>
-              </ion-item>
-              <ion-item *ngIf="lastRecord.comment">
-                <ion-label>Comment</ion-label>
-                <ion-textarea disabled="true" value="lastRecord.comment"></ion-textarea>
-              </ion-item>
-            </ion-list>
-          </ion-card>
-        </ion-accordion>
-        <ion-accordion *ngIf="!lastRecord">
-          <ion-item slot="header">
-            <ion-label>Status</ion-label>
-            <ion-text>Not yet check</ion-text>
-          </ion-item>
-          <div slot="content"></div>
-        </ion-accordion>
+          </div>
+          <ng-template #norecord>Not yet</ng-template>
+        </ion-item>
         <!-- other infor -->
         <ion-accordion>
           <ion-item slot="header">

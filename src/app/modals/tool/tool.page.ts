@@ -18,6 +18,8 @@ import { UpdateInf } from 'src/app/utils/data.handle';
 import { getList } from 'src/app/utils/minitools';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
 import { BasicData, createBasicData } from 'src/app/models/basic.model';
+import { getUpdateImages, StorageService } from 'src/app/services/firebase/storage.service';
+import { FirebaseStorage } from 'firebase/storage';
 const _CHANGE_LIST="select,input,checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -53,7 +55,8 @@ export class ToolPage implements OnInit {
     private db:FirestoreService,
     private auth:AuthService,
     private util:UtilService,
-    private disp:DisplayService
+    private disp:DisplayService,
+    private storage:StorageService
   ) {
 
   }
@@ -247,11 +250,25 @@ export class ToolPage implements OnInit {
       const data=result.data as ToolStatusPageOuts
       record.data=[data.status];
       console.log("TEST: after update",{record})
-      return this.db.add(_DB_STATUS_RECORD,record) as Promise<StatusRecord>
+      const {addImages,currImages}=getUpdateImages(data.status.images)
+      return this.storage.uploadImages(addImages,_STORAGE_STATUS_RECORD).then(urls=>{
+        record.data[0].images=[...currImages,...urls]
+        return this.db.add(_DB_STATUS_RECORD,record) as Promise<StatusRecord>
+      })
     })
     .then(record=>{
       this.lastRecord=record;
     })
+  }
+
+  detailStatus(){
+    if(!this.lastRecord) return;
+    const props:ToolStatusPageOpts={
+      tool:createBasicData({...this.model,...this.tool,type:'tool'}),
+      status:this.lastRecord.data[0],
+      isEdit:false
+    }
+    this.disp.showModal(ToolStatusPage,props)
   }
 
   ////////////////// BACKGROUND FUNCTIONS /////////////////////

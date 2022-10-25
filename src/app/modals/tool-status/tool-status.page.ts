@@ -19,7 +19,8 @@ const _BACKUP_LIST=['tool','status']
 export class ToolStatusPage implements OnInit {
   /** input */
   tool:BasicData;     //Tool/cover information
-  status:ToolStatus
+  status:ToolStatus;
+  isEdit:boolean=true;    // can edit or not
 
   /** internal */
   backup:string[]=[];
@@ -152,6 +153,7 @@ export type ToolStatusPageRole="cancel"|"save"
 export interface ToolStatusPageOpts{
   tool:BasicData;   // [tool/box] information
   status:ToolStatus;
+  isEdit?:boolean;
 }
 
 export interface ToolStatusPageOuts{
