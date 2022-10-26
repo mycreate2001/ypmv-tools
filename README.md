@@ -1,7 +1,10 @@
-# update 
-## [2022-10-26] apply lazy for searchToolPage
-   <img [src]="model.images|url" loading="lazy">
-
+# update history
+## apply lazy for searchToolPage
+   `<img [src]="model.images|url" loading="lazy">`
+## code scan improvement(temporarily)
+`temporarily select camera`
+ [issue] still can not change default camera, so first times application still read default camera
+  
 # improvement database
 ## Selft history
 ### Overview

@@ -1,10 +1,8 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { ModalController } from '@ionic/angular';
-// import jsQR, { QRCode } from 'jsqr'
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { analysisCode, CodeFormatData, _DB_FORMATS } from 'src/app/models/codeformat';
-import { createOpts } from 'src/app/utils/minitools';
 import { BarcodeFormat } from '@zxing/library'
 export declare type QRResultType = 'pure data' | 'data only' | 'analysis';
 const _BACKUP_LIST=['flash','currentCamera'];//Keep local
@@ -41,10 +39,12 @@ export class QrcodePage implements OnInit {
     private modal:ModalController,
     private db:FirestoreService,
     private disp:DisplayService
-  ) {}
+  ) {
+    this._restore();
+    console.log("TEST:constructor",{currentCamera:this.currentCamera})
+  }
 
   ngOnInit() {
-    this._restore();
     //get formating from db
     if(this.type=='analysis'){
       this.db.search(_DB_FORMATS,[]).then((formats:CodeFormatData[])=>{
@@ -56,19 +56,47 @@ export class QrcodePage implements OnInit {
   changeCamera(){
     if(!this.currentCamera) {
       this.currentCamera=this.cameras[0];
-      return;
-    }
-    let pos=this.cameras.findIndex(c=>c.deviceId==this.currentCamera.deviceId);
-    if(pos==-1){
-      this.currentCamera=this.cameras[0];
     }
     else{
-      pos=(pos+1)%this.cameras.length;
-      this.currentCamera=this.cameras[pos]
+      const pos:number=this.cameras.findIndex(c=>c.deviceId==this.currentCamera.deviceId);
+      if(pos==-1) this.currentCamera=this.cameras[0];//default camera
+      else this.currentCamera=this.cameras[(pos+1)%this.cameras.length]
     }
     this._backup();
   }
 
+  scanDone(e){
+    this.code=e;
+    if(this.type=='analysis'){
+      this.analysis=analysisCode(e,this.formats);
+      this.done();
+    }
+  }
+
+  updateCamera(event){
+    this.cameras=event;
+  }
+
+  onCameraChange(camera:MediaDeviceInfo){
+    console.log('TEST:onCameraChange/camera',{camera,currentCamera:this.currentCamera})
+    const backup=this.currentCamera;
+    this.currentCamera=null;
+    setTimeout(()=>{
+      this.currentCamera=backup;
+    },1)
+  }
+
+  /** finish */
+  done(role:QRcodePageRole='ok'){
+    const out:QRcodePageOuts={
+      code:this.code,
+      analysis:this.analysis
+    }
+    if(role=='ok') console.log("result:",out);
+    this.modal.dismiss(out,role)
+  }
+
+  ///////////// Private functions /////////////////
   private _backup(){
     _BACKUP_LIST.forEach(item=>{
       const data=JSON.stringify(this[item])
@@ -84,28 +112,6 @@ export class QrcodePage implements OnInit {
       })
     }
     catch(err) {console.log("restore error:",err.message)}
-  }
-
-  scanDone(e){
-    this.code=e;
-    if(this.type=='analysis'){
-      this.analysis=analysisCode(e,this.formats);
-      this.done();
-    }
-  }
-
-  updateCamera(event){
-    this.cameras=event;
-
-  }
-
-  done(role:QRcodePageRole='ok'){
-    const out:QRcodePageOuts={
-      code:this.code,
-      analysis:this.analysis
-    }
-    if(role=='ok') console.log("result:",out);
-    this.modal.dismiss(out,role)
   }
 
   // /** scan QRcode */

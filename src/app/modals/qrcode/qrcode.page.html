@@ -25,9 +25,10 @@
   <zxing-scanner
     [torch]="flash"
     [formats]="allowFormats"
-    [(device)]="currentCamera"
+    [device]="currentCamera"
     (scanSuccess)="scanDone($event)"
     (camerasFound)="updateCamera($event)"
+    (deviceChange)="onCameraChange($event)"
   > </zxing-scanner>
   
 </ion-content>
