@@ -12,12 +12,13 @@ import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 import { UtilService } from 'src/app/services/util/util.service';
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { AuthService } from 'src/app/services/firebase/auth.service';
-import { StorageService } from 'src/app/services/firebase/storage.service';
+import { getUpdateImages, StorageService } from 'src/app/services/firebase/storage.service';
 import { UrlData } from 'src/app/models/util.model';
 import { ConfigId, configList, configs, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/models/config';
 import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
-import { StatusRecord, ToolStatus, _DB_STATUS_RECORD } from 'src/app/models/status-record.model';
+import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD } from 'src/app/models/status-record.model';
+import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -42,6 +43,7 @@ export class CoverPage implements OnInit {
   statusList:string[]=[];
   AllStatusList:string[]=[];
   histories:SelfHistory[]=[];
+  lastRecord:StatusRecord=null;   //save last status of box
   /** internal control */
   isAvailble:boolean=false;
   isChange:boolean=false;
@@ -70,23 +72,36 @@ export class CoverPage implements OnInit {
         this._getChildren(),
         this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,
         this.db.search(_DB_STATUS_RECORD,{key:'ids',type:'array-contains',value:'cover-'+this.cover.id}) as Promise<StatusRecord[]>
-      ]).then(([configs,children,statusConfig,record])=>{
+      ]).then(([configs,children,statusConfig,records])=>{
         this.groups=configs['list']
         console.log("group",this.groups)
         if(!this.cover.statusList) this.cover.statusList=[];
         this.AllStatusList=statusConfig.statuslist.map(y=>y.key);
         this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
         //histories
-        console.log("TEST-80",{record});
-        this.histories=record.map(r=>{
+        let lastRecord:StatusRecord=null;
+        this.histories=records.map(r=>{
           const updateList:UpdateInf[]=r.data.find(x=>x.id===this.coverId && x.type=='cover').status.map(st=>{
-            const up:UpdateInf={type:'update',oldVal:null,newVal:st.value,key:st.key}
-            return up;
-            // return {type:'update',oldVal:null,newVal:st.value,key:st.key}
+            //last record
+            if(!lastRecord) lastRecord=r
+            else{
+              const lastTime:number=new Date(lastRecord.createAt).getTime();
+              const recTime:number=new Date(r.createAt).getTime();
+              if(lastTime<recTime) lastRecord=r;
+            }
+            // update infor
+            return {type:'update',oldVal:null,newVal:st.value,key:st.key}
           });
           return createSelfHistory({...r,updateList})
         })
-  
+        
+        // last record
+        if(lastRecord){
+          const data=lastRecord.data.filter(x=>x.id==this.cover.id)
+          if(!data||!data.length) console.log("wrong data");
+          else this.lastRecord={...lastRecord,data}
+        }
+
         this.histories=this.histories.concat(this.cover.histories||[]);
         console.log("TEST-90",{histories:this.histories});
         this.histories.sort((a,b)=>{
@@ -114,6 +129,45 @@ export class CoverPage implements OnInit {
 
 
   ////////////// BUTTONS HANDLER ///////////////
+
+  detailStatus(record:StatusRecord=null){
+    let isEdit:boolean=false;
+    const tool:BasicData=createBasicData({...this.cover,type:'cover'})
+    if(!record){
+      isEdit=true;
+      const userId:string=this.auth.currentUser.id;
+      const status:StatusInf[]=createStatusInfor(this.cover.statusList);
+      const data:ToolStatus[]=[createToolStatus({...tool,status,images:[]})]
+      record=createStatusRecord({userId,data})
+    }
+    // display status
+    const props:ToolStatusPageOpts={
+      tool,
+      status:record.data[0],
+      isEdit
+    }
+    this.disp.showModal(ToolStatusPage,props)
+    .then(result=>{
+      const role=result.role as ToolStatusPageRole
+      if(!isEdit || role!='save') return;
+      const rData=result.data as ToolStatusPageOuts
+      record.data=[rData.status]
+      const {addImages,currImages}=getUpdateImages(rData.status.images);
+      return this.storage.uploadImages(addImages,_STORAGE_COVERS)
+      .then(urls=>{
+        record.data[0].images=[...currImages,...urls];
+        return this.db.add(_DB_STATUS_RECORD,record)
+      })
+    })
+    .then(record=>{
+      this.lastRecord=record
+    })
+    .catch(err=>{
+      console.warn("\nERROR\n",err);
+      this.disp.msgbox('ERROR<br>'+err.message)
+    })
+  }
+
   addProperty(pos:number,opr:'add'|'rem'='add'){
     if(opr=='add')
       this.cover.statusList.push(this.statusList[pos]);

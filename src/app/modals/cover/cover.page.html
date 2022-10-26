@@ -11,6 +11,9 @@
       <ion-button title="Delete" (click)="delete()" >
         <ion-icon name="trash" ></ion-icon>
       </ion-button>
+      <ion-button title="update status" (click)="detailStatus()">
+        <ion-icon name="color-wand-outline"></ion-icon>
+      </ion-button>
       <ion-button title="Save" (click)="save()" *ngIf="isChange" >
         <ion-icon name="save" ></ion-icon>
       </ion-button>
@@ -143,7 +146,17 @@
             </ion-card>
           </div>
         </ion-accordion>
-
+        <!-- status -->
+        <ion-item button="true" (click)="detailStatus(lastRecord)">
+          <ion-label>Status</ion-label>
+          <div *ngIf="lastRecord;else norecord">
+            <ion-text>
+              {{lastRecord.createAt|date:'yyyy-MMM-dd HH:mm'}}
+            </ion-text>
+            <ion-badge slot="end">{{lastRecord.data[0].status|status}}</ion-badge>
+          </div>
+          <ng-template #norecord>Not yet</ng-template>
+        </ion-item>
         <!-- histories -->
         <ion-accordion>
           <ion-item slot="header">

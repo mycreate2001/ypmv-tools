@@ -98,7 +98,7 @@
       </ion-item>
       <ion-accordion-group>
         <!-- status -->
-        <ion-item button="true" (click)="detailStatus()">
+        <ion-item button="true" (click)="updateStatus(lastRecord)">
           <ion-label>Status</ion-label>
           <div *ngIf="lastRecord;else norecord">
             <ion-text>

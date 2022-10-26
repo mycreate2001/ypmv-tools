@@ -106,7 +106,7 @@ export class ToolPage implements OnInit {
         if(lastRecord){
           const data=lastRecord.data.filter(tool=>tool.id==this.tool.id);
           if(!data||!data.length) console.warn("ERROR");
-          this.lastRecord={...lastRecord,data}
+          else this.lastRecord={...lastRecord,data}
         }
         console.log("TEST:check record",{lastRecord})
 
@@ -232,24 +232,28 @@ export class ToolPage implements OnInit {
   }
 
   /** update status */
-  updateStatus(){
-    const userId=this.auth.currentUser.id;
-    const status:StatusInf[]=createStatusInfor(this.model.statusList)
+  updateStatus(record:StatusRecord=null){
+    let isEdit:boolean=false
     const tool:BasicData=createBasicData({...this.model,...this.tool,type:'tool'})
-    const data:ToolStatus[]=[createToolStatus({...tool,status,images:[]})]
-    const record=createStatusRecord({userId,data});
-    this.lastRecord=record;
+    if(!record){
+      isEdit=true;
+      const userId=this.auth.currentUser.id;
+      const status:StatusInf[]=createStatusInfor(this.model.statusList)
+      const data:ToolStatus[]=[createToolStatus({...tool,status,images:[]})]
+      record=createStatusRecord({userId,data});
+    }
+    //display
     const props:ToolStatusPageOpts={
-      tool:createBasicData({...this.model,...this.tool,type:'tool'}),
-      status:record.data[0]
+      tool,
+      status:record.data[0],
+      isEdit
     }
     this.disp.showModal(ToolStatusPage,props)
     .then(result=>{
       const role=result.role as ToolStatusPageRole
-      if(role!='save') return;
+      if(!isEdit||role!='save') return;
       const data=result.data as ToolStatusPageOuts
       record.data=[data.status];
-      console.log("TEST: after update",{record})
       const {addImages,currImages}=getUpdateImages(data.status.images)
       return this.storage.uploadImages(addImages,_STORAGE_STATUS_RECORD).then(urls=>{
         record.data[0].images=[...currImages,...urls]
@@ -258,6 +262,10 @@ export class ToolPage implements OnInit {
     })
     .then(record=>{
       this.lastRecord=record;
+    })
+    .catch(err=>{
+      console.warn("\nERROR\n",err);
+      this.disp.msgbox('ERROR<br>'+err.message)
     })
   }
 
