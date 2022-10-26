@@ -1,3 +1,7 @@
+# update 
+## [2022-10-26] apply lazy for searchToolPage
+   <img [src]="model.images|url" loading="lazy">
+
 # improvement database
 ## Selft history
 ### Overview

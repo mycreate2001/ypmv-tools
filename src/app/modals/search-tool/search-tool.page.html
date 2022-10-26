@@ -36,7 +36,7 @@
         <ion-accordion *ngFor="let model of view.models">
           <ion-item slot="header">
             <ion-thumbnail slot="start">
-              <img [src]="model.images|url">
+              <img [src]="model.images|url" loading="lazy">
             </ion-thumbnail>
             <ion-label>
               {{model.name}}
