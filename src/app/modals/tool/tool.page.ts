@@ -259,9 +259,9 @@ export class ToolPage implements OnInit {
         record.data[0].images=[...currImages,...urls]
         return this.db.add(_DB_STATUS_RECORD,record) as Promise<StatusRecord>
       })
-    })
-    .then(record=>{
-      this.lastRecord=record;
+      .then(record=>{
+        this.lastRecord=record;
+      })
     })
     .catch(err=>{
       console.warn("\nERROR\n",err);
@@ -269,22 +269,8 @@ export class ToolPage implements OnInit {
     })
   }
 
-  detailStatus(){
-    if(!this.lastRecord) return;
-    const props:ToolStatusPageOpts={
-      tool:createBasicData({...this.model,...this.tool,type:'tool'}),
-      status:this.lastRecord.data[0],
-      isEdit:false
-    }
-    this.disp.showModal(ToolStatusPage,props)
-  }
-
   ////////////////// BACKGROUND FUNCTIONS /////////////////////
-  // getStatus():string{
-  //   if(!this.lastStatus) return _STATUS_NOTYET.key
-  //   if(this.lastStatus.some(stt=>stt.value==_STATUS_NOTYET.value)) return _STATUS_NOTYET.key
-  //   return this.lastStatus.every(stt=>stt.value==_STATUS_OK.value)?_STATUS_OK.key:_STATUS_NG.key
-  // }
+
   getStatusList(key:string):StatusConfig{
     return this.statusConfigs.find(x=>x.key==key)
   }

@@ -23,6 +23,7 @@ example: <img [src]="image.jpg" loading="lazy">
 - for use thumbnail image. pipe url should be add 'thumb'
 example: <img [src]="model.images|url:0:'thumb'" loading="lazy">
 
+## Get Tool/cover last status =>done
 
 # issue
 ## 1. User
@@ -64,4 +65,7 @@ git
 Not delete database, just set destroy data to database
 
 ## 10.Database
-### 10.1 Cover(box) check modifile database before save children
+### 10.1 Cover(box) check modifile database before save children =>done
+
+## 11.ToolStatusPage
+- add isEdit for edit or see only

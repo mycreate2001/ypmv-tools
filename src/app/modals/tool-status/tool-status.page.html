@@ -56,13 +56,11 @@
         </ion-list>
       </ion-accordion>
       <!-- comment -->
-      <ion-accordion>
-        <ion-item slot="header">
-          <ion-label>Comment</ion-label>
-          <ion-badge slot="end">{{status.comment.length?"comment":"No comment"}}</ion-badge>
-        </ion-item>
-        <ion-textarea slot="content" [(ngModel)]="status.comment" spellcheck="true" placeholder="leave some comments"></ion-textarea>
-      </ion-accordion>
+      <ion-item >
+        <ion-label>Comment</ion-label>
+        <ion-textarea [(ngModel)]="status.comment" [disabled]="!isEdit"></ion-textarea>
+      </ion-item>
+
       <!-- images -->
       <ion-accordion>
         <ion-item slot="header">
@@ -70,7 +68,7 @@
           <ion-badge slot="end" *ngIf="status.images">{{status.images.length}}</ion-badge>
         </ion-item>
         <div slot="content" >
-          <ion-item lines="none"  >
+          <ion-item lines="none" *ngIf="isEdit"  >
             <ion-buttons slot="end" title="Take image">
               <ion-button title="add more image" (click)="takeImage()">
                 <ion-icon slot="icon-only" name="camera"></ion-icon>

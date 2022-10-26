@@ -158,9 +158,9 @@ export class CoverPage implements OnInit {
         record.data[0].images=[...currImages,...urls];
         return this.db.add(_DB_STATUS_RECORD,record)
       })
-    })
-    .then(record=>{
-      this.lastRecord=record
+      .then(record=>{
+        this.lastRecord=record
+      })
     })
     .catch(err=>{
       console.warn("\nERROR\n",err);
