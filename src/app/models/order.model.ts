@@ -76,56 +76,6 @@ export function createOrderData(opts?:OrderDataOpts):OrderData{
     return createOpts(df,opts) as OrderData
 }
 
-// export interface CheckData extends BasicView {
-//     /** status of tool/jig before renting */
-//     beforeStatus:ToolStatus;       
-//     /** images of tool/jig before rentig */
-//     beforeImages:UrlData[];       
-//     /** person who check before renting tool/jig */
-//     beforeUserId:string;            
-//     /** status of tool/jig after return */
-//     afterStatus:ToolStatus;         
-//     /** image of tool/jig after return  */
-//     afterImages:UrlData[];          
-//     /** user who checking after tool come back */
-//     afterUserId:string;
-    
-// }
-
-
-// export interface CheckDataOpts extends BasicViewOpts {
-//     /** status of tool/jig before renting */
-//     beforeStatus?:ToolStatus;      
-//     /** images of tool/jig before rentig */
-//     beforeImages?:UrlData[];        
-//     /** person who check before renting tool/jig */
-//     beforeUserId?:string;        
-//     /** status of tool/jig after return */
-//     afterStatus?:ToolStatus;       
-//     /** image of tool/jig after return  */
-//     afterImages?:UrlData[];        
-//     /** user who checking after tool come back */
-//     afterUserId?:string;
-    
-// }
-
-// export function createCheckData(opts:CheckDataOpts){
-//     const now=new Date();
-
-//     const df:CheckData={
-//         ...createBasicData(),
-//         beforeImages:[],
-//         beforeStatus:createToolStatus(),
-//         beforeUserId:'',
-//         afterImages:[],
-//         afterStatus:createToolStatus(),
-//         afterUserId:'',
-//         childrenId:[]
-//     }
-//     return createOpts(df,opts)
-// }
-
-
 export interface ParingData{
     tools:string[];         // tool IDs
     coversId:string[];      // set Id
@@ -154,6 +104,6 @@ export function createBasicDataExt(opts:Partial<BasicDataExt>={}){
 
 
 /// const
-export const _DB_ORDERS="bookInfors"
-export const _STORAGE_ORDERS="bookInfors"
+export const _DB_ORDERS="orders"
+export const _STORAGE_ORDERS="orders"
 

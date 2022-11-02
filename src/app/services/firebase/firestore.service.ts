@@ -14,19 +14,24 @@ import { getFirestore,doc,getDoc,getDocs,updateDoc,
          query,
          where
                                     } from 'firebase/firestore'
-import { makeId } from '../../utils/minitools';
+import { makeId, uuid } from '../../utils/minitools';
 import { Unsubscribe } from 'firebase/auth';
 import { getUpdate, UpdateInf } from 'src/app/utils/data.handle';
-import { createSelfHistory } from 'src/app/models/save-infor.model';
-interface HandleData{
+interface OfflineDbHandler{
   id:string;
   callback:{(data:any[]):any}
 }
-interface ShareDatabase{
-  callbacks:HandleData[];
+interface OfflineDb{
+  handlers:OfflineDbHandler[];
   ctr:Unsubscribe;
   db:any[];
 }
+
+function createOfflineDb(opts:Partial<OfflineDb>={}):OfflineDb{
+  const df:OfflineDb={handlers:[],ctr:null,db:[]}
+  return Object.assign(df,opts)
+}
+
 
 export interface ConnectData{
   disconnect:Function;
@@ -41,15 +46,6 @@ export interface ConnectData{
   providedIn: 'root'
 })
 export class FirestoreService {
-  /**
-   * offlines={
-   *    'users':{
-   *      callbacks:[{id,cb}],
-   *      ctr,
-   *      db:[]
-   *    }
-   * }
-   */
   private _offline:any={};
   private db:any;
   constructor() { 
@@ -71,34 +67,34 @@ export class FirestoreService {
    */
   connect(tbl:string,debug:boolean=false):ConnectData{
     const that=this;
-    let offline=null;
+    let offline:OfflineDb=null;
     let isNeedUpdate:boolean=true;         //first time run
     /** not yet register this db */
     if(!this._offline[tbl]){//not exist
-      this._offline[tbl]={db:[],ctr:null,callbacks:[]}
+      this._offline[tbl]=createOfflineDb();
       offline=this._offline[tbl];
       // isNew=true;
       offline.ctr=this.monitor(tbl,(added:any[],modified:any[],removed:string[])=>{
-        if(debug) console.log("before update",{db:offline.db,added,modified,removed})
-        removed.forEach(id=>del(offline.db,id));
+        // if(debug) console.log("before update",{db:offline.db,added,modified,removed})
 
+        //handler data
+        removed.forEach(id=>del(offline.db,id));
         modified.forEach(m=>{
           const i=offline.db.findIndex(x=>x.id==m.id);
           if(i!=-1) offline.db[i]=m;
         })
-
         added.forEach(data=>offline.db.push(data));
-        
-        if(debug) console.log("current db",offline.db);
-        if(!offline || !offline.callbacks || !offline.callbacks.length) {
-          console.log("callbacks error");return;
+
+        // handler events
+        if(debug) console.log("table '%s'",tbl,offline.db);
+        if(offline && offline.handlers) {
+          offline.handlers.forEach(hd=>hd.callback(structuredClone(offline.db)))
         }
-        offline.callbacks.forEach(x=>x.callback(offline.db))
+        isNeedUpdate=false;
       });
-      isNeedUpdate=false;
     }
-    offline=this._offline[tbl] as ShareDatabase;
-    const id=makeId(15,offline.callbacks);
+    offline=this._offline[tbl];
+    const id=uuid();
     
     //return function
     return{
@@ -109,10 +105,10 @@ export class FirestoreService {
        */
       disconnect(){
         //remove callback
-        const pos=offline.callbacks.findIndex(x=>x.id==id);
-        if(pos!=-1) offline.callbacks.splice(pos,1)
+        const pos=offline.handlers.findIndex(x=>x.id==id);
+        if(pos!=-1) offline.handlers.splice(pos,1)
         //unsubscribe
-        if(!offline.callbacks.length){
+        if(!offline.handlers.length){
            offline.ctr();//disconnect
            delete that._offline[tbl]
         }
@@ -139,8 +135,9 @@ export class FirestoreService {
       get(id:string){
         const out=offline.db.find(x=>x.id==id);
         if(!out) return;
-        return JSON.parse(JSON.stringify(out))
+        return structuredClone(out)
       },
+
       /**
        * search records from share database
        * @param opts example: {id:'111',name:'test'}
@@ -148,11 +145,13 @@ export class FirestoreService {
        * @example const userdb=db.connect('users');
        *                userdb.search({id:'userid',age:10})
        */
-      search(opts={}){
-        const keys=Object.keys(opts);
-        const outs=offline.db.filter(data=>keys.every(key=>opts[key]==data[key]))||[];
-        return JSON.parse(JSON.stringify(outs))
+      search(queries:QueryData|QueryData[]=[]){
+        const _queries:QueryData[]=[].concat(queries);
+        const db:any[]=offline.db||[]
+        const outs:any[]=db.filter(data=>checkQuery(_queries,data))
+        return structuredClone(outs)
       },
+
       /**
        * handle change data event
        * @param callback handler
@@ -160,11 +159,11 @@ export class FirestoreService {
        *                userdb.onUpdate((users)=>console.log('update user',users))
        */
       onUpdate(callback:(data:any[])=>any){
-        const pos=offline.callbacks.findIndex(x=>x.id==id);
-        if(pos!=-1) offline.callbacks.splice(pos,1);
-        offline.callbacks.push({id,callback});
+        const pos=offline.handlers.findIndex(x=>x.id==id);
+        if(pos!=-1) offline.handlers.splice(pos,1);//[pos]={id,callback}
+        offline.handlers.push({id,callback})
         if(isNeedUpdate){
-          callback(offline.db);
+          callback(structuredClone(offline.db));
           isNeedUpdate=false;
         }
         //debug
@@ -204,7 +203,7 @@ export class FirestoreService {
    */
   add(tbl:string,data:any,callback:DuplicateHandler=(list,newData,oldData)=>list.length?newData:null):Promise<any>{
     const {id,...rawData}=data;
-    console.log("01: add record '%s' to table '%s'",id,tbl)
+    // console.log("01: add record '%s' to table '%s'",id,tbl)
     // case #1: new record without id
     if(!id) return addDoc(collection(this.db,tbl),rawData).then(refDoc=>{
       return {...rawData,id:refDoc.id}
@@ -218,24 +217,31 @@ export class FirestoreService {
       const updateList=getUpdate(data,oldDb);
       const newData=callback(updateList,data,oldDb);
       if(!newData) {
-        console.log("02: nochange");
+        // console.log("02: nochange");
         return data;
       }
-      console.log("TEST, newdata",newData)
-      console.log("03: update database");
+      // console.log("TEST, newdata",newData)
+      // console.log("03: update database");
       return this.setDoc(tbl,newData)
     })
   }
+
+  /**
+   * set database with id
+   * @param tbl table
+   * @param data record
+   * @returns record
+   */
   setDoc(tbl:string,data:any):Promise<any>{
     const {id,...rawData}=data;
     const _id=id||makeId();
     // console.log("checkpoints[4]:setDoc record '%s' to table '%s'",)
     return setDoc(doc(this.db,tbl,_id),rawData).then(db=>{
-      console.log("checkpoints[4]:setDoc successfully for record '%s' to table '%s'",_id,tbl,{id})
+      // console.log("checkpoints[4]:setDoc successfully for record '%s' to table '%s'",_id,tbl,{id})
       return {...rawData,id:_id}
     })
     .catch(err=>{
-      console.log("checkpoints[5]: setDoc failured! id='%s' table='%s'",_id,tbl,{id})
+      // console.log("checkpoints[5]: setDoc failured! id='%s' table='%s'",_id,tbl,{id})
       console.log(err);
       throw err;
     })
@@ -272,8 +278,6 @@ export class FirestoreService {
   }
 
   async get2(path:string):Promise<any>{
-    // const docsnap=await getDoc(doc(this.db,path))
-    // return {...docsnap.data(),id:docsnap.id}
     const paths=path.split("/");
     console.log("get2-input",{paths})
     return getDoc(doc(this.db,...paths))

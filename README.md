@@ -4,7 +4,12 @@
 ## code scan improvement(temporarily)
 `temporarily select camera`
  [issue] still can not change default camera, so first times application still read default camera
-  
+## [2022-Nov-02] update database 
+- services/firestore.service.ts
+    search by queries & priority offline
+    get/gets with priority offline
+- change order table from 'bookingInfors' to 'orders'
+
 # improvement database
 ## Selft history
 ### Overview

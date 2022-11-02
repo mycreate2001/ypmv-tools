@@ -195,7 +195,9 @@ export function compareArrays(arrs1:object[],arrs2:object[],opts:CompareArraysIn
     )
 }
 
-
+export function uuid(){
+    return new Date().getTime().toString(36)+"-"+ Math.random().toString(36).substring(2,10)
+}
 
 ////////////////////// private ///////////////////////////////
 function makeRandStr(len:number=15){

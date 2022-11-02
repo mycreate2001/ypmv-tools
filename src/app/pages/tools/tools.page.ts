@@ -73,6 +73,7 @@ export class ToolsPage implements OnInit {
 
   /** update view */
   update(){
+    if(Object.keys(this._isData).some(key=>!this._isData[key])) return;
     let _views:BasicData[]=[];
     //covers
     this.covers.forEach(cover=>{
