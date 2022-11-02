@@ -206,7 +206,9 @@ export class FirestoreService {
     const {id,...rawData}=data;
     console.log("01: add record '%s' to table '%s'",id,tbl)
     // case #1: new record without id
-    if(!id) return this.setDoc(tbl,data)
+    if(!id) return addDoc(collection(this.db,tbl),rawData).then(refDoc=>{
+      return {...rawData,id:refDoc.id}
+    })
     // case #2: data with id
     return getDoc(doc(this.db,tbl,id)).then(snap=>{
       // case #2.1 new data with ID
@@ -223,40 +225,6 @@ export class FirestoreService {
       console.log("03: update database");
       return this.setDoc(tbl,newData)
     })
-
-    // const _data=JSON.parse(JSON.stringify(data))
-    // if(debug) console.log("\nfirestore.add '%s'\n---------------",tbl,data);
-    // return new Promise(async (resolve,reject)=>{
-    //   let {id,...rawData}=_data;
-    //   /** new data without id */
-    //   if(!id){
-    //     try{
-    //       if(debug) console.log(`add new doc without...`);
-    //       const docRef=await addDoc(collection(this.db,tbl),data);
-    //       id=docRef.id;
-    //       if(debug) console.log(`done!, id="${id}"\n`);
-    //       return resolve(id);
-    //     }
-    //     catch(err){
-    //       console.log("#ERR-01:",err);
-    //       return reject(err);
-    //     }
-    //   }
-
-    //   /** create or override data with id */
-    //   else{
-    //     if(debug) console.log("create/overwrite record ");
-    //     try{
-    //       await setDoc(doc(this.db,tbl,id),rawData);
-    //       if(debug) console.log(`done! id="${id}"\n`);
-    //       return resolve(id);
-    //     }
-    //     catch(err){
-    //       console.log("err:",{err});
-    //       return reject(err);
-    //     }
-    //   }
-    // })
   }
   setDoc(tbl:string,data:any):Promise<any>{
     const {id,...rawData}=data;
@@ -280,14 +248,26 @@ export class FirestoreService {
    * @param id record id
    * @returns record
    */
-  get(tbl:string,id:string,debug=null):Promise<any>{   
-    return new Promise(async (resolve,reject)=>{
-      if(debug) console.log("GET('%s','%s') debug:'%s'",tbl,id,debug)
-      if(!id) return reject(new Error("not exist id"));//nothing
-      const docRef=doc(this.db,tbl,id);
-      const docSnap=await getDoc(docRef);
-      if(docSnap.exists()) return resolve({id,...docSnap.data()})
-      return reject(new Error(`not exist doc '${id}' in '${tbl}'`));//nothing
+  async get(tbl:string,id:string,debug=null):Promise<any>{   
+    //check offline
+    const offline=this._offline[tbl];
+    if(offline){
+      const db:any[]=offline.db||[];
+      const out=db.find(d=>d.id==id);
+      if(!out) throw new Error("not exist database ");
+      if(debug) console.log('get "%s" from "%s" with offline',id,tbl)
+      return {...out,id}
+    }
+    // online
+    return this._get(tbl,id,debug)
+  }
+
+  private async _get(tbl:string,id:string,debug=false):Promise<any>{
+    if(!id||!tbl) throw new Error("data format is wrong")
+    return getDoc(doc(this.db,tbl,id)).then(snap=>{
+      if(!snap.exists()) throw new Error('data not exist')
+      if(debug) console.log('get "%s" from "%s" with online',id,tbl)
+      return {...snap.data(),id:snap.id}
     })
   }
 
