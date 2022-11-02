@@ -325,37 +325,45 @@ export class FirestoreService {
    * @param queries condition for searching
    * @returns result of searching
    */
-  search(tbl:string,queries:QueryData[]|QueryData){
-    // console.log("[search2] test-002",{tbl,queries})
-    const ref=collection(this.db,tbl);
+  async search(tbl:string,queries:QueryData[]|QueryData){
     const _queries:QueryData[]=[].concat(queries);
-    const q=query(ref,..._queries.map(qr=>where(qr.key,qr.type,qr.value)))
-    // console.log("[search2] test-003",{q})
+
+    //offline
+    const offline=this._offline[tbl];
+    if(offline){//have monitor
+      const db:any[]=offline.db||[];
+      const outs=db.filter(data=>checkQuery(queries,data));
+      return structuredClone(outs)
+    }
+    //online
+    const q=query(collection(this.db,tbl),..._queries.map(qr=>where(qr.key,qr.type,qr.value)))
     return getDocs(q).then(docs=>{
       const outs=[];
-      docs.forEach(doc=>outs.push({id:doc.id,...doc.data()}));
-      console.log("[search] debug",{tbl,queries,outs})
+      docs.forEach(doc=>outs.push({...doc.data(),id:doc.id}))
       return outs;
     })
   }
 
-  gets(tbl:string,IDs:string[],type:"Include"|"Exclude"|"Reject"="Include"):Promise<any[]>{
-    return new Promise((resolve,reject)=>{
-      console.log("GETS\n",{tbl,IDs,type})
-      if(type=='Reject') return resolve([])
-      const ref=collection(this.db,tbl);
-      getDocs(ref).then(docs=>{
-        const outs=[];
-        docs.forEach(doc=>{
-          const id=doc.id;
-          if(type=="Include" && IDs.includes(id)) outs.push({id,...doc.data()})
-          else if(type=='Exclude' && !IDs.includes(id)) outs.push({id,...doc.data()})
-        })
-        return outs;
+  async gets(tbl:string,IDs:string[],type:"in"|"not-in"|"reject"="in"):Promise<any[]>{
+    const offline=this._offline[tbl];
+    if(type=='reject') return []
+    //offline
+    if(offline){
+      const db:any[]=offline.db||[];
+      const outs=db.filter(data=>checkQuery({type,key:'id',value:IDs},data))
+      console.log("gets offline")
+      return structuredClone(outs)
+    }
+    //online
+    return getDocs(collection(this.db,tbl)).then(docs=>{
+      const outs=[];
+      docs.forEach(doc=>{
+        const data={...doc.data(),id:doc.id}
+        if(checkQuery({type,key:'id',value:IDs},data))
+          outs.push(data)
       })
-      .then(result=>resolve(result))
-      .catch(err=>reject(err))
-     
+      console.log("get online");
+      return outs;
     })
   }
 
@@ -385,9 +393,34 @@ export interface DuplicateHandler{
   (updateList:UpdateInf[],newObj:object,oldObj:object):object|null
 }
 
+
 /**
- * add(tbl,data,(updateList)=>{
- * }){
- *  
- * }
+ * check queries for each reacord of database
+ * @param queries queries condition
+ * @param data each record
+ * @returns true=correct query
  */
+function checkQuery(queries:QueryData|QueryData[],data:any):boolean{
+  if(data==undefined||typeof data!=='object') return false; //not object => false
+  const _queries:QueryData[]=[].concat(queries);
+  return _queries.every(({key,type,value})=>{
+    const _data=data[key];              // compareData
+    if(_data==undefined) return false;  // not exist value ==> false
+    switch(type){
+      case '==':return _data===value;
+      case '!=': return _data!==value;
+      case '<': return _data<value;
+      case '<=': return _data<=value;
+      case '>': return _data>value;
+      case '>=': return _data>=value;
+      case 'in': return [].concat(value).includes(_data);
+      case 'not-in': return ![].concat(value).includes(_data);
+      case 'array-contains': return [].concat(_data).includes(value);
+      case 'array-contains-any': return [].concat(value).some(val=>[].concat(_data).includes(val))
+    }
+  })
+}
+
+function structuredClone<T>(obj:T):T{
+  return JSON.parse(JSON.stringify(obj))
+}
