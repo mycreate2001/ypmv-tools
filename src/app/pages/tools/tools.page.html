@@ -1,8 +1,8 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
+    <!-- <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
-    </ion-buttons>
+    </ion-buttons> -->
     <ion-searchbar [(ngModel)]="key" (ionChange)="update()"></ion-searchbar>
     <ion-buttons slot="end">
       <ion-button (click)="detailModel()" title="New Tool Infor">
@@ -27,9 +27,9 @@
             <ion-list slot="content">
               <ion-item (click)="detail(model)" *ngFor="let model of view.models">
                 <ion-thumbnail slot="start">
-                  <img [src]="model.images|url:0:'thumb'" loading="lazy">
+                  <img [src]="model.images|url:0:'thumb'" loading="lazy" title="...">
                 </ion-thumbnail>
-                <ion-label [color]="model.type=='cover'?'secondary':'primary'">
+                <ion-label [color]="model.type==='cover'?'secondary':'primary'">
                   {{model.name}}
                 </ion-label>
                </ion-item>
@@ -43,8 +43,8 @@
     No data
   </div>
 </ion-content>
-<ion-fab vertical="bottom" horizontal="start">
+<!-- <ion-fab vertical="bottom" horizontal="start">
   <ion-fab-button (click)="scan()">
     <ion-icon name="scan"></ion-icon>
   </ion-fab-button>
-</ion-fab>
+</ion-fab> -->

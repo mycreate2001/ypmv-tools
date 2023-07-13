@@ -81,3 +81,10 @@ Not delete database, just set destroy data to database
 
 ## 11.ToolStatusPage
 - add isEdit for edit or see only
+
+# release
+## 2023Jul11
+- change interface to tab
+- scan to active any tab
+- combine model & tool
+- search include tool id

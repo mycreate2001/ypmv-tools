@@ -1,12 +1,5 @@
 <ion-header mode="ios">
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button [routerLink]="['/']">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-        Back
-      </ion-button>
-    </ion-buttons>
-
     <ion-searchbar 
       color="light" 
       [(ngModel)]="code" 
@@ -35,9 +28,6 @@
           {{checks[fpos]}}
         </ion-badge>
       </ion-label>
-      <ion-buttons slot="end">
-        <ion-icon name="chevron-forward-outline"></ion-icon>
-      </ion-buttons>
     </ion-item>
   </ion-list>
 </ion-content>

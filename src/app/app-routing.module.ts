@@ -5,7 +5,7 @@ import { LoginGuard } from './guards/login/login.guard';
 const routes: Routes = [
   {
     path:'',
-    redirectTo:'orders',
+    redirectTo:'tabs',
     pathMatch:'full'
   },
   //modal page
@@ -38,10 +38,6 @@ const routes: Routes = [
     loadChildren: () => import('./modals/format-detail/format-detail.module').then( m => m.FormatDetailPageModule)
   },
   {
-    path: 'profile',
-    loadChildren: () => import('./modals/profile/profile.module').then( m => m.ProfilePageModule)
-  },
-  {
     path: 'image-view',
     loadChildren: () => import('./modals/image-view/image-view.module').then( m => m.ImageViewPageModule)
   },
@@ -68,40 +64,23 @@ const routes: Routes = [
     loadChildren: () => import('./pages/login/login.module').then( m => m.LoginPageModule)
   },
   {
-    path: 'tools',
-    canActivate:[LoginGuard],
-    loadChildren: () => import('./pages/tools/tools.module').then( m => m.ToolsPageModule)
-  },
-  
-  {
-    path: 'setting',
-    canActivate:[LoginGuard],
-    loadChildren: () => import('./pages/setting/setting.module').then( m => m.SettingPageModule)
-  },
-  {
-    path:'formats',
-    canActivate:[LoginGuard],
-    loadChildren:()=>import('./pages/formats/formats.module').then(m=>m.FormatsPageModule)
-  },
-  {
     path: 'companies',
     canActivate:[LoginGuard],
     loadChildren: () => import('./pages/companies/companies.module').then( m => m.CompaniesPageModule)
   },
   {
-    path: 'orders',
-    canActivate:[LoginGuard],
-    loadChildren: () => import('./pages/orders/order.module').then( m => m.HistoriesPageModule)
-  },
-  {
     path: 'tool-status',
     loadChildren: () => import('./modals/tool-status/tool-status.module').then( m => m.ToolStatusPageModule)
-  },  {
+  },
+  {
     path: 'users',
     loadChildren: () => import('./pages/users/users.module').then( m => m.UsersPageModule)
   },
-
-
+  {
+    path: 'tabs',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./pages/tabs/tabs.module').then( m => m.TabsPageModule)
+  },
 
 
 ];

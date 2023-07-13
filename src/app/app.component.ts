@@ -7,6 +7,8 @@ import { PageData } from './models/util.model';
 import { DisplayService } from './services/display/display.service';
 import { AuthService } from './services/firebase/auth.service';
 import { FirestoreService } from './services/firebase/firestore.service';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
@@ -14,56 +16,20 @@ import { FirestoreService } from './services/firebase/firestore.service';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent  {
-  /** variable */
-  pages:PageData[]=[
-    {name:'Tools',url:'tools',icon:'hammer',iconColor:'primary',type:'Yamaha Branch'},
-    {name:'Code Format',url:'formats',icon:'qr-code',iconColor:'tertiary',type:'Yamaha Branch'},
-    {name:'Companies',url:'companies',icon:'briefcase',type:'Yamaha Branch'},//<ion-icon name="briefcase"></ion-icon>
-    {name:'Order List',url:'orders',icon:'refresh',iconColor:'danger'},//<ion-icon name="refresh"></ion-icon>
-    {name:'Users',url:"users",icon:"people",iconColor:'success',type:'Yamaha Branch',roles:['admin']},//<ion-icon name="people-outline"></ion-icon>
-  ]
-  user:UserData=null;
-  selectIndex:number=0;
-  userUnsubcribe:Unsubscribe;
-  isAvailable:boolean=false;
+  loading:Promise<HTMLIonLoadingElement>=null;
   /** function */
-  constructor(
-    private auth:AuthService,
-    private disp:DisplayService,
-    private db:FirestoreService
-  ) {
-    this.userUnsubcribe=this.auth.onAuthStatusChange(
-      user=>{
-        this.user=user;
-        if(this.user){
-          this.db.get(_DB_COMPANY,this.user.companyId)
-          
-          .then((company:CompanyData)=>{
-            console.log("company",{company})
-            this.pages=this.pages.filter(page=>{
-              //role
-              if(page.roles&&page.roles.length&&!page.roles.includes(user.role)) return false;
-              //page
-              if(!page.type||page.type=='All'||page.type==company.type) return true
-              //other
-              return false;
-            })
-          })
-        }
+  constructor(private disp:DisplayService, public route:Router,private loadingCtr:LoadingController) {
+    this.route.events.subscribe(async ev=>{
+      if(ev instanceof NavigationStart) {
+        console.log("\n+++++ test-000:start")
+        this.disp.showLoading("abc...");
       }
-    )
+      if(ev instanceof NavigationCancel||ev instanceof NavigationEnd || ev instanceof NavigationError){
+        console.log("\n+++++ test-001:finish")
+        if(this.loadingCtr) this.loadingCtr.dismiss();
+      }
+    })
   }
 
-  ngOnInit(){}
-
-
-
-  /** show profile */
-  showProfile(){
-    const props:ProfilePageOpts={
-      user:this.user
-    }
-    this.disp.showModal(ProfilePage,props)
-  }
 
 }

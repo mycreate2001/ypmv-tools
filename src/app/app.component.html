@@ -1,4 +1,4 @@
-<ion-app>
+<!-- <ion-app>
   <ion-menu contentId="main-content" type="overlay">
     <div class="menu-head-bg"></div>
     <div class="header-content" *ngIf="user" (click)="showProfile()">
@@ -27,4 +27,15 @@
     </ion-content>
   </ion-menu>
   <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app> -->
+
+<ion-app>
+  <ion-content>
+    <ion-infinite-scroll>
+      <ion-infinite-scroll-content loadingText="Please wait..." loadingSpinner="bubbles"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </ion-content>
+
+  <ion-router-outlet></ion-router-outlet>
 </ion-app>
+

@@ -20,8 +20,8 @@ type StatusType=OrderDataStatusType|"All"|"Auto"
 })
 export class OrderPage implements OnInit {
   /** db */
-  historyDb:ConnectData;
-  histories:OrderData[]=[];
+  orderDb:ConnectData;
+  orders:OrderData[]=[];
 
   /** internal */
   views:OrderData[]=[];
@@ -36,16 +36,16 @@ export class OrderPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.historyDb=this.db.connect(_DB_ORDERS,true);
-    this.historyDb.onUpdate(async (histories:OrderData[])=>{
+    this.orderDb=this.db.connect(_DB_ORDERS,true);
+    this.orderDb.onUpdate(async (orders:OrderData[])=>{
       try{
         //filter
         const cUser=this.auth.currentUser;
         const company:CompanyData=await this.db.get(_DB_COMPANY,cUser.companyId)
         const allowList:UserRole[]=["admin","manager"];
-        if(company.type=='Yamaha Branch'||allowList.includes(cUser.role)) this.histories=histories;//see all
+        if(company.type=='Yamaha Branch'||allowList.includes(cUser.role)) this.orders=orders;//see all
         else{
-          this.histories=histories.filter(h=>h.companyId==cUser.companyId)
+          this.orders=orders.filter(h=>h.companyId==cUser.companyId)
         }
         this.update();
       }
@@ -55,8 +55,9 @@ export class OrderPage implements OnInit {
     })
   }
 
+
   ngOnDestroy(){
-    this.historyDb.disconnect();
+    this.orderDb.disconnect();
   }
 
   /////// BUTTONS HANDLER ////////////
@@ -90,7 +91,7 @@ export class OrderPage implements OnInit {
       const data=scan.data as QRcodePageOuts;
       const id:string=data.analysis[CodeFormatConfig.order.name]
       if(!id) return;
-      const infor=this.histories.find(h=>h.id==id);
+      const infor=this.orders.find(h=>h.id==id);
       if(!infor) return console.log("cannot find this infor");
       this.detail(infor)
     })
@@ -106,14 +107,15 @@ export class OrderPage implements OnInit {
   update(){
     //filter by option
     // const _AutoList:OrderDataStatusType|'All'|'Auto'[]=[]
+    console.log("\n*********** init *********\n",this);
     const viewList:StatusType[]=['approved','created','new','renting']
-    const histories=this.select=='All'?
-      this.histories:
+    const orders=this.select=='All'?
+      this.orders:
       this.select=='Auto'?
-        this.histories.filter(x=>viewList.includes(x.status)):
-        this.histories.filter(x=>x.status==this.select)
+        this.orders.filter(x=>viewList.includes(x.status)):
+        this.orders.filter(x=>x.status==this.select)
     //search
-    this.views=this.keyword?searchObj(this.keyword,histories):histories
+    this.views=this.keyword?searchObj(this.keyword,orders):orders
     this.isAvailable=true;
   }
 

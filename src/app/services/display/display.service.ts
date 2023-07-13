@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetController, ActionSheetOptions, AlertController, 
-          AlertOptions, ModalController, PopoverController, ToastController, ToastOptions } from '@ionic/angular';
+          AlertOptions, LoadingController, ModalController, PopoverController, ToastController, ToastOptions } from '@ionic/angular';
 import { Mode, PopoverAttributes, PopoverSize, PositionAlign, PositionReference, PositionSide } from '@ionic/core';
 import { MenuPage } from 'src/app/modals/menu/menu.page';
 import { MenuData } from 'src/app/models/util.model';
@@ -36,7 +36,8 @@ export class DisplayService {
     private alert:AlertController,
     private popover:PopoverController,
     private router:Router,
-    private toast:ToastController
+    private toast:ToastController,
+    private loading:LoadingController
     ) { }
 
   /**
@@ -69,6 +70,13 @@ export class DisplayService {
       message:_msg.join("<br>")
     })
     toast.present();
+  }
+
+  async showLoading(message:string="pls waiting..."){
+    const loading=await this.loading.create({message});
+    loading.present();
+    await loading.onDidDismiss();
+    return loading
   }
 
   async msgbox(msg:string,opts?:AlertOptions){
