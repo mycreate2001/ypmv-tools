@@ -1,4 +1,4 @@
-import { getList } from "./minitools";
+import { getList, toArray } from "./minitools";
 
 /**
  * 
@@ -9,9 +9,24 @@ import { getList } from "./minitools";
 export function searchObj<T>(keyword:string,arrs:T|T[]):T[]{
     if(!keyword||!arrs) return [];
     keyword=keyword.toUpperCase();
-    return [].concat(arrs).filter(arr=>{
-        return Object.keys(arr).some(key=>(arr[key]+"").toUpperCase().includes(keyword))
+    return toArray(arrs).filter(arr=>{
+        //return Object.keys(arr).some(key=>(arr[key]+"").toUpperCase().includes(keyword))
+        return Object.keys(arr).some(key=>{
+            const val=obj2String(arr[key]).toUpperCase();
+            const result= val.includes(keyword)
+            console.log("test searchObj ",{keyword,val,result})
+            return result;
+        })
     })
+}
+
+export function obj2String(obj:any):string{
+    if(!['object','string','number'].includes(typeof obj)) return ''
+    if(typeof obj!=='object') return obj +""
+    //object
+    return Object.keys(obj).map(key=>{
+        return  obj2String(obj[key])
+    }).join("\t")
 }
 
 export function separateObj<T>(arrs:T[],key:string,opts:{dataName:string}={dataName:'data'}){

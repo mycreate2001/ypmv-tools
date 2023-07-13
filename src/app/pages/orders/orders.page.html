@@ -1,11 +1,36 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Orders</ion-title>
+    <ion-searchbar [(ngModel)]="keyword" (ionChange)="update()"></ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="detail()" title="New">
+        <ion-icon name="add-circle"></ion-icon>
+      </ion-button>
+      <ion-button (click)="option($event)">
+        <ion-icon name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
+  
 </ion-header>
 
 <ion-content>
-  
+  <ion-list *ngFor="let order of views">
+    <ion-item button="true" (click)="detail(order)">
+      <ion-thumbnail slot="start">
+        <img [src]="order.userId.image |url" alt="{{order.userId.name}}">
+      </ion-thumbnail>
+      <ion-label>
+        {{order.companyId.name}}:{{order.purpose}}
+        <p>[{{order.scheduleStart|date:'yyyy-MMM-dd'}}] {{order.companyId.name}}</p>
+      </ion-label>
+      <ion-badge 
+        slot="end" 
+        [color]="order.status=='created'?'primary':order.status=='approved'?'secondary':order.status=='rejected'?'medium':''"
+        >
+        {{order.status}}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
   
 
 </ion-content>

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { TabsPage } from './tabs.page';
-import { LoginGuard } from 'src/app/guards/login/login.guard';
+import { OrderListResolveService } from 'src/app/services/orderResolve/order-list-resolve.service';
 
 const routes: Routes = [
   {
@@ -15,6 +15,7 @@ const routes: Routes = [
       },
       {
         path: 'orders',
+        resolve:{orders:OrderListResolveService},
         loadChildren: () => import('../orders/orders.module').then( m => m.OrdersPageModule)
       },
       {
@@ -29,13 +30,18 @@ const routes: Routes = [
         path:'formats',
         loadChildren:()=>import('../formats/formats.module').then(m=>m.FormatsPageModule)
       },
+      {
+        path: '',
+        redirectTo: '/tabs/orders',
+        pathMatch: 'full'
+      }
     ]
   },
   {
     path:'',
-    redirectTo:'tabs/tools',
+    redirectTo:'/tabs/orders',
     pathMatch:'full'
-  }
+  },
 
 ];
 

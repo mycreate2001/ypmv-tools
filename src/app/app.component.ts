@@ -19,16 +19,16 @@ export class AppComponent  {
   loading:Promise<HTMLIonLoadingElement>=null;
   /** function */
   constructor(private disp:DisplayService, public route:Router,private loadingCtr:LoadingController) {
-    this.route.events.subscribe(async ev=>{
-      if(ev instanceof NavigationStart) {
-        console.log("\n+++++ test-000:start")
-        this.disp.showLoading("abc...");
-      }
-      if(ev instanceof NavigationCancel||ev instanceof NavigationEnd || ev instanceof NavigationError){
-        console.log("\n+++++ test-001:finish")
-        if(this.loadingCtr) this.loadingCtr.dismiss();
-      }
-    })
+    // this.route.events.subscribe(async ev=>{
+    //   if(ev instanceof NavigationStart) {
+    //     console.log("\n+++++ test-000:start")
+    //     this.disp.showLoading("abc...");
+    //   }
+    //   if(ev instanceof NavigationCancel||ev instanceof NavigationEnd || ev instanceof NavigationError){
+    //     console.log("\n+++++ test-001:finish")
+    //     if(this.loadingCtr) this.loadingCtr.dismiss();
+    //   }
+    // })
   }
 
 

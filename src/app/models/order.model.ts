@@ -102,6 +102,19 @@ export function createBasicDataExt(opts:Partial<BasicDataExt>={}){
     return createOpts(df,opts);
 }
 
+////
+export interface OrderDetail extends Omit<OrderData,"userId"|"approvedBy"|"companyId">{
+    userId:DetailFromId;
+    approvedBy:DetailFromId;
+    companyId:DetailFromId;
+}
+
+export interface DetailFromId{
+    id:string;
+    name:string;
+    image:string|UrlData;
+}
+
 
 /// const
 export const _DB_ORDERS="orders"

@@ -52,20 +52,67 @@ export function compareArr(arr1:any[],arr2:any[],debug=true):boolean{
     return result;
 }
 
-export function getList(arrs:any[],key:string="id",debug:boolean=false):string[]{
-    const outs=[];
-    let tmp:any;
-    arrs.forEach(arr=>{
-        tmp=arr[key];
-        if(!tmp||outs.includes(tmp)) {
-            if(debug) console.log("invailid data",{arr,key,tmp});
-            return;
-        }
-        if(debug) console.log("validate data:",{arr,key,tmp})
-        outs.push(tmp+"");
-    })
-    return outs;
+// export function getList(arrs:any[],key:string="id",debug:boolean=false):string[]{
+//     const outs=[];
+//     let tmp:any;
+//     arrs.forEach(arr=>{
+//         tmp=arr[key];
+//         if(!tmp||outs.includes(tmp)) {
+//             if(debug) console.log("invailid data",{arr,key,tmp});
+//             return;
+//         }
+//         if(debug) console.log("validate data:",{arr,key,tmp})
+//         outs.push(tmp+"");
+//     })
+//     return outs;
+// }
+
+
+//////// get list 2 /////////////////////////////////
+export interface GetList2Option{
+    list:string[];
 }
+
+export const GetList2OptionDefault:GetList2Option={
+    list:[]
+}
+
+/**
+ * The function `getList2` takes an array of objects, extracts a specified key from each object, and
+ * returns a list of unique values for that key.
+ * @param {any[]} arrs - An array of objects from which to extract values for the list.
+ * @param {string} [key=id] - The key parameter is a string that specifies the property name to be used
+ * as the key for each object in the array.
+ * @param [options] - The `options` parameter is an optional object that allows you to customize the
+ * behavior of the `getList2` function. It accepts the following properties:
+ * @returns the updated list array.
+ */
+export function getList(arrs:any[],key:string|string[]='id',options?:Partial<GetList2Option>){
+    const _opts=Object.assign({},GetList2OptionDefault,options);
+    const list=_opts.list;
+    let tmp:any[]=[];
+    const keys:string[]=toArray(key);
+    arrs.forEach(arr=>{
+        tmp=keys.map(key=>arr[key]);
+        tmp.forEach(t=>{
+            if(!['number','string'].includes(typeof t)) return;
+            if(list.includes(t+"")) return
+            list.push(t+"")
+        })
+    })
+    return list;
+}
+
+/**
+ * The function toArray converts a single value or an array of values into an array.
+ * @param {T|T[]} data - The `data` parameter can be of type `T` or `T[]`. This means it can either be
+ * a single value of type `T` or an array of values of type `T`.
+ * @returns an array.
+ */
+export function toArray<T>(data:T|T[]):T[]{
+    return Array.isArray(data)?data:[data]
+}
+
 
 export function createOpts<T>(defaultObj:T,...opts:Partial<T>[]):T{
     // if(!opts) return defaultValue;
