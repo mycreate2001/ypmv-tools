@@ -1,10 +1,13 @@
 import { getList, toArray } from "./minitools";
 
+
 /**
- * 
- * @param keyword keyword
- * @param data 
- * @returns 
+ * The `searchObj` function takes a keyword and an object or an array of objects, and returns an array
+ * of objects that contain the keyword in any of their property values.
+ * @param {string} keyword - A string representing the keyword to search for in the objects.
+ * @param {T|T[]} arrs - The `arrs` parameter is either a single object of type `T` or an array of
+ * objects of type `T`.
+ * @returns The function `searchObj` returns an array of objects that match the given keyword.
  */
 export function searchObj<T>(keyword:string,arrs:T|T[]):T[]{
     if(!keyword||!arrs) return [];
@@ -18,6 +21,29 @@ export function searchObj<T>(keyword:string,arrs:T|T[]):T[]{
             return result;
         })
     })
+}
+
+/**
+ * The function `searchObj2` searches for a keyword in a given object and returns true if the keyword
+ * is found, otherwise it returns false.
+ * @param {string} keyword - The keyword parameter is a string that represents the word or phrase you
+ * want to search for within the object.
+ * @param {any} obj - The `obj` parameter is an object that you want to search for a specific keyword.
+ * @returns a boolean value.
+ */
+export function searchObj2(keyword:string,obj:any):boolean{
+    if(!keyword||!obj) return false;
+    if(!['string','object','number'].includes(typeof obj)) return false
+    //value
+    if(typeof obj!=='object') {
+        const result=(obj+"").toUpperCase().includes(keyword.toUpperCase());
+        // if(result) console.log("searchObj2/K1 ",{keyword,obj,result})
+        return result;
+    }
+    //object
+    const result= Object.keys(obj).some(key=>searchObj2(keyword,obj[key]))
+    // console.log("searchObj2/K2 ",{keyword,obj,result})
+    return result;
 }
 
 export function obj2String(obj:any):string{

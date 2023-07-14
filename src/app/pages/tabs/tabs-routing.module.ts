@@ -3,6 +3,9 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { TabsPage } from './tabs.page';
 import { OrderListResolveService } from 'src/app/services/orderResolve/order-list-resolve.service';
+import { ToolsResolver } from 'src/app/services/tools.resolver';
+import { CoversResolver } from 'src/app/services/covers.resolver';
+import { ModelsResolver } from 'src/app/services/models.resolver';
 
 const routes: Routes = [
   {
@@ -11,6 +14,11 @@ const routes: Routes = [
     children:[
       {
         path:'tools',
+        resolve:{
+          tools:ToolsResolver,
+          covers:CoversResolver,
+          models:ModelsResolver
+        },
         loadChildren:()=>import('../tools/tools.module').then(m=>m.ToolsPageModule)
       },
       {

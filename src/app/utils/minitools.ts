@@ -87,9 +87,7 @@ export const GetList2OptionDefault:GetList2Option={
  * behavior of the `getList2` function. It accepts the following properties:
  * @returns the updated list array.
  */
-export function getList(arrs:any[],key:string|string[]='id',options?:Partial<GetList2Option>){
-    const _opts=Object.assign({},GetList2OptionDefault,options);
-    const list=_opts.list;
+export function getList(arrs:any[],key:string|string[]='id',list:string[]=[]){
     let tmp:any[]=[];
     const keys:string[]=toArray(key);
     arrs.forEach(arr=>{
