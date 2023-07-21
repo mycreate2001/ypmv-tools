@@ -1,4 +1,4 @@
-import { CodeFormatType } from "src/app/models/codeformat";
+import { CodeFormatType } from "src/app/interfaces/codeformat";
 export const BCIDs=['code128','qrcode','datamatrix'] as const
 export type BcIdType=typeof BCIDs[number]
 export interface Code2ImageProperty{

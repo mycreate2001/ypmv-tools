@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { StatusInf, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK } from 'src/app/models/status-record.model';
+import { StatusInf, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK } from 'src/app/interfaces/status-record.model';
 // import { StatusInf, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK } from '../models/status-record.model';
 
 @Pipe({

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router';
-import { DetailFromId, OrderData, OrderDetail, _DB_ORDERS } from 'src/app/models/order.model';
+import { DetailFromId, OrderData, OrderDetail, _DB_ORDERS } from 'src/app/interfaces/order.model';
 import { FirestoreService } from '../firebase/firestore.service-2';
 import { getList } from 'src/app/utils/minitools';
-import { _DB_USERS, UserData } from 'src/app/models/user.model';
-import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
+import { _DB_USERS, UserData } from 'src/app/interfaces/user.model';
+import { CompanyData, _DB_COMPANY } from 'src/app/interfaces/company.model';
 // import { Observable } from 'rxjs';
 
 const USERS_ID_LIST=["userId","approvedBy"];

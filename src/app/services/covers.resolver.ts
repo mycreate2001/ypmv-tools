@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/router";
 import { FirestoreService } from "./firebase/firestore.service-2";
 import { Observable } from "rxjs";
-import { CoverData, _DB_COVERS } from "../models/cover.model";
+import { CoverData, _DB_COVERS } from "../interfaces/cover.interface";
 
 @Injectable({providedIn:'root'})
 export class CoversResolver implements Resolve<CoverData[]>{

@@ -4,7 +4,7 @@ import { ActionSheetController, ActionSheetOptions, AlertController,
           AlertOptions, LoadingController, ModalController, PopoverController, ToastController, ToastOptions } from '@ionic/angular';
 import { Mode, PopoverAttributes, PopoverSize, PositionAlign, PositionReference, PositionSide } from '@ionic/core';
 import { MenuPage } from 'src/app/modals/menu/menu.page';
-import { MenuData } from 'src/app/models/util.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 export interface ShowMenuOpts{
   showBackdrop?: boolean;
   backdropDismiss?: boolean;

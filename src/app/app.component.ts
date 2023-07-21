@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Unsubscribe } from 'firebase/auth';
 import { ProfilePage, ProfilePageOpts } from './modals/profile/profile.page';
-import { CompanyData, _DB_COMPANY } from './models/company.model';
-import { UserData, _DB_USERS } from './models/user.model';
-import { PageData } from './models/util.model';
+import { CompanyData, _DB_COMPANY } from './interfaces/company.model';
+import { UserData, _DB_USERS } from './interfaces/user.model';
+import { PageData } from './interfaces/util.model';
 import { DisplayService } from './services/display/display.service';
 import { AuthService } from './services/firebase/auth.service';
 import { FirestoreService } from './services/firebase/firestore.service';

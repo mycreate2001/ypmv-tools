@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { OrderData, OrderDataStatusType, OrderDetail } from 'src/app/models/order.model';
+import { OrderData, OrderDataStatusType, OrderDetail } from 'src/app/interfaces/order.model';
 import { BookingPage, BookingPageOpts } from 'src/app/modals/booking/booking.page';
 import { DisplayService } from 'src/app/services/display/display.service';
-import { MenuData } from 'src/app/models/util.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 import { searchObj } from 'src/app/utils/data.handle';
 
 type StatusType=OrderDataStatusType|"All"|"Auto"

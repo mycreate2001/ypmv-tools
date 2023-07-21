@@ -1,23 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertOptions, ModalController } from '@ionic/angular';
-import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
+import { createToolData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/interfaces/tools.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { UtilService } from 'src/app/services/util/util.service';
-import { ConfigId,  configs,  StatusConfig,  ToolStatusConfig,  _DB_CONFIGS } from 'src/app/models/config';
+import { ConfigId,  configs,  StatusConfig,  ToolStatusConfig,  _DB_CONFIGS } from 'src/app/interfaces/config';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
-import { CoverData, _DB_COVERS } from 'src/app/models/cover.model';
+import { CoverData, _DB_COVERS } from 'src/app/interfaces/cover.interface';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
 import { Alert } from 'selenium-webdriver';
-import { MenuData } from 'src/app/models/util.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 import { BCIDs, BcIdType } from 'src/app/services/util/util.interface';
-import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
-import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK, _STORAGE_STATUS_RECORD } from 'src/app/models/status-record.model';
+import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
+import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK, _STORAGE_STATUS_RECORD } from 'src/app/interfaces/status-record.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
 import { getList } from 'src/app/utils/minitools';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
-import { BasicData, createBasicData } from 'src/app/models/basic.model';
+import { BasicData, createBasicData } from 'src/app/interfaces/basic.model';
 import { getUpdateImages, StorageService } from 'src/app/services/firebase/storage.service';
 import { FirebaseStorage } from 'firebase/storage';
 import { ActivatedRoute } from '@angular/router';
@@ -87,7 +87,7 @@ export class ToolPage implements OnInit {
         this.toolSv.getAddr(tool)
       ])
       .then(([config,model,records,addr])=>{
-        this.stay=tool.stay||addr.join("/")
+        this.stay=tool.stay||addr.join(" / ")
         this.statusConfigs=config.statuslist.map(cf=>{
           const list:string[]=[_STATUS_OK.key,_STATUS_NOTYET.key,...cf.list]
           return {...cf,list}

@@ -2,7 +2,7 @@ import { Component, OnInit} from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { analysisCode, CodeFormatData, _DB_FORMATS } from 'src/app/models/codeformat';
+import { analysisCode, CodeFormatData, _DB_FORMATS } from 'src/app/interfaces/codeformat';
 import { BarcodeFormat } from '@zxing/library'
 export declare type QRResultType = 'pure data' | 'data only' | 'analysis';
 const _BACKUP_LIST=['flash','currentCamera'];//Keep local

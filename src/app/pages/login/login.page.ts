@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProfilePage } from 'src/app/modals/profile/profile.page';
-import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
-import { createUserData, UserData } from 'src/app/models/user.model';
+import { CompanyData, _DB_COMPANY } from 'src/app/interfaces/company.model';
+import { createUserData, UserData } from 'src/app/interfaces/user.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 // import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';

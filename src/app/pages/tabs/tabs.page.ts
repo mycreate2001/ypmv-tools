@@ -3,7 +3,7 @@ import { BookingPage, BookingPageOpts } from 'src/app/modals/booking/booking.pag
 import { CoverPage, CoverPageOpts } from 'src/app/modals/cover/cover.page';
 import { QRcodePageOpts, QRcodePageOuts, QRcodePageRole, QrcodePage } from 'src/app/modals/qrcode/qrcode.page';
 import { ToolPage, ToolPageOpts } from 'src/app/modals/tool/tool.page';
-import { CoverData } from 'src/app/models/cover.model';
+import { CoverData } from 'src/app/interfaces/cover.interface';
 import { DisplayService } from 'src/app/services/display/display.service';
 
 @Component({

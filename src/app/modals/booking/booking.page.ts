@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import {  BasicData, BasicDataType, ChildData, createBasicData, createChildData } from 'src/app/models/basic.model';
-import { BasicDataExt, createBasicDataExt, createOrderData, OrderData, OrderDataStatusType, _DB_ORDERS, _STORAGE_ORDERS } from 'src/app/models/order.model';
-import { CodeFormatConfig } from 'src/app/models/codeformat';
-import {  _DB_COMPANY } from 'src/app/models/company.model';
-import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
-import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
-import {  _DB_USERS } from 'src/app/models/user.model';
-import { createUrlData, UrlData } from 'src/app/models/util.model';
+import {  BasicData, BasicDataType, ChildData, createBasicData, createChildData } from 'src/app/interfaces/basic.model';
+import { BasicDataExt, createBasicDataExt, createOrderData, OrderData, OrderDataStatusType, _DB_ORDERS, _STORAGE_ORDERS } from 'src/app/interfaces/order.model';
+import { CodeFormatConfig } from 'src/app/interfaces/codeformat';
+import {  _DB_COMPANY } from 'src/app/interfaces/company.model';
+import { CoverData, getCovers, _DB_COVERS } from 'src/app/interfaces/cover.interface';
+import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/interfaces/tools.model';
+import {  _DB_USERS } from 'src/app/interfaces/user.model';
+import { createUrlData, UrlData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -18,8 +18,8 @@ import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../q
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
-import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NOTYET, _STORAGE_STATUS_RECORD } from 'src/app/models/status-record.model';
-import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
+import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NOTYET, _STORAGE_STATUS_RECORD } from 'src/app/interfaces/status-record.model';
+import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
 
 @Component({
   selector: 'app-booking',

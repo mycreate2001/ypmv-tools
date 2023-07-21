@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { config } from '../../utils/config'
-import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
-import { configs, UserConfig, _DB_CONFIGS } from 'src/app/models/config';
-import { createUserData, UserData, UserRoleList, _DB_USERS, _STORAGE_USERS } from 'src/app/models/user.model';
+import { CompanyData, _DB_COMPANY } from 'src/app/interfaces/company.model';
+import { configs, UserConfig, _DB_CONFIGS } from 'src/app/interfaces/config';
+import { createUserData, UserData, UserRoleList, _DB_USERS, _STORAGE_USERS } from 'src/app/interfaces/user.model';
 
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
-import { UrlData } from 'src/app/models/util.model';
+import { UrlData } from 'src/app/interfaces/util.model';
 const BACKUP_LIST=["user",'addImage']
 
 @Component({

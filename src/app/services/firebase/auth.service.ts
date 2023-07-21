@@ -5,7 +5,7 @@ import { Auth,getAuth,
          createUserWithEmailAndPassword,
          sendEmailVerification,signOut, updateProfile,
          User,onAuthStateChanged, UserCredential, Unsubscribe                      } from 'firebase/auth'
-import { UserData, UserDataOpts } from 'src/app/models/user.model';
+import { UserData, UserDataOpts } from 'src/app/interfaces/user.model';
 import { createOpts } from 'src/app/utils/minitools';
 import { environment } from 'src/environments/environment';
 import { DisplayService } from '../display/display.service';

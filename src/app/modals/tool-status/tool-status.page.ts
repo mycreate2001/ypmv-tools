@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { BasicData } from 'src/app/models/basic.model';
-import { configs, StatusConfig, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/models/config';
-import { StatusInf, ToolStatus, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK } from 'src/app/models/status-record.model';
+import { BasicData } from 'src/app/interfaces/basic.model';
+import { configs, StatusConfig, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/interfaces/config';
+import { StatusInf, ToolStatus, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK } from 'src/app/interfaces/status-record.model';
 // import { CheckData, OrderDataStatusType } from 'src/app/models/order.model';
 // import { statusList } from 'src/app/models/tools.model';
-import { createUrlData, MenuData, UrlData } from 'src/app/models/util.model';
+import { createUrlData, MenuData, UrlData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';

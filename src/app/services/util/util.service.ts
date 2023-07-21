@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import QrCreator from 'qr-creator';
-import { CodeFormatConfig, CodeFormatType } from 'src/app/models/codeformat';
+import { CodeFormatConfig, CodeFormatType } from 'src/app/interfaces/codeformat';
 import { createOpts, obj2attr } from 'src/app/utils/minitools';
 import bwipjs from 'bwip-js'
 import { BCIDs, BcIdType, Code2ImagePropertyOpts, createWindowProperty, dfCode2ImageProperty, WindowPropertyOpts } from './util.interface';
-import { MenuData } from 'src/app/models/util.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 import { DisplayService } from '../display/display.service';
 
 

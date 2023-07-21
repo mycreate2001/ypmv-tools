@@ -5,7 +5,7 @@ import {  getStorage,uploadString,ref,
           getDownloadURL,listAll,deleteObject,
           uploadBytesResumable, FirebaseStorage,
           UploadResult,          } from 'firebase/storage';
-import { createUrlData, UrlData } from 'src/app/models/util.model';
+import { createUrlData, UrlData } from 'src/app/interfaces/util.model';
 import { Base64 } from 'src/app/utils/base64';
 import { environment } from 'src/environments/environment';
 

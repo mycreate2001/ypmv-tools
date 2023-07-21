@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CompanyPage } from 'src/app/modals/company/company.page';
-import { CompanyData, createCompanyData, _DB_COMPANY } from 'src/app/models/company.model';
-import { MenuData } from 'src/app/models/util.model';
+import { CompanyData, createCompanyData, _DB_COMPANY } from 'src/app/interfaces/company.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 

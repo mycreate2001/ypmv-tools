@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Config, ModalController } from '@ionic/angular';
-import { BasicData, ChildData, createBasicData } from 'src/app/models/basic.model';
-import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS} from '../../models/cover.model';
-import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
+import { BasicData, ChildData, createBasicData } from 'src/app/interfaces/basic.model';
+import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS} from '../../interfaces/cover.interface';
+import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/interfaces/tools.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { getList } from 'src/app/utils/minitools';
@@ -13,12 +13,13 @@ import { UtilService } from 'src/app/services/util/util.service';
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { getUpdateImages, StorageService } from 'src/app/services/firebase/storage.service';
-import { UrlData } from 'src/app/models/util.model';
-import { ConfigId, configList, configs, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/models/config';
-import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
+import { UrlData } from 'src/app/interfaces/util.model';
+import { ConfigId, configList, configs, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/interfaces/config';
+import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
-import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD } from 'src/app/models/status-record.model';
+import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD } from 'src/app/interfaces/status-record.model';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
+import { ToolService } from 'src/app/services/tool.service';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -44,6 +45,7 @@ export class CoverPage implements OnInit {
   AllStatusList:string[]=[];
   histories:SelfHistory[]=[];
   lastRecord:StatusRecord=null;   //save last status of box
+  addr:string=''
   /** internal control */
   isAvailble:boolean=false;
   isChange:boolean=false;
@@ -55,7 +57,8 @@ export class CoverPage implements OnInit {
     private disp:DisplayService,
     public util:UtilService,
     private auth:AuthService,
-    private storage:StorageService
+    private storage:StorageService,
+    private toolsv:ToolService
   ) { }
   
   /** intial */
@@ -71,8 +74,11 @@ export class CoverPage implements OnInit {
         this.db.get(_DB_CONFIGS,groupId),
         this._getChildren(),
         this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,
-        this.db.search(_DB_STATUS_RECORD,{key:'ids',type:'array-contains',value:'cover-'+this.cover.id}) as Promise<StatusRecord[]>
-      ]).then(([configs,children,statusConfig,records])=>{
+        this.db.search(_DB_STATUS_RECORD,{key:'ids',type:'array-contains',value:'cover-'+this.cover.id}) as Promise<StatusRecord[]>,
+        this.toolsv.getAddr(cover)
+      ]).then(([configs,children,statusConfig,records,addr])=>{
+        console.log(" *** note *** addr:",addr)
+        this.addr=addr.join(" / ");
         this.groups=configs['list']
         console.log("group",this.groups)
         if(!this.cover.statusList) this.cover.statusList=[];

@@ -78,16 +78,22 @@
       </ion-item>
       <ion-item button (click)="selectCompany()">
         <ion-label>Stay</ion-label>
-        <ng-container *ngIf="cover.stay|db:'companies'|async as company;else nocompany">
+        <ng-container *ngIf="cover.stay;else nocompany">
           <ion-chip>
             <ion-avatar>
-              <img [src]="company.image|url">
+              <img [src]="cover.stay.image|url">
             </ion-avatar>
-            <ion-label>{{company.name}}</ion-label>
+            <ion-label>{{cover.stay.name}}</ion-label>
           </ion-chip>
         </ng-container>
-        <ng-template #nocompany>select company</ng-template>
+        <ng-template #nocompany><i>(select company)</i></ng-template>
       </ion-item>
+
+      <ion-item>
+        <ion-label>Address</ion-label>
+        <ion-text>{{addr}}</ion-text>
+      </ion-item>
+
       <ion-item>
         <ion-label>Note</ion-label>
          <ion-textarea [(ngModel)]="cover.comment"></ion-textarea>

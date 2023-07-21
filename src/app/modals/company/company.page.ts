@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { CompanyData, createCompanyData, CompanyType, _DB_COMPANY, _STORAGE_COMPANY } from 'src/app/models/company.model';
+import { CompanyData, createCompanyData, CompanyType, _DB_COMPANY, _STORAGE_COMPANY } from 'src/app/interfaces/company.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
-import { ColorType, MenuData } from 'src/app/models/util.model';
+import { ColorType, MenuData } from 'src/app/interfaces/util.model';
 
 @Component({
   selector: 'app-menu',

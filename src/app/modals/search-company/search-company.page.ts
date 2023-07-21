@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { CompanyData, CompanyType, _DB_COMPANY } from 'src/app/models/company.model';
-import { MenuData } from 'src/app/models/util.model';
+import { CompanyData, CompanyType, _DB_COMPANY } from 'src/app/interfaces/company.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService, QueryData } from 'src/app/services/firebase/firestore.service';
 import { searchObj } from 'src/app/utils/data.handle';

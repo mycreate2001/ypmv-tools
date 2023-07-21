@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { ModelData, _DB_MODELS } from "../models/tools.model";
+import { ModelData, _DB_MODELS } from "../interfaces/tools.model";
 import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from "@angular/router";
 import { FirestoreService } from "./firebase/firestore.service-2";
 import { Observable } from "rxjs";

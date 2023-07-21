@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DisplayService } from 'src/app/services/display/display.service';
-import { analysisCode, checkCode, CodeFormatData, CodeFormatList, createExtractData, createFormatData } from 'src/app/models/codeformat';
+import { analysisCode, checkCode, CodeFormatData, CodeFormatList, createExtractData, createFormatData } from 'src/app/interfaces/codeformat';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../qrcode/qrcode.page';
 
 @Component({

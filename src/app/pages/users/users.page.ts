@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ProfilePage, ProfilePageOpts } from 'src/app/modals/profile/profile.page';
-import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
-import { UserConfig, _DB_CONFIGS } from 'src/app/models/config';
-import { UserData, UserRole, _DB_USERS } from 'src/app/models/user.model';
+import { CompanyData, _DB_COMPANY } from 'src/app/interfaces/company.model';
+import { UserConfig, _DB_CONFIGS } from 'src/app/interfaces/config';
+import { UserData, UserRole, _DB_USERS } from 'src/app/interfaces/user.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { getList } from 'src/app/utils/minitools';
-import { configs} from '../../models/config'
+import { configs} from '../../interfaces/config'
 interface ViewsData{
   group:string;
   users:UserData[]

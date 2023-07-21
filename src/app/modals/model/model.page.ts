@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { ConfigId, configs, GroupConfig, StatusConfig, ToolStatusConfig, _DB_CONFIGS } from 'src/app/models/config';
-import { createSelfHistory, SelfHistory } from 'src/app/models/save-infor.model';
-import { createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/models/tools.model';
-import { UserData } from 'src/app/models/user.model';
-import { UrlData } from 'src/app/models/util.model';
+import { ConfigId, configs, GroupConfig, StatusConfig, ToolStatusConfig, _DB_CONFIGS } from 'src/app/interfaces/config';
+import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
+import { createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/interfaces/tools.model';
+import { UserData } from 'src/app/interfaces/user.model';
+import { UrlData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 

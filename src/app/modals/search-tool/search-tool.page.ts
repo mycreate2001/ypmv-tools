@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { BasicData, BasicView, ChildData, createBasicData } from 'src/app/models/basic.model';
-import { CodeFormatConfig, CodeFormatList } from 'src/app/models/codeformat';
-import { CoverData, getCovers, _DB_COVERS } from 'src/app/models/cover.model';
-import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/models/tools.model';
-import { MenuData } from 'src/app/models/util.model';
+import { BasicData, BasicView, ChildData, createBasicData } from 'src/app/interfaces/basic.model';
+import { CodeFormatConfig, CodeFormatList } from 'src/app/interfaces/codeformat';
+import { CoverData, getCovers, _DB_COVERS } from 'src/app/interfaces/cover.interface';
+import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/interfaces/tools.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { searchObj, separateObj } from 'src/app/utils/data.handle';

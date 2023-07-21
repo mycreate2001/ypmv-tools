@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormatDetailPage, FormatDetailPageOpts, FormatDetailPageOuts, FormatDetailPageRole } from '../../modals/format-detail/format-detail.page';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../../modals/qrcode/qrcode.page';
 import { DisplayService } from '../../services/display/display.service';
-import { analysisCode, CodeFormatData, createFormatData, _DB_FORMATS } from '../../models/codeformat';
+import { analysisCode, CodeFormatData, createFormatData, _DB_FORMATS } from '../../interfaces/codeformat';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 
 

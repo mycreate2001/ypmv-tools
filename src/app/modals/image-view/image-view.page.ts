@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DOC_ORIENTATION, NgxImageCompressService } from 'ngx-image-compress';
-import { createUrlData, MenuData, UrlData } from 'src/app/models/util.model';
+import { createUrlData, MenuData, UrlData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { CameraPage, CameraPageOuts } from '../camera/camera.page';
 

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { _DB_USERS } from 'src/app/models/user.model';
+import { _DB_USERS } from 'src/app/interfaces/user.model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 @Pipe({
   name: 'db'

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { UrlData } from 'src/app/models/util.model';
+import { UrlData } from 'src/app/interfaces/util.model';
 const _NO_IMAGE="../../../assets/image/no-image.png"
 @Pipe({
   name: 'url'

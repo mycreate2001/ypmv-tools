@@ -1,4 +1,5 @@
 import { createOpts } from "../utils/minitools";
+import { BasicItem } from "./basic-item.interface";
 import { ChildData } from "./basic.model";
 import { createSaveInf, SaveInfo } from "./save-infor.model";
 import { UrlData } from "./util.model";
@@ -11,8 +12,12 @@ export interface CoverData extends SaveInfo{
     childrenId:ChildData[];       // tools/covers Id
     images:UrlData[];           // images of cover
     upperId:string;            // parents ID
-    stay:string;                // where keep it when stay alone
+    stay:string|BasicItem;                // where keep it when stay alone
     statusList:string[];
+}
+
+export interface CoverDataExt extends CoverData{
+    upper:BasicItem;
 }
 
 

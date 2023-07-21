@@ -88,4 +88,7 @@ Not delete database, just set destroy data to database
 - scan to active any tab    OK
 - combine model & tool      Not yet
 - search include tool id    OK
-- link/address for each tool
+- current stay link/address for each tool
+
+## 2023Jul21
+- address for tool/cover    OK

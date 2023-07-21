@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { BookingPage, BookingPageOpts } from 'src/app/modals/booking/booking.page';
 import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from 'src/app/modals/qrcode/qrcode.page';
-import { OrderData, OrderDataStatusType, _DB_ORDERS } from 'src/app/models/order.model';
-import { CodeFormatConfig } from 'src/app/models/codeformat';
-import { CompanyData, _DB_COMPANY } from 'src/app/models/company.model';
-import { UserRole, _DB_USERS } from 'src/app/models/user.model';
-import { MenuData } from 'src/app/models/util.model';
+import { OrderData, OrderDataStatusType, _DB_ORDERS } from 'src/app/interfaces/order.model';
+import { CodeFormatConfig } from 'src/app/interfaces/codeformat';
+import { CompanyData, _DB_COMPANY } from 'src/app/interfaces/company.model';
+import { UserRole, _DB_USERS } from 'src/app/interfaces/user.model';
+import { MenuData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
