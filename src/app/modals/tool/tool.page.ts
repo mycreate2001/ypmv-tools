@@ -20,6 +20,8 @@ import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageR
 import { BasicData, createBasicData } from 'src/app/models/basic.model';
 import { getUpdateImages, StorageService } from 'src/app/services/firebase/storage.service';
 import { FirebaseStorage } from 'firebase/storage';
+import { ActivatedRoute } from '@angular/router';
+import { ToolService } from 'src/app/services/tool.service';
 const _CHANGE_LIST="select,input,checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -41,6 +43,7 @@ export class ToolPage implements OnInit {
   isNew:boolean=false;  //new code
   isAvailable:boolean=false;
   statusConfigs:StatusConfig[];
+  stay:string=''
   // lastStatus:ToolStatus=null;
   lastRecord:StatusRecord=null;
   backup:string[];
@@ -56,7 +59,9 @@ export class ToolPage implements OnInit {
     private auth:AuthService,
     private util:UtilService,
     private disp:DisplayService,
-    private storage:StorageService
+    private storage:StorageService,
+    private route:ActivatedRoute,
+    private toolSv:ToolService
   ) {
 
   }
@@ -65,6 +70,8 @@ export class ToolPage implements OnInit {
 
   /** init */
   ngOnInit() {
+    //tét
+    
     //1. get tool
     this._getTool()
     .then(({isNew,tool})=>{
@@ -76,9 +83,11 @@ export class ToolPage implements OnInit {
       Promise.all([
         this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,
         this.db.get(_DB_MODELS,this.tool.model) as Promise<ModelData>,
-        this.db.search(_STORAGE_STATUS_RECORD,{key:'ids',type:'array-contains',value:'tool-'+this.toolId}) as Promise<StatusRecord[]>
+        this.db.search(_STORAGE_STATUS_RECORD,{key:'ids',type:'array-contains',value:'tool-'+this.toolId}) as Promise<StatusRecord[]>,
+        this.toolSv.getAddr(tool)
       ])
-      .then(([config,model,records])=>{
+      .then(([config,model,records,addr])=>{
+        this.stay=tool.stay||addr.join("/")
         this.statusConfigs=config.statuslist.map(cf=>{
           const list:string[]=[_STATUS_OK.key,_STATUS_NOTYET.key,...cf.list]
           return {...cf,list}

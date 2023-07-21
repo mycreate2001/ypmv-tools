@@ -52,6 +52,8 @@ export interface ToolData extends SaveInfo{
     stay:string;                // where keep tool (stay alone)
     upperId:string;             // cover/box keep this tool
     companyId:string;           // owner
+    address?:string;            //
+    targetMch:string;           // target machine
 }
 
 
@@ -73,7 +75,8 @@ export function createToolData(opts?:ToolDataOpts):ToolData{
         model:'',
         stay:'',
         upperId:'',
-        companyId:''
+        companyId:'',
+        targetMch:'*'
     }
     return createOpts(df,opts) as ToolData;
 }

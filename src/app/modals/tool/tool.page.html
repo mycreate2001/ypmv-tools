@@ -86,15 +86,10 @@
         </ion-text>
         <ng-template #noparents>(select parents)</ng-template>
       </ion-item>
-      <!-- company -->
-      <ion-item *ngIf="tool.stay|db:'companies'|async as company">
+      <!-- stay -->
+      <ion-item >
         <ion-label>Current stay</ion-label>
-        <ion-chip>
-          <ion-avatar>
-            <img [src]="company.image|url">
-          </ion-avatar>
-          <ion-label>{{company.name}}</ion-label>
-        </ion-chip>
+        <ion-text>{{stay}}</ion-text>
       </ion-item>
       <ion-accordion-group>
         <!-- status -->

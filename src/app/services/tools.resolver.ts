@@ -8,6 +8,7 @@ import { Observable } from "rxjs";
 export class ToolsResolver implements Resolve<ToolData[]>{
     constructor(private db:FirestoreService){}
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): ToolData[] | Observable<ToolData[]> | Promise<ToolData[]> {
+        // console.log("route:\n",route);
         return this.db.search(_DB_TOOLS);
     }
 }

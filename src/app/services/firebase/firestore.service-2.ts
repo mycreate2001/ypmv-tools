@@ -137,10 +137,10 @@ export class FirestoreService {
    * message "get [id] from [tbl] with online" to the console.
    * @returns a Promise that resolves to an object of type T.
    */
-  private async get<T>(tbl:string,id:string,debug:boolean=false):Promise<T>{
+  async get<T>(tbl:string,id:string,debug:boolean=false):Promise<T|undefined>{
     if(!id||!tbl) throw new Error("data format is wrong")
     return getDoc(doc(this.db,tbl,id)).then((snap)=>{
-      if(!snap.exists()) throw new Error('data not exist')
+      if(!snap.exists()) return;
       if(debug) console.log('get "%s" from "%s" with online',id,tbl)
       const data=snap.data() as T
       return {...data,id:snap.id}

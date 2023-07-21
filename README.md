@@ -84,7 +84,8 @@ Not delete database, just set destroy data to database
 
 # release
 ## 2023Jul11
-- change interface to tab
-- scan to active any tab
-- combine model & tool
-- search include tool id
+- change interface to tab   OK
+- scan to active any tab    OK
+- combine model & tool      Not yet
+- search include tool id    OK
+- link/address for each tool

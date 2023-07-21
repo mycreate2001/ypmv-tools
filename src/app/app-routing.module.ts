@@ -18,10 +18,6 @@ const routes: Routes = [
     loadChildren: () => import('./modals/qrcode/qrcode.module').then( m => m.QrcodePageModule)
   },
   {
-    path: 'tool',
-    loadChildren: () => import('./modals/tool/tool.module').then( m => m.ToolPageModule)
-  },
-  {
     path: 'search-tool',
     loadChildren: () => import('./modals/search-tool/search-tool.module').then( m => m.SearchToolPageModule)
   },
