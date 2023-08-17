@@ -1,8 +1,8 @@
-import { createOpts } from "../utils/minitools";
+import { createOpts, uuid } from "../utils/minitools";
 import { BasicItem } from "./basic-item.interface";
 import { ChildData } from "./basic.model";
-import { createSaveInf, SaveInfo } from "./save-infor.model";
-import { UrlData } from "./util.model";
+import { SaveInfo, createSaveInfor } from "./save-infor.model";
+import { UrlData } from "./urldata.interface";
 
 
 export interface CoverData extends SaveInfo{
@@ -11,36 +11,29 @@ export interface CoverData extends SaveInfo{
     group:string;               // group
     childrenId:ChildData[];       // tools/covers Id
     images:UrlData[];           // images of cover
-    upperId:string;            // parents ID
-    stay:string|BasicItem;                // where keep it when stay alone
+    upper:BasicItem;            // parents ID
+    stay:BasicItem;                // where keep it when stay alone
     statusList:string[];
 }
 
+export function createCoverData(opts?:Partial<CoverData>):CoverData{
+    const df:CoverData={
+        ...createSaveInfor(opts),
+        id:'cv-'+uuid(),
+        name:'',
+        group:'',
+        childrenId:[],
+        images:[],
+        upper:null,
+        stay:null,
+        statusList:[]
+    }
+    return createOpts(df,opts)
+}
 export interface CoverDataExt extends CoverData{
     upper:BasicItem;
 }
 
-
-
-export type CoverDataOpts =Partial<CoverData>
-
-export function createCoverData(opts?:CoverDataOpts):CoverData{
-    const now=new Date();
-    const id:string=now.getTime().toString(36)+'-'+Math.random().toString(36).substring(2,10);
-    const createAt:string=now.toISOString();
-    const df:CoverData={
-        ...createSaveInf({createAt,...opts}),
-        id,                  // Id
-        name:'',                // name
-        group:'',               // group
-        childrenId:[],          // tools/covers Id
-        images:[],              // images of cover
-        upperId:'',             // parents ID
-        stay:'',                // where keep it when stay alone
-        statusList:[]
-    }
-    return createOpts(df,opts) as CoverData;
-}
 
 /**
  * get all cover from main cover
@@ -63,8 +56,5 @@ export function getCovers(coversId:ChildData[],allCovers:CoverData[],selectedCov
     return selectedCovers;
 }
 
-
-// export const _DB_COVERS="covers"
-// export const _STORAGE_COVERS="covers"
 export const _DB_COVERS="covers"
 export const _STORAGE_COVERS="covers"

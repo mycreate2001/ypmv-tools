@@ -63,7 +63,7 @@
     <!-- company -->
     <ion-item>
       <ion-label>Company</ion-label>
-      <ng-container *ngIf="user.companyId|db:'companies'|async as company">
+      <ng-container *ngIf="user.company as company">
         <img [src]="company.image|url" class="logo">
         <div>{{company.name}}</div>
       </ng-container>
@@ -100,11 +100,11 @@
       <ion-input [(ngModel)]="user.name"></ion-input>
     </ion-item>
     <!-- company -->
-    <ion-item>
+    <ion-item button>
       <ion-label>Company</ion-label>
-      <ion-select [(ngModel)]="user.companyId">
-        <ion-select-option [value]="company.id" *ngFor="let company of companies">{{company.name}}</ion-select-option>
-      </ion-select>
+      <ion-text>
+        {{user.company.name}}
+      </ion-text>
     </ion-item>
 
     <!-- role -->

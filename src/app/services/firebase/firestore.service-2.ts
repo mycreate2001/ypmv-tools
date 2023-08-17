@@ -13,10 +13,8 @@ import { getFirestore,doc,getDoc,getDocs,updateDoc,
          onSnapshot,
          query,
          where,
-         Firestore
-                                    } from 'firebase/firestore'
-import { makeId, uuid } from '../../utils/minitools';
-import { Unsubscribe } from 'firebase/auth';
+         Firestore } from 'firebase/firestore'
+import { makeId } from '../../utils/minitools';
 import { getUpdate, UpdateInf } from 'src/app/utils/data.handle';
 import { debug } from 'console';
 
@@ -138,7 +136,7 @@ export class FirestoreService {
    * @returns a Promise that resolves to an object of type T.
    */
   async get<T>(tbl:string,id:string,debug:boolean=false):Promise<T|undefined>{
-    if(!id||!tbl) throw new Error("data format is wrong")
+    if(!id||!tbl) return;
     return getDoc(doc(this.db,tbl,id)).then((snap)=>{
       if(!snap.exists()) return;
       if(debug) console.log('get "%s" from "%s" with online',id,tbl)

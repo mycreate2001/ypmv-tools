@@ -4,7 +4,6 @@ import { ConfigId, configs, GroupConfig, StatusConfig, ToolStatusConfig, _DB_CON
 import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
 import { createModelData, ModelData, ToolData, _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from 'src/app/interfaces/tools.model';
 import { UserData } from 'src/app/interfaces/user.model';
-import { UrlData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 
@@ -13,6 +12,8 @@ import { StorageService } from 'src/app/services/firebase/storage.service';
 
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-view/image-view.page';
 import { ToolPage, ToolPageOpts } from '../tool/tool.page';
+import { UrlData } from 'src/app/interfaces/urldata.interface';
+import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interface';
 
 const _BACKUP_LIST="model".split(",")
 const _UPDATE_LIST="ion-text,ion-select,ion-input,ion-checkbox,ion-textarea"
@@ -94,7 +95,7 @@ export class ModelPage implements OnInit {
   /** check & get model data */
   private async _getModel():Promise<{model:ModelData,isNew:boolean}>{
     if(!this.model&&!this.modelId){//new case
-      const model=createModelData({userId:this.auth.currentUser.id,companyId:this.auth.currentUser.companyId})
+      const model=createModelData({user:createBasicItem({...this.auth.currentUser,type:'user'})})
       return {model,isNew:true}
     }
     if(this.model) return {isNew:false,model:this.model}

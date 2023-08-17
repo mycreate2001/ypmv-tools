@@ -24,8 +24,9 @@
              <ion-col></ion-col>
            </ion-row>
           </ion-list>
+
           <!-- register form -->
-          <!-- <ion-list lines="none" *ngIf="isRegister">
+          <ion-list lines="none" *ngIf="isRegister">
             <ion-item>
               <ion-label>E-mail</ion-label>
               <ion-input role="isRequire" [(ngModel)]="email"></ion-input>
@@ -40,9 +41,7 @@
             </ion-item>
             <ion-item>
               <ion-label>Company</ion-label>
-              <ion-select [(ngModel)]="companyId" >
-                <ion-select-option [value]="comp.id" *ngFor="let comp of companies">{{comp.name}}</ion-select-option>
-              </ion-select>
+              <ion-text > {{company?company.name:'select company'}}</ion-text>
             </ion-item>
            <ion-row>
              <ion-col></ion-col>
@@ -53,7 +52,7 @@
              </ion-col>
              <ion-col></ion-col>
            </ion-row>
-          </ion-list> -->
+          </ion-list>
           <ion-note class="msg">{{msg}}</ion-note>
         </ion-card>
         <!-- <div class="center">

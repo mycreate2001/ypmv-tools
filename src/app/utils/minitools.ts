@@ -113,13 +113,8 @@ export function toArray<T>(data:T|T[]):T[]{
 
 
 export function createOpts<T>(defaultObj:T,...opts:Partial<T>[]):T{
-    // if(!opts) return defaultValue;
-    // Object.keys(defaultValue).forEach(key=>{
-    //     if(opts[key]==undefined) return;
-    //     defaultValue[key]=opts[key]
-    // });
-    // return {...defaultValue};
     opts.forEach(opt=>{
+        if(!opt) return;
         Object.keys(defaultObj).forEach(key=>{
             const val=opt[key];
             if(val==undefined) return;

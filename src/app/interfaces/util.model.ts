@@ -1,4 +1,3 @@
-import { createOpts } from "../utils/minitools";
 import { CompanyType } from "./company.model";
 import { UserRole } from "./user.model";
 
@@ -37,21 +36,3 @@ export interface ButtonData{
     iconColor?:ColorType
 }
 
-//** data */
-export interface UrlData{
-    url:string;
-    thumbnail:string;
-    caption:string;
-}
-
-//export type ModelDataOpts = Partial<ModelData>
-export type UrlDataOpts = Partial<UrlData>
-
-export function createUrlData(opts?:UrlDataOpts){
-    const df:UrlData={
-        url:'',
-        thumbnail:'',
-        caption:''
-    }
-    return createOpts(df,opts)
-}

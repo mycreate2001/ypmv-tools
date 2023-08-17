@@ -1,5 +1,6 @@
 import { createOpts } from "../utils/minitools";
-import { UrlData } from "./util.model";
+import { BasicItem } from "./basic-item.interface";
+import { UrlData, createUrlData } from "./urldata.interface";
 export const UserRoleList=["admin","manager","leader","standard"] as const
 export type UserRole= typeof  UserRoleList[number]
 export interface UserData{
@@ -7,10 +8,10 @@ export interface UserData{
     email:string;
     name:string;
     role:UserRole;
-    image:string|UrlData;
+    image:UrlData;
     createAt:string;
     lastLogin:string;
-    companyId:string;
+    company:BasicItem;
     deactive:boolean;
 }
 
@@ -23,8 +24,8 @@ export function createUserData(opts?:UserDataOpts):UserData{
         email:'',
         name:'',
         role:'standard',
-        image:'',
-        companyId:'',
+        image:createUrlData(),
+        company:opts.company||null,
         createAt:now.toISOString(),
         lastLogin:now.toISOString(),
         deactive:false

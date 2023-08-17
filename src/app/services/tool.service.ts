@@ -3,6 +3,7 @@ import { FirestoreService } from "./firebase/firestore.service-2";
 import { CoverData, _DB_COVERS } from "../interfaces/cover.interface";
 import { ToolData, _DB_TOOLS } from "../interfaces/tools.model";
 import { CompanyData, _DB_COMPANY } from "../interfaces/company.model";
+import { BasicItem } from "../interfaces/basic-item.interface";
 // import { ChildData } from "../interfaces/basic.model";
 
 @Injectable({
@@ -12,35 +13,29 @@ import { CompanyData, _DB_COMPANY } from "../interfaces/company.model";
 export class ToolService{
     constructor(private db:FirestoreService){}
     async getAddr(tool:CoverData|ToolData,opts?:Partial<getAddrOption>):Promise<string[]>{
-        // error
-        if(!tool ||!tool.id) return Promise.resolve([]);
-        console.log("[getAddr] #1 verified success ")
-        // already have
-        if(tool.stay) {
-            if(typeof tool.stay=='string'){
-                const company:CompanyData=await this.getCompany(tool.stay);
-                if(!company) return [tool.stay];
-                tool.stay={id:company.id,name:company.name,image:{url:company.image,thumbnail:company.image,caption:''},type:'company'}
-            }
-            return [tool.stay.name]
-        }
-        console.log("[getAddr] #2 stay is empty ")
-        //option
+        //1. check data
+        if(!tool||!tool.id) return [];//tool error
+        //2. correct data
         const _opts:getAddrOption=Object.assign({},{covers:[],roots:[]},opts)
-        console.log("[getAddr] #3 _opts",{_opts})
-        //unknown (error data)
-        const coverId:string=tool.upperId;
-        console.log("[getAddr] #4 coverId",{coverId})
-        if(!coverId) return [];//unknown
+        //3.get address
+        //3.1 upper data (basci Item)
+        let upper:BasicItem=tool.upper;
+        //3.2 upper data is empty -->finish
+        if(!upper) return []
+        //3.2 getting coverdata
+        const coverId=typeof upper=='string'?upper:upper.id
+        let cover=_opts.covers.find(c=>c.id===coverId);
+        // 3.2.1 if not available in options
+        if(!cover){
+            cover=await this.db.get(_DB_COVERS,coverId);
+            //3.2.1.1 not available in db --> empty
+            if(!cover) return [];
+            _opts.covers.push(cover);//add to _opts
+        }
 
-        //get upper
-        const cover:CoverData=_opts.covers.find(c=>c.id===coverId)||await this.getCover(coverId);
-        console.log("[getAddr] #5 cover ",{cover})
-        if(!cover) return [];
+        //3.3 refresh new
+        return [..._opts.roots,cover.name,...await this.getAddr(cover,_opts)]
 
-        //
-        console.log("[getAddr] #6")
-        return [...await this.getAddr(cover,_opts),cover.name]
     }
 
 

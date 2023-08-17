@@ -77,6 +77,12 @@ const routes: Routes = [
     canActivate:[LoginGuard],
     loadChildren: () => import('./pages/tabs/tabs.module').then( m => m.TabsPageModule)
   },
+  {
+    path: 'fix',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./pages/fix/fix.module').then( m => m.FixPageModule)
+  },
+
 
 
 ];

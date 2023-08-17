@@ -1,19 +1,28 @@
 import { UpdateInf } from "../utils/data.handle";
 import { createOpts } from "../utils/minitools";
+import { BasicItem, createBasicItem } from "./basic-item.interface";
 
-/** save basic infor to database 
-    @param userId   create By who;
-    @param createAt when create;
-    @param comment  comment
-    @param lastUpdate last time revise
-*/
 export interface SaveInfo{
-    userId:string;
+    user:BasicItem
     createAt:string;
     comment:string;
     lastUpdate:string;
     histories:SelfHistory[];
     destroyDate:string;
+}
+
+export function createSaveInfor(opts?:Partial<SaveInfo>):SaveInfo{
+    const now=new Date().toISOString();
+    const df:SaveInfo={
+        user:createBasicItem({...opts.user,type:'user'}),
+        createAt:now,
+        comment:'',
+        lastUpdate:now,
+        histories:[],
+        destroyDate:''
+    }
+
+    return createOpts(df,opts)
 }
 
 export interface SelfHistory{
@@ -34,16 +43,3 @@ export function createSelfHistory(opts:SelfHistoryOpts={}){
 }
 
 export type SaveInfoOpts=Partial<SaveInfo>
-
-export function createSaveInf(opts?:SaveInfoOpts):SaveInfo{
-    const now=new Date().toISOString();
-    const df:SaveInfo={
-        userId:'',
-        createAt:now,
-        comment:'',
-        lastUpdate:now,
-        histories:[],
-        destroyDate:''
-    }
-    return Object.assign(df,opts);
-}

@@ -72,7 +72,7 @@
   
       <ion-item>
         <ion-label>Create by</ion-label>
-        <ion-chip color="primary" *ngIf="order.userId|db:'users'|async as user">
+        <ion-chip color="primary" *ngIf="order.user as user">
           <ion-avatar >
             <img class="avatar" [src]="user.image">
           </ion-avatar>
@@ -83,7 +83,7 @@
       <ion-item (click)="selectCompany()" button>
         <ion-label>Company</ion-label>
         
-        <ion-chip color="primary" *ngIf="order.companyId|db:'companies' | async as company;else nocompany" >
+        <ion-chip color="primary" *ngIf="order.company as company;else nocompany" >
           <ion-avatar>
             <img class="avatar" [src]="company.image">
           </ion-avatar>
@@ -184,7 +184,7 @@
     
         <ion-item>
           <ion-label>Create by</ion-label>
-          <ion-chip color="primary" *ngIf="order.userId|db:'users'|async as user">
+          <ion-chip color="primary" *ngIf="order.user as user">
             <ion-avatar >
               <img class="avatar" [src]="user.image">
             </ion-avatar>
@@ -194,7 +194,7 @@
       
         <ion-item >
           <ion-label>Company</ion-label>
-          <ion-chip color="primary" *ngIf="order.companyId|db:'companies' | async as company;else nocompany" >
+          <ion-chip color="primary" *ngIf="order.company as company;else nocompany" >
             <ion-avatar> <img class="avatar" [src]="company.image"> </ion-avatar>
             <ion-label>{{company.name}}</ion-label>
           </ion-chip>

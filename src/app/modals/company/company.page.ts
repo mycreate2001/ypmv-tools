@@ -32,7 +32,7 @@ export class CompanyPage implements OnInit {
       if(!this.image) return resolve(this.company);
       this.storage.uploadImagebase64(this.image,`${_STORAGE_COMPANY}/${this.company.id}.jpeg`)
       .then(url=>{
-        this.company.image=url;
+        this.company.image={url,caption:'',thumbnail:''};
         return resolve(this.company)
       })
       .catch(err=>reject(err))

@@ -42,7 +42,7 @@ export class SearchCompanyPage implements OnInit {
   /** exit search company page */
   done(role:SearchCompanyPageRole='ok'){
     const outs:SearchCompanyPageOuts={
-      companyIds:this.carts.map(x=>x.id)
+      companies:this.carts
     }
     this.modal.dismiss(outs,role)
   }
@@ -58,7 +58,7 @@ export class SearchCompanyPage implements OnInit {
   showCart(event){
     const menus:MenuData[]=this.carts.map(cart=>{
       const menu:MenuData={
-        image:cart.image,
+        image:cart.image.url,
         name:cart.name,
         note:cart.address
       }
@@ -98,7 +98,7 @@ export interface SearchCompanyPageOpts{
  * @param companyId id of selected company
  */
 export interface SearchCompanyPageOuts{
-  companyIds:string[];
+  companies:CompanyData[];
 }
 export type SearchCompanyType=CompanyType|"any"
 export type SearchCompanyPageRole="ok"|"cancel"

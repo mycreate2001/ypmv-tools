@@ -1,26 +1,42 @@
-import { createOpts } from "../utils/minitools";
+import { createOpts, uuid } from "../utils/minitools";
 import { BasicData, ChildData  } from "./basic.model";
 import { BasicDataExt } from "./order.model";
-import { createSaveInf, SaveInfo } from "./save-infor.model";
-import { UrlData } from "./util.model";
+import { SaveInfo, createSaveInfor } from "./save-infor.model";
+import { UrlData } from "./urldata.interface";
 
 export interface StatusRecord extends SaveInfo{
     id:string;
     ids:string[];       // id of tool/cover = <cover/tool>-<id>
     data:ToolStatus[];
+    
+}
 
+// constructor(statusRecord?:Partial<StatusRecord>){
+//     super();
+//     Object.assign(this,statusRecord);
+//     this.updateIds();
+// }
+
+// updateIds(){
+//     this.ids=this.data.map(item=>`${item.type}-${item.id}`);
+// }
+export function createStatusRecord(opts?:Partial<StatusRecord>):StatusRecord{
+    const df:StatusRecord={
+        ...createSaveInfor(opts),
+        id:'his-'+uuid(),
+        ids:[],
+        data:[],
+    }
+    const out= createOpts(df,opts);
+    return updateStatusRecordIds(out)
+}
+
+export function updateStatusRecordIds(status:StatusRecord):StatusRecord{
+    const ids=status.data.map(item=>`${item.type}-${item.id}`)
+    return {...status,ids}
 }
 
 
-/**
- * get update of ids
- * @param record statusrecord need to update ids
- * @returns restusRecord get update ids
- */
-export function UpdateStatusRecordIDs(record:StatusRecord):StatusRecord{
-    const ids=record.data.map(item=>`${item.type}-${item.id}`);
-    return {...record,ids}
-}
 
 export interface ToolStatus extends ChildData{
     // id, type:tool/box
@@ -57,18 +73,18 @@ export interface StatusInf{
     value:number;
 }
 
-export function createStatusRecord(opts:Partial<StatusRecord>={}):StatusRecord{
-    const now=new Date();
-    const df:StatusRecord={
-        id:'',
-        ids:[],             // <cover/tool>-<id>
-        data:[],
-        ...createSaveInf({createAt:now.toISOString(),...opts})
+// export function createStatusRecord(opts:Partial<StatusRecord>={}):StatusRecord{
+//     const now=new Date();
+//     const df:StatusRecord={
+//         id:'',
+//         ids:[],             // <cover/tool>-<id>
+//         data:[],
+//         ...new SaveInfo({createAt:now.toISOString(),...opts})
 
-    }
-    const ids:string[]=(opts && opts.data)?opts.data.map(st=>`${st.type}-${st.id}`):[]
-    return createOpts(df,opts,{ids});
-}
+//     }
+//     const ids:string[]=(opts && opts.data)?opts.data.map(st=>`${st.type}-${st.id}`):[]
+//     return createOpts(df,opts,{ids});
+// }
 
 export const _STATUS_NOTYET={value:1,key:'Not yet'}
 export const _STATUS_OK={key:'ok',value:0}

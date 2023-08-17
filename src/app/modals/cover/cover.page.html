@@ -74,7 +74,7 @@
       </ion-item>
       <ion-item button (click)="pickupCover()">
         <ion-label>Parents</ion-label>
-        <ion-text> {{cover.upperId}}</ion-text>
+        <ion-text> {{cover.upper?cover.upper.name:'select parents'}}</ion-text>
       </ion-item>
       <ion-item button (click)="selectCompany()">
         <ion-label>Stay</ion-label>

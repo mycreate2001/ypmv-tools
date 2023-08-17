@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { OrderData, OrderDataStatusType, OrderDetail } from 'src/app/interfaces/order.model';
+import { OrderData, OrderDataStatusType } from 'src/app/interfaces/order.model';
 import { BookingPage, BookingPageOpts } from 'src/app/modals/booking/booking.page';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { MenuData } from 'src/app/interfaces/util.model';
@@ -14,9 +14,9 @@ type StatusType=OrderDataStatusType|"All"|"Auto"
 })
 export class OrdersPage implements OnInit {
   loading:boolean=true;
-  orders:OrderDetail[]=[];
+  orders:OrderData[]=[];
   select:StatusType="Auto"; // select display status
-  views:OrderDetail[]=[];   // display to user
+  views:OrderData[]=[];   // display to user
   keyword:string='';        // search data
   constructor(private readonly route:ActivatedRoute,private disp:DisplayService) {
     
@@ -34,14 +34,8 @@ export class OrdersPage implements OnInit {
   /////// BUTTONS HANDLER ////////////
 
   /** detail history */
-  detail(order:OrderDetail=null){
-    const _order:OrderData={
-        ...order,
-        userId:order.userId.id,
-        approvedBy:order.approvedBy.id,
-        companyId:order.companyId.id
-    }
-    const props:BookingPageOpts={order:_order};//new case
+  detail(order:OrderData=null){
+    const props:BookingPageOpts={order:order};//new case
     this.disp.showModal(BookingPage,props)
   }
 

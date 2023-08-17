@@ -10,7 +10,7 @@ import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
 import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
-import { UrlData } from 'src/app/interfaces/util.model';
+import { UrlData } from 'src/app/interfaces/urldata.interface';
 const BACKUP_LIST=["user",'addImage']
 
 @Component({

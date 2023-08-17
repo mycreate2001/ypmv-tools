@@ -5,7 +5,7 @@ import {  getStorage,uploadString,ref,
           getDownloadURL,listAll,deleteObject,
           uploadBytesResumable, FirebaseStorage,
           UploadResult,          } from 'firebase/storage';
-import { createUrlData, UrlData } from 'src/app/interfaces/util.model';
+import { UrlData, createUrlData } from 'src/app/interfaces/urldata.interface';
 import { Base64 } from 'src/app/utils/base64';
 import { environment } from 'src/environments/environment';
 
@@ -53,11 +53,7 @@ export class StorageService {
     return new Promise((resolve,reject)=>{
       if(!images||!_images.length) return resolve([]);//
       const all=_images.map(image=>{
-        const _image:UrlData=typeof image=='string'?createUrlData({url:image}):createUrlData(image)
-        // if(typeof image=='string') 
-        //   return this.uploadImagebase64(image,path).then(result=>result.url)
-        // const url=image['url'] as string;
-        // return this.uploadImagebase64(url,path).then(result=>{return{...image,url:result.url}})
+        const _image:UrlData=createUrlData(image);
         const pImage=this.uploadImagebase64(_image.url,path)
         const pThumbnail=this.uploadImagebase64(_image.thumbnail,path)
         return Promise.all([pImage,pThumbnail]).then(([url,thumbnail])=>createUrlData({url,thumbnail,caption:_image.caption?_image.caption:""}))

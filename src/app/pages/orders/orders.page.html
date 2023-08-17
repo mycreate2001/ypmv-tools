@@ -17,11 +17,11 @@
   <ion-list *ngFor="let order of views">
     <ion-item button="true" (click)="detail(order)">
       <ion-thumbnail slot="start">
-        <img [src]="order.userId.image |url" alt="{{order.userId.name}}">
+        <img [src]="order.user.image |url" alt="{{order.user.name}}">
       </ion-thumbnail>
       <ion-label>
-        {{order.companyId.name}}:{{order.purpose}}
-        <p>[{{order.scheduleStart|date:'yyyy-MMM-dd'}}] {{order.companyId.name}}</p>
+        {{order.company.name}}:{{order.purpose}}
+        <p>[{{order.scheduleStart|date:'yyyy-MMM-dd'}}] {{order.company.name}}</p>
       </ion-label>
       <ion-badge 
         slot="end" 

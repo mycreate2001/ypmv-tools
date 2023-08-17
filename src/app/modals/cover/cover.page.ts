@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Config, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { BasicData, ChildData, createBasicData } from 'src/app/interfaces/basic.model';
-import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS} from '../../interfaces/cover.interface';
+import { CoverData, _DB_COVERS, _STORAGE_COVERS, createCoverData} from '../../interfaces/cover.interface';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/interfaces/tools.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -13,13 +13,14 @@ import { UtilService } from 'src/app/services/util/util.service';
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { getUpdateImages, StorageService } from 'src/app/services/firebase/storage.service';
-import { UrlData } from 'src/app/interfaces/util.model';
-import { ConfigId, configList, configs, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/interfaces/config';
+import { ConfigId, configs, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS } from 'src/app/interfaces/config';
 import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
-import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD } from 'src/app/interfaces/status-record.model';
+import { createStatusInfor, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, createStatusRecord } from 'src/app/interfaces/status-record.model';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
 import { ToolService } from 'src/app/services/tool.service';
+import { UrlData } from 'src/app/interfaces/urldata.interface';
+import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interface';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -85,7 +86,7 @@ export class CoverPage implements OnInit {
         this.AllStatusList=statusConfig.statuslist.map(y=>y.key);
         this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
         //histories
-        let lastRecord:StatusRecord=null;
+        let lastRecord:StatusRecord;
         this.histories=records.map(r=>{
           const updateList:UpdateInf[]=r.data.find(x=>x.id===this.coverId && x.type=='cover').status.map(st=>{
             //last record
@@ -103,9 +104,9 @@ export class CoverPage implements OnInit {
         
         // last record
         if(lastRecord){
-          const data=lastRecord.data.filter(x=>x.id==this.cover.id)
+          const data:ToolStatus[]=lastRecord.data.filter(x=>x.id==this.cover.id)
           if(!data||!data.length) console.log("wrong data");
-          else this.lastRecord={...lastRecord,data}
+          else this.lastRecord=createStatusRecord({...lastRecord,data});//@@@
         }
 
         this.histories=this.histories.concat(this.cover.histories||[]);
@@ -144,7 +145,7 @@ export class CoverPage implements OnInit {
       const userId:string=this.auth.currentUser.id;
       const status:StatusInf[]=createStatusInfor(this.cover.statusList);
       const data:ToolStatus[]=[createToolStatus({...tool,status,images:[]})]
-      record=createStatusRecord({userId,data})
+      record=createStatusRecord({user:createBasicItem({...this.auth.currentUser,type:'user'}),data})
     }
     // display status
     const props:ToolStatusPageOpts={
@@ -212,7 +213,7 @@ export class CoverPage implements OnInit {
       const role=result.role as SearchCompanyPageRole
       const data=result.data as SearchCompanyPageOuts
       if(role!=='ok') return;
-      this.cover.stay=data.companyIds[0];
+      this.cover.stay=data.companies[0];
       this.refresh();
     })
   }
@@ -247,8 +248,8 @@ export class CoverPage implements OnInit {
       const coversId:string[]=this.cover.childrenId.filter(x=>x.type=='cover').map(x=>x.id)
       const covers:CoverData[]=await this.db.gets(_DB_COVERS,coversId);
       const ctr_covers=covers.map(cover=>{
-        if(cover.upperId==this.cover.id) return;//ignore cover already update
-        cover.upperId==this.cover.id
+        if(cover.upper.id==this.cover.id) return;//ignore cover already update
+        cover.upper.id==this.cover.id
         return this.db.add(_DB_COVERS,cover).then(c=>c.id)
         
       })
@@ -256,8 +257,8 @@ export class CoverPage implements OnInit {
       const toolsId:string[]=this.cover.childrenId.filter(x=>x.type=='tool').map(x=>x.id)
       const tools:ToolData[]=await this.db.gets(_DB_TOOLS,toolsId);
       const ctr_tools=tools.map(tool=>{
-        if(tool.upperId==this.cover.id) return  ;//remove tool ready update
-        tool.upperId=this.cover.id
+        if(tool.upper.id==this.cover.id) return  ;//remove tool ready update
+        tool.upper.id=this.cover.id
         return this.db.add(_DB_TOOLS,tool).then(x=>x.id)
       })
       return Promise.all([...ctr_covers,...ctr_tools])
@@ -326,7 +327,7 @@ export class CoverPage implements OnInit {
       exceptionList:[
         ...this.cover.childrenId,
         {id:this.cover.id,type:'cover'},
-        {id:this.cover.upperId,type:'cover'}
+        {id:this.cover.upper.id,type:'cover'}
       ]
     }
     this.disp.showModal(SearchToolPage,props)
@@ -350,7 +351,7 @@ export class CoverPage implements OnInit {
       const role=result.role as SearchToolPageRole;
       if(role!='ok') return;
       const data=result.data as SearchToolPageOuts;
-      this.cover.upperId=data.search[0].id;
+      this.cover.upper=createBasicItem({...data.search[0],type:'company'});
       this.refresh();
     })
   }
@@ -394,8 +395,7 @@ export class CoverPage implements OnInit {
       // case 1: new case
       let isNew:boolean=false;
       if(!this.cover && !this.coverId){
-        const userId=this.auth.currentUser.id;
-        const cover=createCoverData({userId})
+        const cover=createCoverData({user:createBasicItem({...this.auth.currentUser,type:'user'})})
         isNew=true;
         return resolve({cover,isNew})
       }

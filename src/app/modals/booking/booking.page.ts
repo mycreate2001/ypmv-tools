@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import {  BasicData, BasicDataType, ChildData, createBasicData, createChildData } from 'src/app/interfaces/basic.model';
+import {  BasicData, ChildData, createBasicData, createChildData } from 'src/app/interfaces/basic.model';
 import { BasicDataExt, createBasicDataExt, createOrderData, OrderData, OrderDataStatusType, _DB_ORDERS, _STORAGE_ORDERS } from 'src/app/interfaces/order.model';
 import { CodeFormatConfig } from 'src/app/interfaces/codeformat';
 import {  _DB_COMPANY } from 'src/app/interfaces/company.model';
-import { CoverData, getCovers, _DB_COVERS } from 'src/app/interfaces/cover.interface';
+import { CoverData,  _DB_COVERS } from 'src/app/interfaces/cover.interface';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/interfaces/tools.model';
 import {  _DB_USERS } from 'src/app/interfaces/user.model';
-import { createUrlData, UrlData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
@@ -18,8 +17,9 @@ import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from '../q
 import { SearchCompanyPage, SearchCompanyPageOpts, SearchCompanyPageOuts, SearchCompanyPageRole } from '../search-company/search-company.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
-import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NOTYET, _STORAGE_STATUS_RECORD } from 'src/app/interfaces/status-record.model';
+import { createStatusInfor, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NOTYET, _STORAGE_STATUS_RECORD, createStatusRecord } from 'src/app/interfaces/status-record.model';
 import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
+import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interface';
 
 @Component({
   selector: 'app-booking',
@@ -72,7 +72,7 @@ export class BookingPage implements OnInit {
       this.orderId=order.id;
       this.isNew=isNew;
       const data:ToolStatus[]=this.order.tools.map(tool=>createToolStatus({...tool,images:[],status:createStatusInfor(tool)}))
-      const record:StatusRecord=createStatusRecord({data,userId:this.auth.currentUser.id})
+      const record:StatusRecord=createStatusRecord({data,user: createBasicItem({...this.auth.currentUser,type:'user'})})
       console.log('TEST-76',{record});
       switch(this.order.status){
         case 'approved':
@@ -236,7 +236,7 @@ export class BookingPage implements OnInit {
       const role=result.role as SearchCompanyPageRole
       const data=result.data as SearchCompanyPageOuts
       if(role=='ok'){
-        this.order.companyId=data.companyIds[0];
+        this.order.company=createBasicItem({...data.companies[0],type:'company'});
         return;
       }
     })
@@ -276,13 +276,13 @@ export class BookingPage implements OnInit {
 
     const covers:CoverData[]=await this.db.gets(_DB_COVERS,list)
     covers.forEach(cover=>{
-      cover.stay=this.order.companyId;
+      cover.stay=this.order.company;
       this.db.add(_DB_COVERS,cover)
     })
     list=this.order.tools.filter(x=>x.type=='tool').map(x=>x.id)
     const tools:ToolData[]=await this.db.gets(_DB_TOOLS,list);
     tools.forEach(tool=>{
-      tool.stay=this.order.companyId;
+      tool.stay=this.order.company;
       this.db.add(_DB_TOOLS,tool)
     })
 
@@ -367,7 +367,7 @@ export class BookingPage implements OnInit {
     this.db.gets(_DB_COVERS,coversId)
     .then((covers:CoverData[])=>{
       covers.forEach(cover=>{
-        cover.stay=''
+        cover.stay=null
         this.db.add(_DB_COVERS,cover)
       })
     })
@@ -375,7 +375,7 @@ export class BookingPage implements OnInit {
     const toolsId=this.order.tools.filter(x=>x.type=='tool').map(x=>x.id)
     this.db.gets(_DB_TOOLS,toolsId).then((tools:ToolData[])=>{
       tools.forEach(tool=>{
-        tool.stay=''//return tool
+        tool.stay=null//return tool
         this.db.add(_DB_TOOLS,tool)
       })
     })
@@ -518,7 +518,7 @@ export class BookingPage implements OnInit {
       // case 1: new case
       if(!this.order && !this.orderId){//new case
         const auth=this.auth.currentUser
-        const order=createOrderData({userId:auth.id,companyId:auth.companyId});
+        const order=createOrderData({user:createBasicItem({...auth,type:'user'}),company:auth.company});
         isNew=true;
         return resolve({isNew,order})
       }
@@ -585,7 +585,7 @@ export class BookingPage implements OnInit {
   private _refreshView(){
     //check
          //check some condition
-    if(this.auth.currentUser.id==this.order.userId) this.isOwner=true;
+    if(this.auth.currentUser.id==this.order.user.id) this.isOwner=true;
     if(this.auth.currentUser.role=='admin') this.isAdmin=true;
     if(this.CAN_EDIT_LIST.includes(this.order.status)) {this.isEdit=true;this.isSave=true}
     this.isAvailable=true;

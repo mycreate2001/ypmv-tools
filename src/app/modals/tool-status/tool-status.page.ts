@@ -5,11 +5,12 @@ import { configs, StatusConfig, ToolStatusConfig, _CONFIG_STATUS_ID, _DB_CONFIGS
 import { StatusInf, ToolStatus, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK } from 'src/app/interfaces/status-record.model';
 // import { CheckData, OrderDataStatusType } from 'src/app/models/order.model';
 // import { statusList } from 'src/app/models/tools.model';
-import { createUrlData, MenuData, UrlData } from 'src/app/interfaces/util.model';
+import {  MenuData} from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts, ImageViewPageRole } from '../image-view/image-view.page';
+import { UrlData, createUrlData } from 'src/app/interfaces/urldata.interface';
 const _BACKUP_LIST=['tool','status']
 @Component({
   selector: 'app-tool-status',

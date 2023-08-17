@@ -8,6 +8,7 @@ import { DisplayService } from 'src/app/services/display/display.service';
 import { AuthService } from 'src/app/services/firebase/auth.service';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service';
 import { StorageService } from 'src/app/services/firebase/storage.service';
+import { BasicItem } from 'src/app/interfaces/basic-item.interface';
 const _DB_USER="users"
 const _STORAGE_AVATAR="avatars"
 @Component({
@@ -20,7 +21,7 @@ export class LoginPage implements OnInit {
   email:string='';
   pass:string='';
   name:string='';
-  companyId:string=''
+  company:BasicItem
   list:any;
   msg:string='';
   isRegister:boolean=false;
@@ -73,7 +74,7 @@ export class LoginPage implements OnInit {
     if(!list.every(key=>this[key])) return this.disp.msgbox("missing infor")
     //check email
     if(!this.email.includes('@')) return this.disp.msgbox("invalid email, pls input again");
-    const company=this.companies.find(c=>c.id==this.companyId);
+    const company=this.companies.find(c=>this.company&& c.id==this.company.id);
     if(!company) return this.disp.msgbox("internal error");
     const emailExt=company.email.split('@')[1];
     if(emailExt.toUpperCase()!=this.email.split('@')[1].toUpperCase())
@@ -82,7 +83,7 @@ export class LoginPage implements OnInit {
     .then(data=>{
       const id=data.user.uid;
       const email=data.user.email
-      const user=createUserData({id,email,companyId:this.companyId,name:this.name});
+      const user=createUserData({id,email,company:this.company,name:this.name});
       //add user default
       this.db.add(_DB_USER,user)
       .then(()=>{

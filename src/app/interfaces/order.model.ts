@@ -1,8 +1,8 @@
 import { createOpts } from "../utils/minitools";
+import { BasicItem, createBasicItem } from "./basic-item.interface";
 import {  BasicData, createBasicData } from "./basic.model";
-import { createSaveInf, SaveInfo } from "./save-infor.model";
-// import { createToolStatus, ToolStatus } from "./tools.model";
-import { UrlData } from "./util.model";
+import { SaveInfo, createSaveInfor } from "./save-infor.model";
+import { UrlData } from "./urldata.interface";
 export declare type ApprovedResultType="Not yet"|"Accept"|"Reject"
 export declare type OrderDataStatusType="new"|"created"|"approved"|"renting"|"returned"|"rejected"|"cancel"
 export interface OrderData extends SaveInfo{
@@ -15,7 +15,7 @@ export interface OrderData extends SaveInfo{
     scheduleStart:string;           // start date in schedule
     scheduleFinish:string;          // finish data in schedule
     tools:BasicDataExt[];         // renting tools in schedule
-    companyId:string;               // renting company
+    company:BasicItem;               // renting company
     purpose:string;                 // purpose of renting tool
 
     /** approved*/
@@ -46,11 +46,11 @@ export function createOrderData(opts?:OrderDataOpts):OrderData{
     const id:string=now.getTime().toString(26);
     const df:OrderData={
         id,
-        ...createSaveInf({createAt:now.toISOString()}),
+        ...createSaveInfor({createAt:now.toISOString()}),
         scheduleStart:'',           // start date in schedule
         scheduleFinish:'',          // finish data in schedule
         tools:[],                   // renting tools in schedule
-        companyId:'',               // renting company
+        company:createBasicItem({...opts.company,type:'company'}),               // renting company
         purpose:'',                 // purpose of renting tool
 
         /** approved*/
@@ -100,19 +100,6 @@ export function createBasicDataExt(opts:Partial<BasicDataExt>={}){
         after:1
     }
     return createOpts(df,opts);
-}
-
-////
-export interface OrderDetail extends Omit<OrderData,"userId"|"approvedBy"|"companyId">{
-    userId:DetailFromId;
-    approvedBy:DetailFromId;
-    companyId:DetailFromId;
-}
-
-export interface DetailFromId{
-    id:string;
-    name:string;
-    image:string|UrlData;
 }
 
 

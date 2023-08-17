@@ -1,4 +1,5 @@
-import { createOpts } from "../utils/minitools";
+import { createOpts, uuid } from "../utils/minitools";
+import { UrlData, createUrlData } from "./urldata.interface";
 
 export declare type CompanyType="Yamaha Branch"|"Agency"|"Customer"
 export interface CompanyData{
@@ -6,32 +7,23 @@ export interface CompanyData{
     name:string;
     address:string;
     phone:string;
-    image:string;
+    image:UrlData;
     type:CompanyType;
     createAt:string;
     email:string;
 }
 
-export interface CompanyDataOpts{
-    id?:string;
-    name?:string;
-    address?:string;
-    phone?:string;
-    image:string;
-    type?:CompanyType;
-    createAt?:string;
-    email?:string;
-}
 
-export function createCompanyData(opts?:CompanyDataOpts):CompanyData{
+
+export function createCompanyData(opts?:Partial<CompanyData>):CompanyData{
     const now=new Date();
-    const id="CPN"+now.getTime().toString(26);
+    const id="CPN"+uuid()
     const df:CompanyData={
         id,
         name:'',
         address:'',
         phone:'',
-        image:'',
+        image:createUrlData(),
         type:'Customer',
         createAt:now.toISOString(),
         email:''

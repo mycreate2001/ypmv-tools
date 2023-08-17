@@ -1,7 +1,9 @@
 import { createOpts } from "../utils/minitools";
-import { createSaveInf, SaveInfo } from "./save-infor.model";
+import { BasicItem, createBasicItem } from "./basic-item.interface";
+import { CompanyData } from "./company.model";
+import { SaveInfo, createSaveInfor } from "./save-infor.model";
 import { StatusInf } from "./status-record.model";
-import { UrlData } from "./util.model";
+import { UrlData } from "./urldata.interface";
 
 /**
  * Model management database
@@ -16,7 +18,6 @@ export interface ModelData extends SaveInfo{
     compQty:number;             // quantity of component
     maintenance:number;         // day of maintenance
     note:string;
-    companyId:string;
     statusList:string[];
 }
 
@@ -27,7 +28,7 @@ export function createModelData(opts?:ModelDataOpts):ModelData{
     const now=new Date();
     const id=now.getTime().toString(36)+Math.random().toString(36).substring(2,10);
     const df:ModelData={
-        ...createSaveInf({createAt:now.toISOString(),...opts}),
+        ...createSaveInfor({createAt:now.toISOString(),...opts}),
         id,
         name:'',
         group:'',
@@ -35,7 +36,6 @@ export function createModelData(opts?:ModelDataOpts):ModelData{
         images:[],
         compQty:1,
         note:'',
-        companyId:'',
         statusList:['visual','operation']
     }
     return createOpts(df,opts) 
@@ -49,13 +49,15 @@ export interface ToolData extends SaveInfo{
     lastMaintenance:string;       // last maintenance
     status:StatusInf[];          // status
     model:string;               // model id
-    stay:string;                // where keep tool (stay alone)
-    upperId:string;             // cover/box keep this tool
-    companyId:string;           // owner
+    stay:BasicItem;                // where keep tool (stay alone)
+    upper:BasicItem;             // cover/box keep this tool
+    company:BasicItem;           // owner
     address?:string;            //
     targetMch:string;           // target machine
+    companyId?:string;
+    userId?:string;
+    upperId?:string;
 }
-
 
 export type ToolDataOpts = Partial<ToolData>
 
@@ -66,16 +68,16 @@ export function createToolData(opts?:ToolDataOpts):ToolData{
     const id=now.getTime().toString(36)+Math.random().toString(36).substring(2,10);
     const createAt:string=now.toISOString()
     const df:ToolData={
-        ...createSaveInf({createAt,...opts}),
+        ...createSaveInfor({createAt,...opts}),
         id,
         startUse:createAt,
         endUse:'',
         lastMaintenance:null,
         status:StatusList.map(key=>{return {key,value:-1}}),
         model:'',
-        stay:'',
-        upperId:'',
-        companyId:'',
+        stay:opts.stay||null,
+        upper:createBasicItem({...opts.upper}),
+        company:createBasicItem({...opts.company,type:'company'}),
         targetMch:'*'
     }
     return createOpts(df,opts) as ToolData;

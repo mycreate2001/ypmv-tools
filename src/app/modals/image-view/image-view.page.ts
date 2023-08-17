@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DOC_ORIENTATION, NgxImageCompressService } from 'ngx-image-compress';
-import { createUrlData, MenuData, UrlData } from 'src/app/interfaces/util.model';
 import { DisplayService } from 'src/app/services/display/display.service';
 import { CameraPage, CameraPageOuts } from '../camera/camera.page';
+import { UrlData, createUrlData } from 'src/app/interfaces/urldata.interface';
+import { MenuData } from 'src/app/interfaces/util.model';
 
 /**
  * input of ImageViewPage
@@ -14,7 +15,7 @@ import { CameraPage, CameraPageOuts } from '../camera/camera.page';
  */
 export interface ImageViewPageOpts{
   /** main image from sourse */
-  images?:(string|UrlData)[]     
+  images?:UrlData[]     
   /** added Images, default=[] */
   addImages?:UrlData[]  
   /** deleted url, it not save to db */

@@ -13,7 +13,7 @@ import { Alert } from 'selenium-webdriver';
 import { MenuData } from 'src/app/interfaces/util.model';
 import { BCIDs, BcIdType } from 'src/app/services/util/util.interface';
 import { createSelfHistory, SelfHistory } from 'src/app/interfaces/save-infor.model';
-import { createStatusInfor, createStatusRecord, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK, _STORAGE_STATUS_RECORD } from 'src/app/interfaces/status-record.model';
+import { createStatusInfor, createToolStatus, StatusInf, StatusRecord, ToolStatus, _DB_STATUS_RECORD, _STATUS_NG, _STATUS_NOTYET, _STATUS_OK, _STORAGE_STATUS_RECORD, createStatusRecord } from 'src/app/interfaces/status-record.model';
 import { UpdateInf } from 'src/app/utils/data.handle';
 import { getList } from 'src/app/utils/minitools';
 import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageRole } from '../tool-status/tool-status.page';
@@ -22,6 +22,7 @@ import { getUpdateImages, StorageService } from 'src/app/services/firebase/stora
 import { FirebaseStorage } from 'firebase/storage';
 import { ActivatedRoute } from '@angular/router';
 import { ToolService } from 'src/app/services/tool.service';
+import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interface';
 const _CHANGE_LIST="select,input,checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -87,7 +88,7 @@ export class ToolPage implements OnInit {
         this.toolSv.getAddr(tool)
       ])
       .then(([config,model,records,addr])=>{
-        this.stay=tool.stay||addr.join(" / ")
+        this.stay=tool.stay.name||addr.join(" / ")
         this.statusConfigs=config.statuslist.map(cf=>{
           const list:string[]=[_STATUS_OK.key,_STATUS_NOTYET.key,...cf.list]
           return {...cf,list}
@@ -115,7 +116,7 @@ export class ToolPage implements OnInit {
         if(lastRecord){
           const data=lastRecord.data.filter(tool=>tool.id==this.tool.id);
           if(!data||!data.length) console.warn("ERROR");
-          else this.lastRecord={...lastRecord,data}
+          else this.lastRecord=createStatusRecord({...lastRecord,data})
         }
         console.log("TEST:check record",{lastRecord})
 
@@ -168,7 +169,7 @@ export class ToolPage implements OnInit {
       const role=result.role as SearchToolPageRole;
       if(role!='ok') return;
       const data=result.data as SearchToolPageOuts;
-      this.tool.upperId=data.search[0].id;
+      this.tool.upper=createBasicItem({...data.search[0]});
       this._refreshView("pickup Parents");
     })
   }
@@ -179,8 +180,8 @@ export class ToolPage implements OnInit {
 
     try{
       // update children for cover
-      if(this.tool.upperId){
-        const cover:CoverData=await this.db.get(_DB_COVERS,this.tool.upperId)
+      if(this.tool.upper.id){
+        const cover:CoverData=await this.db.get(_DB_COVERS,this.tool.upper.id)
         if(!cover) throw new Error("data is wrong");
         const tool=cover.childrenId.find(x=>x.type=='tool' && x.id==this.tool.id)
         if(!tool){
@@ -246,10 +247,10 @@ export class ToolPage implements OnInit {
     const tool:BasicData=createBasicData({...this.model,...this.tool,type:'tool'})
     if(!record){
       isEdit=true;
-      const userId=this.auth.currentUser.id;
+      const user=createBasicItem({...this.auth.currentUser,type:'user'});
       const status:StatusInf[]=createStatusInfor(this.model.statusList)
       const data:ToolStatus[]=[createToolStatus({...tool,status,images:[]})]
-      record=createStatusRecord({userId,data});
+      record=createStatusRecord({user,data});
     }
     //display
     const props:ToolStatusPageOpts={
@@ -293,7 +294,11 @@ export class ToolPage implements OnInit {
   /** get Tool data */
   private async _getTool():Promise<{tool:ToolData,isNew:boolean}>{
     if(!this.tool && !this.toolId){
-      const tool=createToolData({userId:this.auth.currentUser.id,companyId:this.auth.currentUser.companyId,model:this.model.id})
+      const tool=createToolData({
+              user:createBasicItem({...this.auth.currentUser,type:'user'}),
+              company:this.auth.currentUser.company,
+              model:this.model.id
+            })
       return {isNew:true,tool}
     }
     if(this.tool) return {isNew:false,tool:this.tool}

@@ -76,7 +76,7 @@
       <!-- upper ID -->
       <ion-item button="true" (click)="pickupParent()">
         <ion-label>Parents</ion-label>
-        <ion-text *ngIf="tool.upperId|db:'covers'|async as parents else noparents">
+        <ion-text *ngIf="tool.upper as parents else noparents">
           <ion-chip>
             <ion-avatar>
               <img [src]="parents.image|url" class="avatar">

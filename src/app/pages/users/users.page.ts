@@ -39,7 +39,7 @@ export class UsersPage implements OnInit {
       const allowList:UserRole[]=["admin"]
       this.isAdmin= allowList.includes(cUser.role)?true:false;
       this.views=companies.map(company=>{
-        const _users:UserData[]=users.filter(u=>u.companyId==company.id);
+        const _users:UserData[]=users.filter(u=>u.company.id==company.id);
         const view={group:company.name,users:_users}
         return view;
       })

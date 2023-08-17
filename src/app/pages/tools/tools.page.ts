@@ -1,20 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { DisplayService } from '../../services/display/display.service';
 
-import {  createModelData,  ModelData,  ToolData,  _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from '../../interfaces/tools.model';
-import { searchObj, searchObj2, separateObj } from 'src/app/utils/data.handle';
-import { ConnectData, FirestoreService } from 'src/app/services/firebase/firestore.service';
-import { CoverData, createCoverData, _DB_COVERS, _STORAGE_COVERS } from '../../interfaces/cover.interface';
+import {  ModelData,  ToolData,  _DB_MODELS, _DB_TOOLS, _STORAGE_MODELS } from '../../interfaces/tools.model';
+import { searchObj2, separateObj } from 'src/app/utils/data.handle';
+import { CoverData,  _DB_COVERS, _STORAGE_COVERS } from '../../interfaces/cover.interface';
 import { BasicData, BasicView, ChildData } from 'src/app/interfaces/basic.model';
-import { ModelPage, ModelPageOpts, ModelPageOuts, } from '../../modals/model/model.page';
-import { StorageService } from 'src/app/services/firebase/storage.service';
-import { AuthService } from 'src/app/services/firebase/auth.service';
-import { CoverPage, CoverPageOpts, CoverPageOuts } from 'src/app/modals/cover/cover.page';
-import { UrlData } from 'src/app/interfaces/util.model';
+import { ModelPage, ModelPageOpts } from '../../modals/model/model.page';
+import { CoverPage, CoverPageOpts} from 'src/app/modals/cover/cover.page';
 import { _DB_USERS } from 'src/app/interfaces/user.model';
 import { ToolPage, ToolPageOpts } from 'src/app/modals/tool/tool.page';
-import { QrcodePage, QRcodePageOpts, QRcodePageOuts, QRcodePageRole } from 'src/app/modals/qrcode/qrcode.page';
-import { CodeFormatConfig } from 'src/app/interfaces/codeformat';
 import { ActivatedRoute } from '@angular/router';
 
 

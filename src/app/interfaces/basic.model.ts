@@ -1,5 +1,5 @@
 import { createOpts } from "../utils/minitools";
-import { UrlData } from "./util.model";
+import { UrlData } from "./urldata.interface";
 
 /** basic infor of tool/cover when display */
 export type BasicDataType="cover"|"tool"
