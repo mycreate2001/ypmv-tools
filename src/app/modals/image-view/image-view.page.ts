@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DOC_ORIENTATION, NgxImageCompressService } from 'ngx-image-compress';
 import { DisplayService } from 'src/app/services/display/display.service';
-import { CameraPage, CameraPageOuts } from '../camera/camera.page';
+import { CameraPage, CameraPageOpts, CameraPageOuts } from '../camera/camera.page';
 import { UrlData, createUrlData } from 'src/app/interfaces/urldata.interface';
 import { MenuData } from 'src/app/interfaces/util.model';
 
@@ -16,12 +16,11 @@ import { MenuData } from 'src/app/interfaces/util.model';
 export interface ImageViewPageOpts{
   /** main image from sourse */
   images?:UrlData[]     
-  /** added Images, default=[] */
-  addImages?:UrlData[]  
   /** deleted url, it not save to db */
   delImages?:string[]           
   /** default=false, can add capture to image */
-  canCaption?:boolean;        
+  canCaption?:boolean;
+  isFixRatio?:boolean;      
 }
 
 export interface CompressImageOpts{
@@ -43,8 +42,6 @@ export type ImageViewPageRole="ok"|"cancel"
 export interface ImageViewPageOuts{
   /** images from sourse */
   images:UrlData[];
-  /** added images */
-  addImages:UrlData[];
   /** url of delete image */
   delImages:string[];
 }
@@ -57,9 +54,9 @@ export interface ImageViewPageOuts{
 export class ImageViewPage implements OnInit {
   /** input */
   images:UrlData[]=[];     //cloud
-  addImages:UrlData[]=[];//new image
   delImages:string[]=[];
   canCaption:boolean=false;
+  isFixRatio:boolean=true;
  
   /** internal variable */
   /** function */
@@ -79,14 +76,13 @@ export class ImageViewPage implements OnInit {
   }
 
   ngOnInit() {
-    if((this.images.length+this.addImages.length)==0) this.add();
+    if(!this.images.length) this.add();
   }
 
 
   /** exit page */
   done(role:ImageViewPageRole="ok"){
     const out:ImageViewPageOuts={
-      addImages:this.addImages,
       images:this.images,
       delImages:this.delImages
     }
@@ -96,33 +92,32 @@ export class ImageViewPage implements OnInit {
 
   /** add more image */
   add(){
-    this.disp.showModal(CameraPage)
+    const props:CameraPageOpts={
+      fix:this.isFixRatio
+    }
+    this.disp.showModal(CameraPage,props)
     .then(camera=>{
       if(camera.role.toUpperCase()!='OK') return;
       const data=camera.data as CameraPageOuts
       return this.compressImage(data.image,{maxWidth:300})
       .then(thumbnail=>createUrlData({url:data.image,thumbnail}))
     })
-    .then(image=>this.addImages.push(image))
+    .then(image=>this.images.push(image))
   }
 
-  menu(event,pos:number,isNewImage:boolean=false){
+  /** MENU */
+  menu(event,pos:number){
     const menus:MenuData[]=[
       {
         name:'Delete',icon:'trash',iconColor:'danger',
         handler:()=>{
-          if(isNewImage){
-            this.addImages.splice(pos,1)
+          const image=this.images[pos];
+          if(!image) return;
+          if(image.url.startsWith('https://')){
+            this.delImages.push(image.url);
+            if(image.thumbnail) this.delImages.push(image.thumbnail)
           }
-          else{
-            const image=this.images[pos];
-            if(typeof image=='string') this.delImages.push(image)
-            else {
-              if(image.url) this.delImages.push(image.url)
-              if(image.thumbnail) this.delImages.push(image.thumbnail)
-            }
-            this.images.splice(pos,1);
-          }
+          this.images.splice(pos,1);
         }
       }
     ];

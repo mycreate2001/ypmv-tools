@@ -97,7 +97,7 @@ export class ToolStatusPage implements OnInit {
   /** show/edit images */
   showImage(){
     const props:ImageViewPageOpts={
-      addImages:this.status.images,
+      images:this.status.images,
       canCaption:true
     }
     this.disp.showModal(ImageViewPage,props)

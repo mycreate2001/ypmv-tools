@@ -53,7 +53,7 @@ export interface ToolData extends SaveInfo{
     upper:BasicItem;             // cover/box keep this tool
     company:BasicItem;           // owner
     address?:string;            //
-    targetMch:string;           // target machine
+    targetMch:string[];           // target machine
     companyId?:string;
     userId?:string;
     upperId?:string;
@@ -78,7 +78,7 @@ export function createToolData(opts?:ToolDataOpts):ToolData{
         stay:opts.stay||null,
         upper:createBasicItem({...opts.upper}),
         company:createBasicItem({...opts.company,type:'company'}),
-        targetMch:'*'
+        targetMch:[]
     }
     return createOpts(df,opts) as ToolData;
 }

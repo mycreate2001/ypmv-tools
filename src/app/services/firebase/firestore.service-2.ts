@@ -195,7 +195,7 @@ export class FirestoreService {
   * represents a document in the specified collection and includes the document data as well as the
   * document ID.
   */
-  async search<T extends DatabaseBasic>(tbl:string,...queries:QueryData[]):Promise<T[]>{
+  async search<T extends {id:string}>(tbl:string,...queries:QueryData[]):Promise<T[]>{
     const q=query(collection(this.db,tbl),...queries.map(qr=>where(qr.key,qr.type,qr.value)))
     return getDocs(q).then(docs=>{
       const outs:T[]=[];

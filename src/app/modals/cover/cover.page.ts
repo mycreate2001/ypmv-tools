@@ -38,9 +38,8 @@ export class CoverPage implements OnInit {
 
   /** internal variable */
   children:BasicData[]=[];
-  addImages:UrlData[]=[];
-  delImages:string[]=[];
-  viewImages:UrlData[]=[];
+  delImages:string[]=[];      //images will delete when save
+  viewImages:UrlData[]=[];    // all images vill view
   groups:string[]=[];
   statusList:string[]=[];
   AllStatusList:string[]=[];
@@ -223,7 +222,6 @@ export class CoverPage implements OnInit {
   done(role:CoverPageRole='save'){
     const out:CoverPageOuts={
       cover:this.cover,
-      addImages:this.addImages,
       delImages:this.delImages
     }
     this.modal.dismiss(out,role)
@@ -232,9 +230,10 @@ export class CoverPage implements OnInit {
   /** hander save button */
   save(){
     // delete image
-    this.delImages.forEach(this.storage.delete);
+    this.delImages.forEach(img=>this.storage.delete(img));
     // upload new images
-    this.storage.uploadImages(this.addImages,_STORAGE_COVERS)
+    const newImages:UrlData[]=this.cover.images.filter(img=>!img.url.startsWith("https://"))
+    this.storage.uploadImages(newImages,_STORAGE_COVERS)
     .then((urls:UrlData[])=>{
       this.cover.images=this.cover.images.concat(urls);
       return this.db.add(_DB_COVERS,this.cover,(list,newDb,oldDb)=>{
@@ -297,7 +296,6 @@ export class CoverPage implements OnInit {
   detailImage(){
     const props:ImageViewPageOpts={
       images:this.cover.images,
-      addImages:this.addImages,
       delImages:this.delImages
     }
     this.disp.showModal(ImageViewPage,props)
@@ -306,10 +304,8 @@ export class CoverPage implements OnInit {
       if(role!='ok') return;
       //handler
       const data=result.data as ImageViewPageOuts
-      this.addImages=data.addImages
       this.delImages=data.delImages
       this.cover.images=data.images
-      this.viewImages=this.cover.images.concat(this.addImages);
       this.refresh();
     })
   }
@@ -381,9 +377,8 @@ export class CoverPage implements OnInit {
   private refresh(debug:string=""){
     //refresh isChange
     if(debug) console.log("refresh/debug\n",debug)
-    this.isChange=_BACKUP_LIST.every((key,pos)=>JSON.stringify(this[key])==this.backup[pos])?false:true
     //update images
-    this.viewImages=this.cover.images.concat(this.addImages);
+    this.viewImages=this.cover.images;
     this.isAvailble=true;
     const list=this.cover.statusList||[];    
     this.statusList=this.AllStatusList.filter(x=>!list.includes(x))
@@ -463,7 +458,6 @@ export interface CoverPageOpts{
  */
 export interface CoverPageOuts{
   cover:CoverData;
-  addImages:UrlData[];
   delImages:string[];
 }
 

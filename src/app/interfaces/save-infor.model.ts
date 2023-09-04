@@ -22,7 +22,7 @@ export function createSaveInfor(opts?:Partial<SaveInfo>):SaveInfo{
         destroyDate:''
     }
 
-    return createOpts(df,opts)
+    return createOpts(df,opts?opts:{})
 }
 
 export interface SelfHistory{

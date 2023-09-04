@@ -16,89 +16,46 @@ export class FixPage implements OnInit {
   constructor(private db:FirestoreService) { }
 
   async ngOnInit() {
-    console.log("start to fix database");
-    console.log("#1: fix tools");
-    // const covers:CoverData[]=await this.db.search(_DB_COVERS);
-    // const companies:CompanyData[]=await this.db.search(_DB_COMPANY);
+    this.fixTarget();
+  }
+
+  async fixTarget(){
     const tools:ToolData[]=await this.db.search(_DB_TOOLS);
-    tools.forEach(async ( tool)=>{
-      //initial
-      let isChange:boolean=false
-      let log:string=`tool:${tool.id}\n------------\n`
-      console.log("#1-inital tool:",{tool,toolStr:JSON.stringify(tool)})
-      //upper
-      if(tool.upper==undefined){//old data need to fix
-        const id:string=tool.upperId||"";
-        const upper:CoverData=await this.db.get(_DB_COVERS,id);
-          log+=`upper:'${id}'`
-          if(!upper){
-            tool.upper=null;
-            log+="->ERROR\n"
-          }
-          else{
-            log+=`(${upper.name})-->done\n`
-            tool.upper=createBasicItem({...upper,type:'cover'})
-            delete tool.upperId
-            isChange=true;
-          }
+    Promise.all(tools.map(async tool=>{
+      let isUpdate:boolean=false;
+      if(tool.targetMch===undefined) {
+        tool.targetMch=[]; isUpdate=true;
       }
-      else{
-        tool.upper=createBasicItem(tool.upper);
-        isChange=true;
+      if(isUpdate) {
+        await this.db.add(_DB_TOOLS,tool);
+        console.log(`tool '${tool.id}' updated`);
+      }else {
+        console.log(`tool '${tool.id}' no change`)
+      }
+    }))
+    .then(_=>console.log("\n---- Update complete for all Tools ---"))
+    .catch(err=>console.warn(`\n ---- ERROR ----\n|\t update tools is error\n`,err))
+
+    // cover
+    const covers:CoverData[]=await this.db.search(_DB_COVERS);
+    Promise.all(covers.map(async cover=>{
+      let isUpdate:boolean=false;
+      //targetMch
+      if(cover.targetMch===undefined){
+        cover.targetMch=[];
+        isUpdate=true;
       }
 
-      //company
-      if(!tool.company){
-        const id:string=tool['companyId'];
-        const company:CompanyData=await this.db.get(_DB_COMPANY,id);
-        log+="company:"+id;
-        if(!company){
-          tool.company=null;
-          log+="-->ERROR\n";
-        }
-        else{
-          log+=":"+company.name+"-->done\n"
-          tool.company=createBasicItem({...company,type:'company'});
-          delete tool.companyId;
-          isChange=true;
-        }
+      //result
+      if(isUpdate){
+        await this.db.add(_DB_COVERS,cover)
+        console.log(`cover '${cover.id}' was updated!`)
+      }else{
+        console.log(`cover '${cover.id}' was no changing!`)
       }
-
-      //stay
-      if(typeof tool.stay=='string'){
-        const id=tool.stay;
-        log+="stay:"+id
-        const company:CompanyData=await this.db.get(_DB_COMPANY,id);
-        if(!company) log+="(empty)\n"
-        else{
-          log+=":"+company.name+'-->done\n'
-          tool.stay=createBasicItem({...company,type:'company'})
-          isChange=true;
-        }
-      }
-
-      //user
-      if(!tool.user){
-        const id:string=tool['userId'];
-        const user:CompanyData=await this.db.get(_DB_USERS,id);
-        log+="user:"+id;
-        if(!user){
-          tool.user=null;
-          log+="-->ERROR\n";
-        }
-        else{
-          log+=":"+user.name+"-->done\n"
-          tool.company=createBasicItem({...user,type:'user'});
-          delete tool['userId']
-          isChange=true;
-        }
-      }
-      log+="updated!"
-      console.log(log)
-      //update to database
-      console.log("final tool ",{tool,toolStr:JSON.stringify(tool)})
-      if(isChange) await this.db.add(_DB_TOOLS,tool)
-    })
+    }))
+    .then(_=>console.log("all covers was updated!"))
+    .catch(err=>console.warn(`\n ---- ERROR ----\n|\t update covers is error\n`,err))
   }
 
 }

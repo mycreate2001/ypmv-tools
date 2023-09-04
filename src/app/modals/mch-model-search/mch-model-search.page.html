@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button title="back" (click)="done('back')">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <ion-label>Back</ion-label>
+      </ion-button>
+    </ion-buttons>
+    <ion-searchbar 
+        placeholder="search machine model" 
+        [(ngModel)]="keyword"
+      >
+    </ion-searchbar>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="cart-outline"></ion-icon>
+        <ion-badge>{{selects.length}}</ion-badge>
+      </ion-button>
+      <ion-button title="new Model" (click)="detail()">
+        <ion-icon name="add-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button title="OK" (click)="done()">
+        <ion-icon name="checkmark-done-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let model of views" (click)="select(model)">
+      <ion-thumbnail slot="start">
+        <img *ngIf="model.images && model.images.length" alt="model.images[0].caption" [src]="model.images[0]|url">
+      </ion-thumbnail>
+      <ion-label>
+        {{model.name}}
+      </ion-label>
+      <ion-buttons slot="end">
+        <ion-button title="detail" (click)="detail($event,model)">
+          <ion-icon name="chevron-forward-circle-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+</ion-content>

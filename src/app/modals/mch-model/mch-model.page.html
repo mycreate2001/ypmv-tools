@@ -1,0 +1,82 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button title="back" (click)="done('back')">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <ion-label>Back</ion-label>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>model.id</ion-title>
+    <ion-buttons slot="end">
+      <ion-button title="Save" (click)="done('ok')">
+        <ion-label>Save</ion-label>
+        <ion-icon name="save-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="isAvailable&& (type==='new'||type==='exist')">
+  <ion-card class="image">
+    <ion-grid (click)="detailImage()">
+      <ion-row *ngIf="viewImages.length<=1">
+        <ion-col size="12">
+          <img [src]="viewImages|url" class="image-43">
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="viewImages.length==2">
+        <ion-col size="6" *ngFor="let image of viewImages">
+          <img [src]="image|url" class="image-square">
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="viewImages.length>=3">
+        <ion-col size="8">
+          <img [src]="viewImages[0] |url" class="image-43">
+        </ion-col>
+        <ion-col size="4" >
+          <ion-row>
+            <img [src]="viewImages[1]|url" class="image-43">
+          </ion-row>
+          <ion-row class="last">
+            <img [src]="viewImages[2]|url" class="image-43">
+            <div class="more-image-text" *ngIf="viewImages.length>3">+{{viewImages.length-3}}</div>
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </ion-card>
+  <ion-card class="infor">
+    <ion-list>
+      <!-- id -->
+      <ion-item>
+        <ion-icon slot="start" name="code-working-outline"></ion-icon>
+        <ion-label>id</ion-label>
+        <ion-text *ngIf="type==='exist'">{{model.id}}</ion-text>
+        <ion-input *ngIf="type==='new'" [(ngModel)]="model.id"></ion-input>
+      </ion-item>
+      <!-- name -->
+      <ion-item>
+        <ion-icon slot="start" name="code-working-outline"></ion-icon>
+        <ion-label>Model</ion-label>
+        <ion-input [(ngModel)]="model.name"></ion-input>
+      </ion-item>
+
+      <!-- gen -->
+      <ion-item>
+        <ion-icon slot="start" name="code-working-outline"></ion-icon>
+        <ion-label>Generation</ion-label>
+        <ion-input [(ngModel)]="model.gen" type="number" min="1"></ion-input>
+      </ion-item>
+
+      <!-- group -->
+      <ion-item>
+        <ion-icon slot="start" name="code-working-outline"></ion-icon>
+        <ion-label>Group</ion-label>
+        <ion-input [(ngModel)]="model.group"></ion-input>
+      </ion-item>
+    </ion-list>
+  </ion-card>
+</ion-content>
+<ion-content *ngIf="isAvailable && (type==='not exist')">
+  <div class="not-exist">Opts! this model is not found</div>
+</ion-content>

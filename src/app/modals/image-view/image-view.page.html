@@ -43,7 +43,7 @@
     <img [src]="image.url">
   </ion-card>
   <!-- No image -->
-  <ion-card *ngIf="(images.length+addImages.length)==0">
+  <ion-card *ngIf="images.length==0">
     <ion-toolbar lines="none"> </ion-toolbar>
     <img src="../../../assets/image/no-image.png">
   </ion-card>

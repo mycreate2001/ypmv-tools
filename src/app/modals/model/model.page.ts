@@ -41,9 +41,8 @@ export class ModelPage implements OnInit {
   histories:SelfHistory[]=[];     // histories
   statusList:string[]=[];         // available adding status 
   AllStatusList:string[]=[];      // all status
-  viewImages:UrlData[]=[];       // iamges wil add more to db
-  addImages:UrlData[]=[];
-  delImages:string[]=[];    //image will delete
+  viewImages:UrlData[]=[];        // iamges wil add more to db
+  delImages:string[]=[];          // image will delete
   user:UserData;
 
   /** it's may get from database */
@@ -112,7 +111,7 @@ export class ModelPage implements OnInit {
     //isChange
     this.isChange=_BACKUP_LIST.some((key,pos)=>this.backup[pos]!=JSON.stringify(this[key]))
     // viewImage
-    this.viewImages=this.model.images.concat(this.addImages)
+    this.viewImages=this.model.images;
     this.isAvailble=true;
     if(debug) console.log("\ndebug:%s\n",debug,this);
   }
@@ -120,7 +119,6 @@ export class ModelPage implements OnInit {
   ///////// exist ////////
   done(role:ModelPageRole="save"){
     const out:ModelPageOuts={
-      addImages:this.addImages,
       delImages:this.delImages,
       model:this.model as ModelData
     }
@@ -157,14 +155,12 @@ export class ModelPage implements OnInit {
     const props:ImageViewPageOpts={
       images:this.model.images,
       delImages:this.delImages,
-      addImages:this.addImages
     }
     this.disp.showModal(ImageViewPage,props)
     .then(result=>{
       if(result.role.toUpperCase()!='OK') return;
       const data=result.data as ImageViewPageOuts;
       if(typeof this.model=='string') return console.log("\n### ERROR: Model data");
-      this.addImages=data.addImages;
       this.delImages=data.delImages;
       this.model.images=data.images;
       this._refreshView();
@@ -189,7 +185,8 @@ export class ModelPage implements OnInit {
     // delete images
     this.delImages.forEach(image=>this.storage.delete(image));
     // add new images
-    this.storage.uploadImages(this.addImages,_STORAGE_MODELS)
+    const newImages=this.model.images.filter(img=>!img.url.startsWith("https://"))
+    this.storage.uploadImages(newImages,_STORAGE_MODELS)
     .then(images=>{
       this.model.images=this.model.images.concat(images);
       return this.db.add(_DB_MODELS,this.model,(updateList,newModel,oldModel)=>{
@@ -266,7 +263,6 @@ export interface ModelPageOpts{
  * @param model Model information already update/revise 
  */
 export interface ModelPageOuts{
-  addImages:UrlData[];
   delImages:string[];
   model:ModelData;
 }

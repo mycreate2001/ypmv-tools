@@ -82,6 +82,24 @@ const routes: Routes = [
     canActivate:[LoginGuard],
     loadChildren: () => import('./pages/fix/fix.module').then( m => m.FixPageModule)
   },
+  {
+    path: 'mch-model',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./modals/mch-model/mch-model.module').then( m => m.MchModelPageModule)
+  },
+  {
+    path: 'mch-model-search',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./modals/mch-model-search/mch-model-search.module').then( m => m.MchModelSearchPageModule)
+  },
+  {
+    path: 'dev',
+    canActivate:[LoginGuard],
+    loadChildren: () => import('./pages/dev/dev.module').then( m => m.DevPageModule)
+  },
+
+
+
 
 
 
