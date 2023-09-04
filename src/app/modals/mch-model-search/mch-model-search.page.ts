@@ -13,7 +13,8 @@ import { DisplayService } from 'src/app/services/display/display.service';
 export class MchModelSearchPage implements OnInit {
   /** input */
   masks:MchModel[]=[];
-  isMutil:boolean=true;
+  isMulti:boolean=true;
+  selectedIds:string[]=[];     // already selected before
   /** internal variable */
   mchModels:MchModel[]=[];
   keyword:string=''
@@ -31,7 +32,11 @@ export class MchModelSearchPage implements OnInit {
   ///////// SYSTEM ///////////////////
   async ngOnInit() {
     await this.getMchModels();//get MchModels
+    //already select -- run first times
+    const selecteds=this.mchModels.filter(x=>this.selectedIds.includes(x.id))
+    this.selects=selecteds;
     this.search();
+    
     console.log("init",this);
   }
 
@@ -49,7 +54,7 @@ export class MchModelSearchPage implements OnInit {
     const pos:number=this.selects.findIndex(m=>m.id===model.id);
     if(pos==-1) {
       this.selects.push(model)
-      if(this.isMutil) this.search();
+      if(this.isMulti) this.search();
       else this.done('ok');
     }
   }
@@ -134,7 +139,8 @@ export class MchModelSearchPage implements OnInit {
 /// interface ////////////////
 export interface MchModelSearchPageInput{
   masks?:(MchModel|string)[];     // not select this model
-  isMutil?:boolean;               // Enable mutil select
+  isMulti?:boolean;               // Enable mutil select
+  selectedIds?:string[];         // already select
 }
 
 export type MchModelSearchPageRole="ok"|"back"|"error";//default=ok

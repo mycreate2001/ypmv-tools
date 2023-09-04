@@ -14,7 +14,7 @@ export interface CoverData extends SaveInfo{
     upper:BasicItem;            // parents ID
     stay:BasicItem;                // where keep it when stay alone
     statusList:string[];
-    targetMch:string[];
+    targetMch:BasicItem[];
 }
 
 export function createCoverData(opts?:Partial<CoverData>):CoverData{

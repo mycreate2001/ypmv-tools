@@ -4,7 +4,7 @@ import { BasicData, ChildData, createBasicData } from 'src/app/interfaces/basic.
 import { CoverData, _DB_COVERS, _STORAGE_COVERS, createCoverData} from '../../interfaces/cover.interface';
 import { ModelData, ToolData, _DB_MODELS, _DB_TOOLS } from 'src/app/interfaces/tools.model';
 import { DisplayService } from 'src/app/services/display/display.service';
-import { FirestoreService } from 'src/app/services/firebase/firestore.service';
+import { FirestoreService } from 'src/app/services/firebase/firestore.service-2';
 import { getList } from 'src/app/utils/minitools';
 import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts, ImageViewPageRole } from '../image-view/image-view.page';
 import { SearchToolPage, SearchToolPageOpts, SearchToolPageOuts, SearchToolPageRole } from '../search-tool/search-tool.page';
@@ -21,6 +21,9 @@ import { ToolStatusPage, ToolStatusPageOpts, ToolStatusPageOuts, ToolStatusPageR
 import { ToolService } from 'src/app/services/tool.service';
 import { UrlData } from 'src/app/interfaces/urldata.interface';
 import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interface';
+import { MchModel, _DB_MCH_MODEL } from 'src/app/interfaces/mch-model';
+import { MchModelPageInput } from '../mch-model/mch-model.page';
+import { MchModelSearchPage, MchModelSearchPageInput, MchModelSearchPageOutput, MchModelSearchPageRole } from '../mch-model-search/mch-model-search.page';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -37,6 +40,7 @@ export class CoverPage implements OnInit {
   isNew:boolean=false;
 
   /** internal variable */
+  mchModels:MchModel[]=[];    // list of Machine Models
   children:BasicData[]=[];
   delImages:string[]=[];      //images will delete when save
   viewImages:UrlData[]=[];    // all images vill view
@@ -62,64 +66,59 @@ export class CoverPage implements OnInit {
   ) { }
   
   /** intial */
-  ngOnInit() {
-    this._init().then(({cover,isNew})=>{
-      this.cover=cover;
-      this.coverId=cover.id;
-      this.isNew=isNew;
-      this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
-      const groupId:ConfigId='groups';
-      // const groupCtr=this.db.get(_DB_CONFIGS,groupId);
-      Promise.all([
-        this.db.get(_DB_CONFIGS,groupId),
-        this._getChildren(),
-        this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,
-        this.db.search(_DB_STATUS_RECORD,{key:'ids',type:'array-contains',value:'cover-'+this.cover.id}) as Promise<StatusRecord[]>,
-        this.toolsv.getAddr(cover)
-      ]).then(([configs,children,statusConfig,records,addr])=>{
-        console.log(" *** note *** addr:",addr)
-        this.addr=addr.join(" / ");
-        this.groups=configs['list']
-        console.log("group",this.groups)
-        if(!this.cover.statusList) this.cover.statusList=[];
-        this.AllStatusList=statusConfig.statuslist.map(y=>y.key);
-        this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
-        //histories
-        let lastRecord:StatusRecord;
-        this.histories=records.map(r=>{
-          const updateList:UpdateInf[]=r.data.find(x=>x.id===this.coverId && x.type=='cover').status.map(st=>{
-            //last record
-            if(!lastRecord) lastRecord=r
-            else{
-              const lastTime:number=new Date(lastRecord.createAt).getTime();
-              const recTime:number=new Date(r.createAt).getTime();
-              if(lastTime<recTime) lastRecord=r;
-            }
-            // update infor
-            return {type:'update',oldVal:null,newVal:st.value,key:st.key}
-          });
-          return createSelfHistory({...r,updateList})
-        })
-        
-        // last record
-        if(lastRecord){
-          const data:ToolStatus[]=lastRecord.data.filter(x=>x.id==this.cover.id)
-          if(!data||!data.length) console.log("wrong data");
-          else this.lastRecord=createStatusRecord({...lastRecord,data});//@@@
-        }
-
-        this.histories=this.histories.concat(this.cover.histories||[]);
-        console.log("TEST-90",{histories:this.histories});
-        this.histories.sort((a,b)=>{
-          const at=new Date(a.createAt).getTime();
-          const bt=new Date(b.createAt).getTime();
-          return at-bt;
-        })
-        // histories=histories.concat()
-        console.log("TEST, histories:",this.histories);
-        this.refresh()
+  async ngOnInit() {
+    await this._init();
+    this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+    const groupId:ConfigId='groups';
+    Promise.all([
+      this.db.get(_DB_CONFIGS,groupId),
+      this._getChildren(),
+      this.db.get(_DB_CONFIGS,configs.toolstatus) as Promise<ToolStatusConfig>,
+      this.db.search(_DB_STATUS_RECORD,{key:'ids',type:'array-contains',value:'cover-'+this.cover.id}) as Promise<StatusRecord[]>,
+      this.toolsv.getAddr(this.cover),
+    ]).then(([configs,children,statusConfig,records,addr])=>{
+      console.log(" *** note *** addr:",addr)
+      this.addr=addr.join(" / ");
+      this.groups=configs['list']
+      console.log("group",this.groups)
+      if(!this.cover.statusList) this.cover.statusList=[];
+      this.AllStatusList=statusConfig.statuslist.map(y=>y.key);
+      this.statusList=this.AllStatusList.filter(x=>!this.cover.statusList.includes(x))
+      //histories
+      let lastRecord:StatusRecord;
+      this.histories=records.map(r=>{
+        const updateList:UpdateInf[]=r.data.find(x=>x.id===this.coverId && x.type=='cover').status.map(st=>{
+          //last record
+          if(!lastRecord) lastRecord=r
+          else{
+            const lastTime:number=new Date(lastRecord.createAt).getTime();
+            const recTime:number=new Date(r.createAt).getTime();
+            if(lastTime<recTime) lastRecord=r;
+          }
+          // update infor
+          return {type:'update',oldVal:null,newVal:st.value,key:st.key}
+        });
+        return createSelfHistory({...r,updateList})
       })
-    });
+      
+      // last record
+      if(lastRecord){
+        const data:ToolStatus[]=lastRecord.data.filter(x=>x.id==this.cover.id)
+        if(!data||!data.length) console.log("wrong data");
+        else this.lastRecord=createStatusRecord({...lastRecord,data});//@@@
+      }
+
+      this.histories=this.histories.concat(this.cover.histories||[]);
+      console.log("TEST-90",{histories:this.histories});
+      this.histories.sort((a,b)=>{
+        const at=new Date(a.createAt).getTime();
+        const bt=new Date(b.createAt).getTime();
+        return at-bt;
+      })
+      // histories=histories.concat()
+      console.log("TEST, histories:",this.histories);
+      this.refresh()
+    })
   }
 
   /** view already */
@@ -135,7 +134,24 @@ export class CoverPage implements OnInit {
 
 
   ////////////// BUTTONS HANDLER ///////////////
+  /** pickupMchModel */
+  pickupMchModel(){
 
+    const props:MchModelSearchPageInput={
+      isMulti:false,
+      selectedIds:this.cover.targetMch.map(x=>x.id)
+    }
+    this.disp.showModal(MchModelSearchPage,props)
+    .then(result=>{
+      const role=result.role as MchModelSearchPageRole
+      if(role!=='ok') return;
+      const data=result.data as MchModelSearchPageOutput;
+      this.cover.targetMch=data.selects.map(mchModel=>createBasicItem({...mchModel,type:_DB_MCH_MODEL}))
+    })
+  }
+
+
+  /** detail status */
   detailStatus(record:StatusRecord=null){
     let isEdit:boolean=false;
     const tool:BasicData=createBasicData({...this.cover,type:'cover'})
@@ -370,6 +386,9 @@ export class CoverPage implements OnInit {
 
 
   ////////////// BACKGROUND FUNCTIONS ////////////////
+  showMchModels():string{
+    return this.cover.targetMch.map(x=>x.name).join(",")
+  }
   displayUpdate(upadeList:UpdateInf[]){
     return upadeList.map(ud=>`${ud.type} "<li>${ud.key}": "${ud.oldVal}" -> "${ud.newVal}"</li>`).join("")
   }
@@ -385,22 +404,21 @@ export class CoverPage implements OnInit {
   }
 
   /** init for first times */
-  private _init():Promise<{cover:CoverData,isNew:boolean}>{
-    return new Promise((resolve,reject)=>{
-      // case 1: new case
-      let isNew:boolean=false;
-      if(!this.cover && !this.coverId){
-        const cover=createCoverData({user:createBasicItem({...this.auth.currentUser,type:'user'})})
-        isNew=true;
-        return resolve({cover,isNew})
-      }
-      // case 2: already get cover
-      if(this.cover) return resolve({cover:this.cover,isNew})
-      // case 3: get cover from db
-      this.db.get(_DB_COVERS,this.coverId)
-      .then(cover=>resolve({cover,isNew}))
-      .catch(err=>reject(err))
-    })
+  async _init():Promise<any>{
+    if(!this.cover && !this.coverId){
+      this.cover=createCoverData({user:createBasicItem({...this.auth.currentUser,type:'user'})})
+      this.isNew=true;
+      this.coverId=this.cover.id;
+      return
+    }
+    // case 2: already get cover
+    if(this.cover) {
+      this.isNew=false;
+      this.coverId=this.cover.id;
+      return;
+    }
+    // case 3: get cover from db
+    return await this.db.get(_DB_COVERS,this.coverId)
   }
 
   /** update view for childrenId */

@@ -22,6 +22,8 @@
 </ion-header>
 
 <ion-content *ngIf="isAvailble" color="light">
+  
+  <!-- image -->
   <ion-card class="image">
     <ion-grid (click)="detailImage()">
       <ion-row *ngIf="viewImages.length<=1">
@@ -50,6 +52,9 @@
       </ion-row>
     </ion-grid>
   </ion-card>
+
+
+  <!-- information  -->
   <ion-card class="infor">
     <ion-list>
       <ion-item *ngIf="isNew">
@@ -71,6 +76,12 @@
          <ion-select [(ngModel)]="cover.group">
            <ion-select-option [value]="key" *ngFor="let key of groups">{{key}}</ion-select-option>
          </ion-select>
+      </ion-item>
+      <ion-item button (click)="pickupMchModel()">
+        <ion-label>Target machine</ion-label>
+        <ion-text>
+          {{showMchModels()}}
+        </ion-text>
       </ion-item>
       <ion-item button (click)="pickupCover()">
         <ion-label>Parents</ion-label>
