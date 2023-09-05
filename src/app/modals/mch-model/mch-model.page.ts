@@ -46,9 +46,17 @@ export class MchModelPage implements OnInit {
   }
 
   ////////// BUTTONS   /////////////
+  delete(){
+    this.disp.msgbox(`Are you sure to delete machine model '${this.model.name}'? `,{buttons:[{text:'Delete',role:'delete'},{text:'Cancel',role:'cancel'}]})
+    .then(result=>{
+      if(result.role!=='delete') return;
+      this.done('delete')
+    })
+  }
+
   done(role:MchModelPageRole='ok'){
-    if(role!=='ok') return this.modal.dismiss(null,role)
-    //ok
+    if(role!=='ok'&& role!=='delete') return this.modal.dismiss(null,role)
+    //ok or delete
     const out:MchModelPageOutput={
       model:JSON.parse(JSON.stringify(this.model))
     }
@@ -122,13 +130,9 @@ export class MchModelPage implements OnInit {
 
   generateNewMchModel():MchModel{
     const cUser=this.auth.currentUser;
-    console.log("step1 ",{cUser})
     const user=createBasicItem({...cUser,type:'users',image:cUser.image})
-    console.log("step2 ",{user})
     const inf=createSaveInfor({user})
-    console.log("step3 ",{inf})
     const model=createMchModel({...inf});
-    console.log("step4 ",{model})
     return model;
   }
 
@@ -137,7 +141,7 @@ export class MchModelPage implements OnInit {
 
 ////////// INTERFACES ///////////////////
 export type MchModelPageInput=MchModelPageInputId|MchModelPageInputData
-export type MchModelPageRole='ok'|'back'|'error'
+export type MchModelPageRole='ok'|'back'|'error'|'delete'
 export interface MchModelPageOutput{
   model:MchModel
 }

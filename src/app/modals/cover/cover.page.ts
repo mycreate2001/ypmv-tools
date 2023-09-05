@@ -139,14 +139,14 @@ export class CoverPage implements OnInit {
 
     const props:MchModelSearchPageInput={
       isMulti:false,
-      selectedIds:this.cover.targetMch.map(x=>x.id)
+      selectedIds:this.cover.targetMchs.map(x=>x.id)
     }
     this.disp.showModal(MchModelSearchPage,props)
     .then(result=>{
       const role=result.role as MchModelSearchPageRole
       if(role!=='ok') return;
       const data=result.data as MchModelSearchPageOutput;
-      this.cover.targetMch=data.selects.map(mchModel=>createBasicItem({...mchModel,type:_DB_MCH_MODEL}))
+      this.cover.targetMchs=data.selects.map(mchModel=>createBasicItem({...mchModel,type:_DB_MCH_MODEL}))
     })
   }
 
@@ -157,7 +157,7 @@ export class CoverPage implements OnInit {
     const tool:BasicData=createBasicData({...this.cover,type:'cover'})
     if(!record){
       isEdit=true;
-      const userId:string=this.auth.currentUser.id;
+      // const userId:string=this.auth.currentUser.id;
       const status:StatusInf[]=createStatusInfor(this.cover.statusList);
       const data:ToolStatus[]=[createToolStatus({...tool,status,images:[]})]
       record=createStatusRecord({user:createBasicItem({...this.auth.currentUser,type:'user'}),data})
@@ -387,7 +387,8 @@ export class CoverPage implements OnInit {
 
   ////////////// BACKGROUND FUNCTIONS ////////////////
   showMchModels():string{
-    return this.cover.targetMch.map(x=>x.name).join(",")
+    if(!this.cover.targetMchs.length) return "(All)"
+    return this.cover.targetMchs.map(x=>x.name).join(",")
   }
   displayUpdate(upadeList:UpdateInf[]){
     return upadeList.map(ud=>`${ud.type} "<li>${ud.key}": "${ud.oldVal}" -> "${ud.newVal}"</li>`).join("")

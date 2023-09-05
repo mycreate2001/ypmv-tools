@@ -8,6 +8,9 @@
     </ion-buttons>
     <ion-title>model.id</ion-title>
     <ion-buttons slot="end">
+      <ion-button title="delete" (click)="delete()">
+        <ion-icon name="trash"></ion-icon>
+      </ion-button>
       <ion-button title="Save" (click)="done('ok')">
         <ion-label>Save</ion-label>
         <ion-icon name="save-outline"></ion-icon>

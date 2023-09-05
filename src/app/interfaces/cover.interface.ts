@@ -14,7 +14,7 @@ export interface CoverData extends SaveInfo{
     upper:BasicItem;            // parents ID
     stay:BasicItem;                // where keep it when stay alone
     statusList:string[];
-    targetMch:BasicItem[];
+    targetMchs:BasicItem[];     //target mch(new)
 }
 
 export function createCoverData(opts?:Partial<CoverData>):CoverData{
@@ -28,7 +28,7 @@ export function createCoverData(opts?:Partial<CoverData>):CoverData{
         upper:null,
         stay:null,
         statusList:[],
-        targetMch:[]
+        targetMchs:[]
     }
     return createOpts(df,opts)
 }

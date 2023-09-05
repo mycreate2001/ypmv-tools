@@ -43,17 +43,18 @@ export function createModelData(opts?:ModelDataOpts):ModelData{
 
 /////////////// TOOLS ///////////////////////
 export interface ToolData extends SaveInfo{
-    id:string;                    // tool id
-    startUse:string;              // start use this tool
-    endUse:String;                // destroy date
-    lastMaintenance:string;       // last maintenance
-    status:StatusInf[];          // status
-    model:string;               // model id
-    stay:BasicItem;                // where keep tool (stay alone)
-    upper:BasicItem;             // cover/box keep this tool
-    company:BasicItem;           // owner
-    address?:string;            //
-    targetMch:string[];           // target machine
+    id:string;                      // tool id
+    startUse:string;                // start use this tool
+    endUse:String;                  // destroy date
+    lastMaintenance:string;         // last maintenance
+    status:StatusInf[];             // status
+    model:string;                   // model id
+    stay:BasicItem;                 // where keep tool (stay alone)
+    upper:BasicItem;                // cover/box keep this tool
+    company:BasicItem;              // owner
+    address?:string;                //
+    targetMch?:string[];             // target machine (old)
+    targetMchs:BasicItem[];         // target machines (new)
     companyId?:string;
     userId?:string;
     upperId?:string;
@@ -78,7 +79,7 @@ export function createToolData(opts?:ToolDataOpts):ToolData{
         stay:opts.stay||null,
         upper:createBasicItem({...opts.upper}),
         company:createBasicItem({...opts.company,type:'company'}),
-        targetMch:[]
+        targetMchs:[]
     }
     return createOpts(df,opts) as ToolData;
 }

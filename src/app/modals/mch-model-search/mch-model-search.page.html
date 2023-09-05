@@ -9,6 +9,8 @@
     <ion-searchbar 
         placeholder="search machine model" 
         [(ngModel)]="keyword"
+        (ionChange)="search()"
+        [debounce]="1000"
       >
     </ion-searchbar>
     <ion-buttons slot="end">

@@ -4,6 +4,7 @@ import { MchModel, _DB_MCH_MODEL } from 'src/app/interfaces/mch-model';
 import { FirestoreService } from 'src/app/services/firebase/firestore.service-2';
 import { MchModelPage, MchModelPageInput, MchModelPageOutput, MchModelPageRole } from '../mch-model/mch-model.page';
 import { DisplayService } from 'src/app/services/display/display.service';
+import { searchObj2 } from 'src/app/utils/data.handle';
 
 @Component({
   selector: 'app-mch-model-search',
@@ -64,6 +65,7 @@ export class MchModelSearchPage implements OnInit {
     const keywords:string[]=this.keyword
       .toLowerCase().split(/\w+\s/g).filter(x=>!!x)
     //filter by mask
+    console.log("keywords",{keywords})
     const maskIds=this.masks.map(m=>typeof m==='string'?m:m.id);
     //filter by selects
     const selectIds:string[]=this.selects.map(x=>x.id);
@@ -91,9 +93,23 @@ export class MchModelSearchPage implements OnInit {
     try{
       const result=await this.disp.showModal(MchModelPage,props)
       const role=result.role as MchModelPageRole;
-      if(role!='ok') return;
+      if(role!='delete' && role!=='ok') return;
       const data=result.data as MchModelPageOutput;
       const _model=data.model;
+      //delete
+      if(role==='delete'){
+        const id=_model.id||""
+        if(!id) return;//nothing
+        //remove at client
+        const pos=this.mchModels.findIndex(m=>m.id===id);
+        if(pos!=-1) {
+          this.mchModels.splice(pos,1);
+          this.search()
+        }
+        //remove from server
+        await this.db.delete(_DB_MCH_MODEL,id);
+        return;
+      }
       // Nochange --> return
       if(JSON.stringify(_model)==modelBackup)
         return console.log("no change")
@@ -115,21 +131,17 @@ export class MchModelSearchPage implements OnInit {
   }
 
   private _searchKeyword(keywords:string[],models:MchModel[]):MchModel[]{
-    return models.filter(model=>{
-      return Object.keys(model).some(key=>{
-        const val:string=model[key]+''
-        return keywords.some(keyword=>val.includes(keyword))
-      })
-    })
+    return models.filter(model=>searchObj2(keywords.join(" "),model))
   }
 
   async updateModel(model:MchModel){
-    if(!model||!model.id) return;
+    if(!model||!model.id) return;//nothing
     const pos=this.mchModels.findIndex(md=>md.id===model.id);
     if(pos==-1){
       this.mchModels.push(model);//add to list
     }
     this.mchModels[pos]=model;
+    this.search();
     await this.db.add(_DB_MCH_MODEL,model);
   }
 
