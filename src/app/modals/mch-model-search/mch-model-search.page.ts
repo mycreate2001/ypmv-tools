@@ -20,6 +20,7 @@ export class MchModelSearchPage implements OnInit {
   mchModels:MchModel[]=[];
   keyword:string=''
   views:MchModel[]=[];      // results of search
+  list:boolean[]=[];        // checkselects 
   /** output */
   selects:MchModel[]=[];
   constructor(
@@ -53,10 +54,11 @@ export class MchModelSearchPage implements OnInit {
   /** select action */
   select(model:MchModel){
     const pos:number=this.selects.findIndex(m=>m.id===model.id);
-    if(pos==-1) {
-      this.selects.push(model)
-      if(this.isMulti) this.search();
-      else this.done('ok');
+    if(pos==-1) this.selects.push(model)
+    else this.selects.splice(pos,1);
+    if(!this.isMulti && this.selects.length) {
+      this.selects=[this.selects[this.selects.length-1]]
+      this.done('ok');
     }
   }
 
@@ -67,10 +69,7 @@ export class MchModelSearchPage implements OnInit {
     //filter by mask
     console.log("keywords",{keywords})
     const maskIds=this.masks.map(m=>typeof m==='string'?m:m.id);
-    //filter by selects
-    const selectIds:string[]=this.selects.map(x=>x.id);
-    const removeIds:string[]=[...maskIds,...selectIds]
-    const models:MchModel[]=this.mchModels.filter(m=>!removeIds.includes(m.id));
+    const models:MchModel[]=this.mchModels.filter(m=>!maskIds.includes(m.id));
     //by keyword
     this.views=keywords.length?this._searchKeyword(keywords,models):models;
   }
@@ -84,8 +83,8 @@ export class MchModelSearchPage implements OnInit {
    * stringified and stored in the `modelBackup` variable for backup purposes. The `model`
    * @returns nothing (undefined).
    */
-  async detail(e,model?:MchModel){
-    if(e) e.stopPropagation();
+  async detail(model?:MchModel){
+    // if(e) e.stopPropagation();
     const modelBackup:string=model?JSON.stringify(model):'';//backup
     const props:MchModelPageInput={
       model
@@ -98,17 +97,8 @@ export class MchModelSearchPage implements OnInit {
       const _model=data.model;
       //delete
       if(role==='delete'){
-        const id=_model.id||""
-        if(!id) return;//nothing
-        //remove at client
-        const pos=this.mchModels.findIndex(m=>m.id===id);
-        if(pos!=-1) {
-          this.mchModels.splice(pos,1);
-          this.search()
-        }
-        //remove from server
-        await this.db.delete(_DB_MCH_MODEL,id);
-        return;
+        this._delete(_model);
+        this.search()
       }
       // Nochange --> return
       if(JSON.stringify(_model)==modelBackup)
@@ -124,8 +114,38 @@ export class MchModelSearchPage implements OnInit {
     
   }
 
+  async delete(model:MchModel){
+    this.disp.msgbox(
+      `Are you sure to delete this model ?<br>name:<b>${model.name}</b><br>id:${model.id}`,
+      {
+        header:'Confirm to delete',
+        buttons:[{text:'Delete',role:'delete'},{text:'Cancel',role:'cancel'}]
+      }
+    ).then(result=>{
+      if(result.role!=='delete') return;
+      this._delete(model);
+    })
+  }
+
+  async _delete(model:MchModel){
+    if(!model||!model.id) return
+    //remove client side
+    const pos:number=this.mchModels.findIndex(x=>x.id==model.id);
+    if(pos!==-1) this.mchModels.splice(pos,1);
+    //server side
+    await this.db.delete(_DB_MCH_MODEL,model.id);
+    console.log(`mch model '${model.id}' was deleted!`)
+  }
+
 
   //// BACKGROUNDS ///////////////////
+
+  /** check model already select or not */
+  isSelect(model:MchModel):boolean{
+    if(!model||!model.id) return false;
+    return this.selects.some(s=>s.id===model.id);
+  }
+
   async getMchModels(){
     this.mchModels=await this.db.search(_DB_MCH_MODEL);
   }

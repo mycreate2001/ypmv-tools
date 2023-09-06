@@ -53,7 +53,6 @@ export interface ToolData extends SaveInfo{
     upper:BasicItem;                // cover/box keep this tool
     company:BasicItem;              // owner
     address?:string;                //
-    targetMch?:string[];             // target machine (old)
     targetMchs:BasicItem[];         // target machines (new)
     companyId?:string;
     userId?:string;

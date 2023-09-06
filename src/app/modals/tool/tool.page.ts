@@ -23,6 +23,8 @@ import { FirebaseStorage } from 'firebase/storage';
 import { ActivatedRoute } from '@angular/router';
 import { ToolService } from 'src/app/services/tool.service';
 import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interface';
+import { MchModelSearchPage, MchModelSearchPageInput, MchModelSearchPageOutput, MchModelSearchPageRole } from '../mch-model-search/mch-model-search.page';
+import { MchModel, _DB_MCH_MODEL } from 'src/app/interfaces/mch-model';
 const _CHANGE_LIST="select,input,checkbox"
 const _BACKUP_LIST=['tool']
 @Component({
@@ -142,6 +144,23 @@ export class ToolPage implements OnInit {
   }
 
   //////////////// HANDLE FUNCTIONS ///////////////////////////
+  /** pickup target machines */
+  pickupTargetMch(){
+    const targets:BasicItem[]=this.tool.targetMchs;
+    const props:MchModelSearchPageInput={
+      isMulti:true,
+      selectedIds:targets.map(x=>x.id)
+    }
+    this.disp.showModal(MchModelSearchPage,props)
+    .then(result=>{
+      const role=result.role as MchModelSearchPageRole;
+      if(role!=='ok') return;
+      //handle
+      const data=result.data as MchModelSearchPageOutput;
+      this.tool.targetMchs= data.selects.map(mch=>createBasicItem({...mch,type:_DB_MCH_MODEL}))
+    })
+
+  }
   /** read code */
   readCode(){
     const props:QRcodePageOpts={
@@ -280,6 +299,12 @@ export class ToolPage implements OnInit {
   }
 
   ////////////////// BACKGROUND FUNCTIONS /////////////////////
+  /** display target machine */
+  dispTargetMch(){
+    const targets=this.tool.targetMchs;
+    if(!targets||!targets.length) return "(All)"
+    return targets.map(x=>x.name).join(",")
+  }
 
   getStatusList(key:string):StatusConfig{
     return this.statusConfigs.find(x=>x.key==key)

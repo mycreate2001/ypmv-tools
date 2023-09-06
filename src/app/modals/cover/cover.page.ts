@@ -138,7 +138,7 @@ export class CoverPage implements OnInit {
   pickupMchModel(){
 
     const props:MchModelSearchPageInput={
-      isMulti:false,
+      isMulti:true,
       selectedIds:this.cover.targetMchs.map(x=>x.id)
     }
     this.disp.showModal(MchModelSearchPage,props)

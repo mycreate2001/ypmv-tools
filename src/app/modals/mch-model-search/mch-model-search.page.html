@@ -30,7 +30,7 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let model of views" (click)="select(model)">
+    <!-- <ion-item *ngFor="let model of views" (click)="select(model)">
       <ion-thumbnail slot="start">
         <img *ngIf="model.images && model.images.length" alt="model.images[0].caption" [src]="model.images[0]|url">
       </ion-thumbnail>
@@ -42,6 +42,26 @@
           <ion-icon name="chevron-forward-circle-outline"></ion-icon>
         </ion-button>
       </ion-buttons>
-    </ion-item>
+    </ion-item> -->
+    <ion-item-sliding *ngFor="let model of views;let pos=index" >
+      <ion-item>
+        <ion-thumbnail slot="start">
+          <img [src]="model.images[0]|url">
+        </ion-thumbnail>
+        <ion-label>{{model.name}}</ion-label>
+        <ion-checkbox slot="end" [checked]="isSelect(model)" (ionChange)="select(model)"></ion-checkbox>
+      </ion-item>
+
+      <ion-item-options slide="end">
+        <ion-item-option color="danger" (click)="delete(model)">
+          <ion-icon name="trash-outline"></ion-icon>
+          <ion-label>Delete</ion-label>
+        </ion-item-option>
+        <ion-item-option color="primary" title="detail" (click)="detail(model)">
+          <ion-icon name="create-outline"></ion-icon>
+          <ion-label>Detail</ion-label>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
   </ion-list>
 </ion-content>

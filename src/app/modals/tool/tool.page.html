@@ -73,6 +73,12 @@
         <ion-label>Last Maintenace date</ion-label>
         <ion-text>{{tool.lastMaintenance|date:'yyyy-MMM-dd'}}</ion-text>
       </ion-item>
+
+      <!-- target machines -->
+      <ion-item button (click)="pickupTargetMch()">
+        <ion-label>Target Machines</ion-label>
+        <ion-text>{{dispTargetMch()}}</ion-text>
+      </ion-item>
       <!-- upper ID -->
       <ion-item button="true" (click)="pickupParent()">
         <ion-label>Parents</ion-label>
