@@ -1,3 +1,6 @@
+import { UrlData, createUrlData } from "../interfaces/urldata.interface";
+import { toArray } from "./minitools";
+
 /** sample
 base64:			"data:image/png;base64,iVBORw0KGgoAAAANSUhEUg..."
 contentType:	"image/png"
@@ -20,4 +23,24 @@ export class Base64{
         this.extension=this.contentType.split("/")[1];
         console.log({data:str,contentType:this.contentType,extention:this.extension})
     }
+}
+
+/**
+ * The function `getNewImages` takes in a parameter `images` which can be a string, an array of
+ * strings, an object of type `UrlData`, or an array of `UrlData` objects, and returns an array of
+ * `UrlData` objects that have URLs starting with "http://" or "https://".
+ * @param {string|string[]|UrlData|UrlData[]} images - The `images` parameter can be one of the
+ * following types:
+ * @returns an array of UrlData objects.
+ */
+export function getNewImages(images:string|string[]|UrlData|UrlData[]):{newImages:UrlData[],existImages:UrlData[]}{
+    const newImages:UrlData[]=[];
+    const existImages:UrlData[]=[];
+    toArray(images).forEach(image=>{
+        const _image=typeof image==='string'?createUrlData({url:image}):image
+        if(_image.url.startsWith("http://")||_image.url.startsWith("https://"))
+            return existImages.push(_image);
+        newImages.push(_image)
+    })
+    return {newImages,existImages};
 }

@@ -14,6 +14,7 @@ import { ImageViewPage, ImageViewPageOpts, ImageViewPageOuts } from '../image-vi
 import { ToolPage, ToolPageOpts } from '../tool/tool.page';
 import { UrlData } from 'src/app/interfaces/urldata.interface';
 import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interface';
+import { getNewImages } from 'src/app/utils/base64';
 
 const _BACKUP_LIST="model".split(",")
 const _UPDATE_LIST="ion-text,ion-select,ion-input,ion-checkbox,ion-textarea"
@@ -185,10 +186,11 @@ export class ModelPage implements OnInit {
     // delete images
     this.delImages.forEach(image=>this.storage.delete(image));
     // add new images
-    const newImages=this.model.images.filter(img=>!img.url.startsWith("https://"))
+    // const newImages=this.model.images.filter(img=>!img.url.startsWith("https://"))
+    const {newImages,existImages}=getNewImages(this.model.images);
     this.storage.uploadImages(newImages,_STORAGE_MODELS)
     .then(images=>{
-      this.model.images=this.model.images.concat(images);
+      this.model.images=[...existImages,...images];
       return this.db.add(_DB_MODELS,this.model,(updateList,newModel,oldModel)=>{
         if(!updateList.length) return null;
         const histories=oldModel['histories']||[];

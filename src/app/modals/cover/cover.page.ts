@@ -24,6 +24,7 @@ import { BasicItem, createBasicItem } from 'src/app/interfaces/basic-item.interf
 import { MchModel, _DB_MCH_MODEL } from 'src/app/interfaces/mch-model';
 import { MchModelPageInput } from '../mch-model/mch-model.page';
 import { MchModelSearchPage, MchModelSearchPageInput, MchModelSearchPageOutput, MchModelSearchPageRole } from '../mch-model-search/mch-model-search.page';
+import { getNewImages } from 'src/app/utils/base64';
 
 const name_space="box"
 const _BACKUP_LIST=["cover","addImages"]
@@ -248,10 +249,11 @@ export class CoverPage implements OnInit {
     // delete image
     this.delImages.forEach(img=>this.storage.delete(img));
     // upload new images
-    const newImages:UrlData[]=this.cover.images.filter(img=>!img.url.startsWith("https://"))
+    // const newImages:UrlData[]=this.cover.images.filter(img=>!img.url.startsWith("https://"))
+    const {newImages,existImages}=getNewImages(this.cover.images);
     this.storage.uploadImages(newImages,_STORAGE_COVERS)
     .then((urls:UrlData[])=>{
-      this.cover.images=this.cover.images.concat(urls);
+      this.cover.images=[...existImages,...urls]
       return this.db.add(_DB_COVERS,this.cover,(list,newDb,oldDb)=>{
         if(!list.length) return null;
         const histories=oldDb['histories']||[]

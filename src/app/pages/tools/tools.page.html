@@ -1,8 +1,5 @@
 <ion-header>
   <ion-toolbar>
-    <!-- <ion-buttons slot="start">
-      <ion-menu-button></ion-menu-button>
-    </ion-buttons> -->
     <ion-searchbar debounce="1000" [(ngModel)]="key" (ionChange)="update()"></ion-searchbar>
     <ion-buttons slot="end">
       <ion-button (click)="detailModel()" title="New Tool Infor">

@@ -18,33 +18,33 @@
 </ion-header>
 
 <ion-content color="light">
-
-  <ion-card *ngFor="let image of images;let pos=index">
-    <ion-toolbar lines="none">
-      <ion-input [(ngModel)]="image.caption" *ngIf="canCaption" placeholder="Input for below image"></ion-input>
-      <ion-buttons slot="end">
-        <ion-button (click)="menu($event,pos)">
-          <ion-icon name="ellipsis-vertical"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-    <img [src]="image.url">
-  </ion-card>
-
-  <ion-card *ngFor="let image of addImages;let pos=index">
-    <ion-toolbar lines="none">
-     <ion-input [(ngModel)]="image.caption" *ngIf="canCaption" placeholder="Input for below image"></ion-input>
-      <ion-buttons slot="end">
-        <ion-button (click)="menu($event,pos,true)">
-          <ion-icon name="ellipsis-vertical"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-    <img [src]="image.url">
-  </ion-card>
-  <!-- No image -->
-  <ion-card *ngIf="images.length==0">
-    <ion-toolbar lines="none"> </ion-toolbar>
-    <img src="../../../assets/image/no-image.png">
-  </ion-card>
+  <ng-container *ngIf="images && images.length;else no_images">
+    <ion-card *ngFor="let image of images;let pos=index">
+      <!-- title of image -->
+      <ion-toolbar lines="none">
+        <ion-input [(ngModel)]="image.caption" *ngIf="canCaption" placeholder="Input for below image"></ion-input>
+        <ion-buttons slot="end">
+          <ion-button (click)="menu($event,pos)">
+            <ion-icon name="ellipsis-vertical"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+      <!-- image -->
+      <img [src]="image.url|url">
+    </ion-card>
+  </ng-container>
+  
 </ion-content>
+
+
+<!-- template -->
+<!-- no images -->
+<ng-template #no_images>
+  <div class="no-image_cover">
+    <div class="no-image_content">No Image</div>
+  </div>
+</ng-template>
+
+<ng-template #no_image>
+  <img src="../../../assets/image/no-image.png">
+</ng-template>

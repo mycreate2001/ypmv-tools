@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DOC_ORIENTATION, NgxImageCompressService } from 'ngx-image-compress';
 import { DisplayService } from 'src/app/services/display/display.service';
-import { CameraPage, CameraPageOpts, CameraPageOuts } from '../camera/camera.page';
+import { CameraPage, CameraPageOpts, CameraPageOuts, CameraPageRole } from '../camera/camera.page';
 import { UrlData, createUrlData } from 'src/app/interfaces/urldata.interface';
 import { MenuData } from 'src/app/interfaces/util.model';
 
@@ -15,7 +15,7 @@ import { MenuData } from 'src/app/interfaces/util.model';
  */
 export interface ImageViewPageOpts{
   /** main image from sourse */
-  images?:UrlData[]     
+  images:UrlData[];
   /** deleted url, it not save to db */
   delImages?:string[]           
   /** default=false, can add capture to image */
@@ -53,7 +53,7 @@ export interface ImageViewPageOuts{
 })
 export class ImageViewPage implements OnInit {
   /** input */
-  images:UrlData[]=[];     //cloud
+  images:UrlData[]=[];     // get from input
   delImages:string[]=[];
   canCaption:boolean=false;
   isFixRatio:boolean=true;
@@ -97,12 +97,17 @@ export class ImageViewPage implements OnInit {
     }
     this.disp.showModal(CameraPage,props)
     .then(camera=>{
-      if(camera.role.toUpperCase()!='OK') return;
+      const role=camera.role as CameraPageRole
+      if(role!=='ok') return;
       const data=camera.data as CameraPageOuts
       return this.compressImage(data.image,{maxWidth:300})
       .then(thumbnail=>createUrlData({url:data.image,thumbnail}))
+      .then(image=>{
+        this.images.push(image)
+        console.log("\n*** Images ***\n",this.images);
+      })
     })
-    .then(image=>this.images.push(image))
+   
   }
 
   /** MENU */

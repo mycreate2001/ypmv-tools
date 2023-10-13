@@ -87,6 +87,7 @@ export class CameraPage implements OnInit {
 
   /** finish camera */
   done(role:CameraPageRole="ok"){
+    if(role!=='ok') return this.modal.dismiss(null,role);
     const out:CameraPageOuts={
       image:this.croppedImage
     }

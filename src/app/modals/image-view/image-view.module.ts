@@ -8,13 +8,14 @@ import { IonicModule } from '@ionic/angular';
 
 import { ImageViewPage } from './image-view.page';
 import { NgxImageCompressService } from 'ngx-image-compress';
+import { UrlPipeModule } from 'src/app/pipes/url/url.pipe.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    // ImageViewPageRoutingModule
+    UrlPipeModule
   ],
   providers:[
     NgxImageCompressService
