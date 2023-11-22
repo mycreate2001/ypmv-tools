@@ -27,7 +27,7 @@ import { MchModelSearchPage, MchModelSearchPageInput, MchModelSearchPageOutput, 
 import { getNewImages } from 'src/app/utils/base64';
 
 const name_space="box"
-const _BACKUP_LIST=["cover","addImages"]
+const _BACKUP_LIST=["cover"]
 
 @Component({
   selector: 'app-cover',
@@ -53,23 +53,23 @@ export class CoverPage implements OnInit {
   addr:string=''
   /** internal control */
   isAvailble:boolean=false;
-  isChange:boolean=false;
-  backup:string[]=[];
+  // isChange:boolean=false;
+  private _backups:string[]=[];
   sChildren:ChildData[]=[]; //control select child to remove
   constructor(
-    private db:FirestoreService,
-    private modal:ModalController,
-    private disp:DisplayService,
-    public util:UtilService,
-    private auth:AuthService,
-    private storage:StorageService,
-    private toolsv:ToolService
+    private db:FirestoreService,    // database
+    private modal:ModalController,  // modal for control
+    private disp:DisplayService,    // display service
+    public util:UtilService,        // 
+    private auth:AuthService,       // auth
+    private storage:StorageService, // storage
+    private toolsv:ToolService      // 
   ) { }
   
   /** intial */
   async ngOnInit() {
     await this._init();
-    this.backup=this.isNew?[]:_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
+    // this._backups=_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
     const groupId:ConfigId='groups';
     Promise.all([
       this.db.get(_DB_CONFIGS,groupId),
@@ -78,7 +78,9 @@ export class CoverPage implements OnInit {
       this.db.search(_DB_STATUS_RECORD,{key:'ids',type:'array-contains',value:'cover-'+this.cover.id}) as Promise<StatusRecord[]>,
       this.toolsv.getAddr(this.cover),
     ]).then(([configs,children,statusConfig,records,addr])=>{
-      console.log(" *** note *** addr:",addr)
+      // console.log(" *** note *** addr:",addr)
+      //backup
+      this._backups=_BACKUP_LIST.map(key=>JSON.stringify(this[key]))
       this.addr=addr.join(" / ");
       this.groups=configs['list']
       console.log("group",this.groups)
@@ -388,6 +390,10 @@ export class CoverPage implements OnInit {
 
 
   ////////////// BACKGROUND FUNCTIONS ////////////////
+  isChange():boolean{
+    return _BACKUP_LIST.some((key,pos)=>JSON.stringify(this[key])!=this._backups[pos]);
+  }
+
   showMchModels():string{
     if(!this.cover.targetMchs.length) return "(All)"
     return this.cover.targetMchs.map(x=>x.name).join(",")

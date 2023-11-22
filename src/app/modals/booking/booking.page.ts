@@ -461,7 +461,7 @@ export class BookingPage implements OnInit {
   /** verify input true=OK */
   private _verify():boolean{
     let list=[
-      {key:"companyId",name:'Company'},
+      {key:"company",name:'Company'},
       {key:"purpose",name:'Purpose'},
       {key:"scheduleStart",name:'Schedule Start'},
       {key:"scheduleFinish",name:'Schedule Finish'},

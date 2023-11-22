@@ -10,3 +10,6 @@
     - fixed error no image
 - [cover.page] save > change collect images (newImages,existImages)
 - [model.page] save> change collect images (newImages,existImages)
+
+# 20231121
+- fix error cannot save at box/coverpage

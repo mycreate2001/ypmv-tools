@@ -17,7 +17,7 @@
   <ion-list *ngFor="let order of views">
     <ion-item button="true" (click)="detail(order)">
       <ion-thumbnail slot="start">
-        <img [src]="order.user.image |url" alt="{{order.user.name}}">
+        <img [src]="order.user.image |url" [alt]="order.user.name">
       </ion-thumbnail>
       <ion-label>
         {{order.company.name}}:{{order.purpose}}
